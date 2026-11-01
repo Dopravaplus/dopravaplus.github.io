@@ -8,7 +8,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Dopravaplus">
-<!-- V3.0 – 23.10.2026: dlaždice Docházka / Kontrola vozidla / Tankování · V3.1 fotka účtenky povinná jen při platbě hotově · V3.2 vozidla po pobočkách, závady pod sebou · V3.3 šedý popis pod položkou, „nízký stav“ · V3.4 název aplikace Dopravaplus · V3.5 bez zdvojeného nadpisu u kontroly a tankování · V3.6 stav skupiny pod názvem, zvýrazněné názvy skupin · V3.7 popis u každé závady zvlášť · V3.8 výbava: chybí / poškozeno · V3.9 nejdřív druh, nepovinná poznámka na rozbalení · V3.10 „(nepovinné)“ u poznámky · V3.11 tlačítko Odeslat kontrolu zmodrá, až je vše vyplněné · V3.12 chyby přímo u políček, posun na první chybu · V3.13 totéž u tankování a docházky, kratší potvrzení · V3.14 automatická aktualizace · V3.15 barvy: barevné dlaždice, jemně modré pozadí · V3.16 kolečko místo „v pořádku“, bez nepovinných poznámek · V3.17 vyplněná závada se sbalí, bez křížku · V3.18 jednotný souhrn skupiny · V3.19 závěr kontroly v oddílech · V3.20 popis a fotky vždy viditelné · V3.21 oddíl Vozidlo nahoře · V3.22 kratší pokyn · V3.23 vycentrované texty · V3.24 oddíl Základní údaje · V3.25 fotky u každé závady · V3.26 soukromá platební karta · V3.27 dříve nahlášené závady (popis na vlastním řádku) · V3.28 kratší údaj u nahlášené závady · V3.29 po odeslání návrat na úvod, formulář bez předvyplněného vozidla · V3.30–3.31 potvrzení s časem, zmizí po otevření další dlaždice · V3.32 „závada od …“ s rokem · V3.33 bez „garážmistr řeší“ · V3.34 potvrzení tankování bez litrů · V3.35 kontrola km, sbalené „Moje poslední“, hláška při slabém signálu · V3.36 hranice 800 km · V3.37 kratší upozornění u km (V3.38 se slovem Pozor, V3.39 „Poslední známý stav“) · V3.40–3.41 potvrzení „odeslána ve 23:45 hod.“ · V3.42 „Odesláno 25.10.2026 17:51 hod.“ v seznamech -->
+<!-- V3.0 – 23.10.2026: dlaždice Docházka / Kontrola vozidla / Tankování · V3.1 fotka účtenky povinná jen při platbě hotově · V3.2 vozidla po pobočkách, závady pod sebou · V3.3 šedý popis pod položkou, „nízký stav“ · V3.4 název aplikace Dopravaplus · V3.5 bez zdvojeného nadpisu u kontroly a tankování · V3.6 stav skupiny pod názvem, zvýrazněné názvy skupin · V3.7 popis u každé závady zvlášť · V3.8 výbava: chybí / poškozeno · V3.9 nejdřív druh, nepovinná poznámka na rozbalení · V3.10 „(nepovinné)“ u poznámky · V3.11 tlačítko Odeslat kontrolu zmodrá, až je vše vyplněné · V3.12 chyby přímo u políček, posun na první chybu · V3.13 totéž u tankování a docházky, kratší potvrzení · V3.14 automatická aktualizace · V3.15 barvy: barevné dlaždice, jemně modré pozadí · V3.16 kolečko místo „v pořádku“, bez nepovinných poznámek · V3.17 vyplněná závada se sbalí, bez křížku · V3.18 jednotný souhrn skupiny · V3.19 závěr kontroly v oddílech · V3.20 popis a fotky vždy viditelné · V3.21 oddíl Vozidlo nahoře · V3.22 kratší pokyn · V3.23 vycentrované texty · V3.24 oddíl Základní údaje · V3.25 fotky u každé závady · V3.26 soukromá platební karta · V3.27 dříve nahlášené závady (popis na vlastním řádku) · V3.28 kratší údaj u nahlášené závady · V3.29 po odeslání návrat na úvod, formulář bez předvyplněného vozidla · V3.30–3.31 potvrzení s časem, zmizí po otevření další dlaždice · V3.32 „závada od …“ s rokem · V3.33 bez „garážmistr řeší“ · V3.34 potvrzení tankování bez litrů · V3.35 kontrola km, sbalené „Moje poslední“, hláška při slabém signálu · V3.36 hranice 800 km · V3.37 kratší upozornění u km (V3.38 se slovem Pozor, V3.39 „Poslední známý stav“) · V3.40–3.41 potvrzení „odeslána ve 23:45 hod.“ · V3.42 „Odesláno 25.10.2026 17:51 hod.“ v seznamech · V3.43 čerstvá data při každém otevření -->
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -269,7 +269,7 @@ body.home{background:linear-gradient(var(--blue) 0,var(--blue) 120px,var(--bg) 1
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '3.42';
+const APP_VER = '3.43';
 async function checkUpdate(){
   try{
     const r = await fetch('./?nocache=' + Date.now(), { cache:'no-store' });
@@ -279,7 +279,7 @@ async function checkUpdate(){
   }catch(e){}
 }
 checkUpdate();
-document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible') checkUpdate(); });
+document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible'){ checkUpdate(); if(S.view === 'check' || S.view === 'fuel') refreshVeh(); } });
 const S = { token:'', name:'', today:'', daysBack:31, editing:null, entries:[], view:'' };
 const V = { data:null, defects:{}, notes:{}, open:{}, exp:{}, dPhotos:{}, ok:'', cPhotos:[], tPhotos:[] };
 const store = {
@@ -418,9 +418,26 @@ async function openView(v){
     try{ V.data = await call('mVehInit', { token:S.token }); }
     catch(e){ busy(false); if(/vypršelo/i.test(e)){ store.del('m_token'); showLogin(); msg('loginMsg', 'err', e); return; } msg(v === 'check' ? 'checkMsg' : 'fuelMsg', 'err', e); return; }
     busy(false);
+    if(v === 'check') resetCheck(); else resetFuel();
+    renderVehList();
+    return;
   }
   if(v === 'check') resetCheck(); else resetFuel();
   renderVehList();
+  refreshVeh();   // V3.43: formulář hned z uložených dat, čerstvá data ze serveru na pozadí
+}
+/* V3.43: obnovení dat vozidel na pozadí (nahlášené závady, poslední km, moje záznamy) bez ztráty rozepsaného formuláře */
+async function refreshVeh(){
+  if(!S.token || refreshVeh.busy) return;
+  refreshVeh.busy = true;
+  try{
+    const d = await call('mVehInit', { token:S.token });
+    V.data = d;
+    if(S.view === 'check'){ const sel = $('cVeh').value; vehOptions('cVeh'); $('cVeh').value = sel; const ae = document.activeElement; if(!(ae && ae.tagName === 'TEXTAREA' && $('checkCard').contains(ae))) vehChanged(); kmHint('c'); }   // při psaní popisu nepřekreslovat
+    if(S.view === 'fuel'){ const sel = $('tVeh').value; vehOptions('tVeh'); $('tVeh').value = sel; kmHint('t'); }
+    renderVehList();
+  }catch(e){}
+  finally{ refreshVeh.busy = false; }
 }
 function goHome(){ if(location.hash){ try{ history.back(); return; }catch(e){} } showView('home'); }
 window.addEventListener('popstate', () => { if(S.token && S.view && S.view !== 'home') showView('home'); });
