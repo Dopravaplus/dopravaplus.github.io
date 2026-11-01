@@ -8,6 +8,7 @@
  * V3.3 – 25.10.2026 kontrolní seznam: kratší názvy, podrobnosti šedě pod položkou, provozní kontrola = „nízký stav“
  * V3.4 – 25.10.2026 + Kontrolky na palubní desce, Dveře a zámky nákladového prostoru, další šedé popisy; název aplikace Dopravaplus
  * V3.5 – 25.10.2026 u výbavy (povinná, firemní, manipulační) se místo „závada“ označuje „chybí“
+ * V3.18 – 02.11.2026 diagnostika kontrolaNahlaseno() – v editoru vypíše otevřené závady a vyřešené položky
  * V3.17 – 01.11.2026 fotky závad uložené s položkou („ID|Skupina: položka“), sloupec „Vyřešené položky“ – vyřešená závada se v mobilu už neukazuje jako nahlášená
  * V3.16 – 27.10.2026 čas odeslání v seznamech s rokem a „hod.“ (25.10.2026 v 17:51 hod.)
  * V3.15 – 27.10.2026 platba „Soukromá karta“ (kratší název)
@@ -624,4 +625,17 @@ function vozidlaPripravit() {
   ['VEH', 'CHK', 'FUEL', 'SET'].forEach(vSheet_);
   const f = vPhotoFolder_();
   Logger.log('Hotovo. Tabulka: ' + vSs_().getUrl() + ' · složka fotek: ' + f.getUrl());
+}
+
+/** V3.18 DIAGNOSTIKA – spusťte ručně v editoru (▶ kontrolaNahlaseno). Do protokolu vypíše verzi serveru,
+    otevřené kontroly se sloupcem „Vyřešené položky“ a co mobil ukazuje jako „nahlášeno“. Nic nemění. */
+function kontrolaNahlaseno() {
+  Logger.log('Server MobilKód V3.18 · tabulka: ' + vSs_().getName() + ' · sloupců v listu Kontroly: ' + vSheet_('CHK').getLastColumn());
+  vRows_('CHK', 3000).forEach(x => {
+    const st = String(x.v[12] || '');
+    if (st !== 'Nová závada' && st !== 'Řeší se') return;
+    Logger.log('Řádek ' + x.row + ' · ' + x.v[3] + ' · ' + st + '\n  Závady: ' + String(x.v[7]).replace(/\n/g, ' / ') + '\n  Vyřešené (sloupec Q): ' + (String(x.v[16] || '').replace(/\n/g, ' / ') || '— prázdné —'));
+  });
+  const k = vKnown_(vRows_('CHK', 3000));
+  Object.keys(k).forEach(c => Logger.log('Mobil ukáže u ' + c + ' jako nahlášeno: ' + Object.keys(k[c].items).join(', ')));
 }
