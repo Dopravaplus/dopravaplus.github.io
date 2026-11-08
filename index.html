@@ -99,15 +99,18 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#84adff;box-sh
 .mbtns{display:grid;grid-template-columns:1fr 2fr;gap:8px;margin-top:10px}
 .mlv{color:#1849a9}
 .mvh{font-size:13.5px;color:#475467;margin-bottom:8px}
+.mvh .mvt{font-size:15.5px;font-weight:800;color:var(--ink,#101828)}
 .mmob{border-radius:10px;padding:9px 12px;font-size:14px;margin-bottom:10px}
 .mmob.ok{background:var(--greenBg);color:var(--green)}
 .mmob.warn{background:var(--amberBg);color:var(--amber)}
-.mmiss{margin-top:6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.mmiss{margin-top:4px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.mmiss .mml{margin-right:2px}
 .mmiss button{border:1px solid #fec84b;background:#fff;color:var(--amber);border-radius:999px;padding:3px 10px;font-weight:800;font-size:13.5px;font-family:inherit}
 .mrow.gray{color:#98a2b3;padding:5px 0}
 .mrow.gray .md{font-weight:600}
 .mrow.wk .md{color:#667085}
 .mrow .mt{font-weight:700}
+.mrow .mf2{margin-top:1px}
 .mob{font-size:12px;color:var(--muted);font-weight:600;margin-top:2px}
 .mk{font-weight:800}
 .mk.ok{color:var(--green)}.mk.df{color:var(--amber)}.mk.no{color:var(--red)}
@@ -388,7 +391,7 @@ body.home{background:linear-gradient(var(--blue) 0,var(--blue) 120px,var(--bg) 1
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '3.75';
+const APP_VER = '3.81';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -708,17 +711,17 @@ function printMonth(){ if(!M.data || !M.data.available) return; buildPrint(); wi
 /* V3.70: tisk jako tabulka se sloupci */
 function buildPrint(){
   const d = M.data, c = d.confirm;
-  const pm = m => !m || !m.st ? '' : (m.st === 'ok' ? '<span style="color:#067647">✓</span>' : `<span style="color:#b54708">${esc(m.txt || '')}</span>`);
+  const pm = m => !m || !m.st ? '' : (m.st === 'ok' ? `<span style="color:#067647">${esc(m.txt || '✓')}</span>` : `<span style="color:#b54708">${esc(m.txt || '')}</span>`);
   const rows = d.days.map(x => x.empty ? `<tr class="g"><td>${esc(x.label)}</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="l"></td><td class="l"></td></tr>`
     : `<tr class="${x.weekend ? 'w' : ''} ${x.missing ? 'nzr' : ''}"><td>${esc(x.label)}</td><td>${esc(x.activity || '')}</td><td>${esc(x.vehicle || '')}</td>`
       + (x.missing ? '<td colspan="2" style="color:#b42318;font-weight:700">nezapsal</td>' : `<td>${esc(x.from || '')}</td><td>${esc(x.to || '')}</td>`)
       + `<td>${x.hours ? fmtH(x.hours) : ''}</td><td>${pm(x.att)}</td><td class="l">${esc(x.crew || '')}</td><td class="l">${esc(noteTxt(x))}</td></tr>`).join('');
-  const issues = [d.missing.length ? `Nezapsané dny: ${d.missing.length}` : '', d.diffs ? `Jiný čas než v docházce: ${d.diffs}` : ''].filter(Boolean).join(' · ');
+  const issues = [d.missing.length ? `Nezapsané směny: ${d.missing.length}` : '', d.diffs ? `Rozdíl s dispečinkem: ${d.diffs}` : ''].filter(Boolean).join(' · ');
   const n = new Date();
   const conf = c ? (c.note ? `Výkaz odeslán s připomínkou ${esc(c.at)}: ${esc(c.note)}` : `Výkaz potvrzen zaměstnancem ${esc(c.at)}.`) : 'Výkaz zatím nebyl potvrzen.';
-  $('mPrint').innerHTML = `${issues ? `<div class="pis">${issues}</div>` : ''}<table><thead><tr><th>Datum</th><th>Činnost</th><th>Vozidlo</th><th>Od</th><th>Do</th><th>Hodiny</th><th>V docházce</th><th>Posádka</th><th>Poznámka</th></tr></thead>
+  $('mPrint').innerHTML = `${issues ? `<div class="pis">${issues}</div>` : ''}<table><thead><tr><th>Datum</th><th>Činnost</th><th>Vozidlo</th><th>Od</th><th>Do</th><th>Hodiny</th><th>Dispečink</th><th>Posádka</th><th>Poznámka</th></tr></thead>
     <tbody>${rows}</tbody></table>
-    <div class="psum"><div><b>Celkem odpracovaných hodin: ${fmtH(d.hours)}</b></div><div>Směny: ${d.shifts} · Dovolená: ${d.leaveDays} ${dayN(d.leaveDays)} · Nemoc: ${d.sickDays} ${dayN(d.sickDays)}</div><div>Podle docházky (mzda): ${fmtH(d.attHours)} h</div></div>
+    <div class="psum"><div><b>Celkem odpracovaných hodin: ${fmtH(d.hours)}</b></div><div>Směny: ${d.shifts} · Dovolená: ${d.leaveDays} ${dayN(d.leaveDays)} · Nemoc: ${d.sickDays} ${dayN(d.sickDays)}</div><div>Podle dispečinku (mzda): ${fmtH(d.attHours)} h</div></div>
     <div class="pf"><b>${conf}</b><br>Vytištěno ${n.getDate()}.${n.getMonth() + 1}.${n.getFullYear()} z mobilní aplikace Dopravaplus. Přehled je informativní – závazné jsou údaje v docházce a na výplatní pásce.</div>`;
 }
 window.addEventListener('beforeprint', () => { if(M.data && M.data.available) buildPrint(); });
@@ -732,8 +735,8 @@ async function loadMonth(month){
   M.busy = false; renderMonth();
 }
 function dayN(n){ return n === 1 ? 'den' : (n >= 2 && n <= 4 ? 'dny' : 'dní'); }
-/* V3.75: sloupec „V docházce“ – ✓ / čas z docházky / bez směny */
-function attMark(m){ return !m || !m.st ? '' : (m.st === 'ok' ? '<span class="mk ok">✓</span>' : `<span class="mk df">${esc(m.txt || '')}</span>`); }
+/* V3.75: sloupec „Dispečink“ (dříve V docházce) – ✓ / čas z docházky / bez směny */
+function attMark(m){ return !m || !m.st ? '' : (m.st === 'ok' ? `<span class="mk ok">${esc(m.txt || '✓')}</span>` : `<span class="mk df">${esc(m.txt || '')}</span>`); }
 function noteTxt(x){ return [x.note || '', x.pending ? 'ke schválení' : ''].filter(Boolean).join(' · '); }
 function ddmm(iso){ const p = iso.split('-'); return `${p[2]}.${p[1]}.`; }
 function renderMonth(){
@@ -742,10 +745,10 @@ function renderMonth(){
   const mm = d.month.slice(5) + '/' + d.month.slice(0, 4);
   $('mPrintTitle').innerHTML = `<div class="pn">Pracovní výkaz</div><div class="pc">${mm} · ${esc(d.name || S.name)}${d.branch ? ' · ' + esc(d.branch) : ''}</div>`;
   if(!d.available){ $('mHead').innerHTML = ''; $('mBody').innerHTML = '<div class="empty">Přehled měsíce zatím není k dispozici.</div>'; $('mConf').innerHTML = ''; return; }
-  const issues = [d.missing.length ? `Nezapsané dny: <b>${d.missing.length}</b>` : '', d.diffs ? `Jiný čas než v docházce: <b>${d.diffs}</b>` : ''].filter(Boolean).join(' · ');
-  $('mHead').innerHTML = `<div class="mvh"><b>Pracovní výkaz ${mm}</b> · ${esc(d.name || S.name)}${d.branch ? ' · ' + esc(d.branch) : ''}</div>`
+  const issues = [d.missing.length ? `<div>Nezapsané směny: <b>${d.missing.length}</b></div>` : '', d.diffs ? `<div>Rozdíl s dispečinkem: <b>${d.diffs}</b></div>` : ''].join('');
+  $('mHead').innerHTML = `<div class="mvh"><div class="mvt">Pracovní výkaz ${mm}</div>${esc(d.name || S.name)}${d.branch ? ' · ' + esc(d.branch) : ''}</div>`
     + (issues ? `<div class="mmob warn">${issues}`
-    + (d.missing.length ? `<div class="mmiss">Doplnit: ${d.missing.map(x => x >= (d.minDate || '') ? `<button type="button" onclick="openDay('${x}')">${ddmm(x)}</button>` : `<span>${ddmm(x)}</span>`).join(' ')}</div>` : '') + '</div>' : '');
+    + (d.missing.length ? `<div class="mmiss"><span class="mml">Doplnit směnu:</span>${d.missing.map(x => x >= (d.minDate || '') ? `<button type="button" onclick="openDay('${x}')">${ddmm(x)}</button>` : `<span>${ddmm(x)}</span>`).join(' ')}</div>` : '') + '</div>' : '');
   if(!d.days.some(x => !x.empty)){ $('mBody').innerHTML = `<div class="empty">V ${esc(monthLabel(d.month))} zatím nemáte žádný zápis ani směnu.</div>`; $('mConf').innerHTML = ''; return; }
   $('mBody').innerHTML = d.days.map(x => {
     if(x.empty) return `<div class="mrow gray"><span class="md">${esc(x.label)}</span><span></span><span></span></div>`;
@@ -753,9 +756,9 @@ function renderMonth(){
     const top = [x.activity, x.vehicle].filter(Boolean).join(' · ');
     const time = x.missing ? (x.date >= (d.minDate || '') ? `<button type="button" class="nz" onclick="openDay('${x.date}')">nezapsal – doplnit ›</button>` : '<span class="nzs">nezapsal</span>') : `<div class="mt">${esc(x.from)}–${esc(x.to)}</div>`;
     const nt = x.note ? esc(x.note) : '', pd = x.pending ? `<span class="mpend">${nt ? ' · ' : ''}ke schválení</span>` : '';
-    const att = x.att && x.att.st ? `<div class="msub">v docházce ${attMark(x.att)}</div>` : '';
-    return `<div class="mrow ${x.weekend ? 'wk' : ''} ${x.missing ? 'miss' : ''}"><span class="md">${esc(x.label)}</span><span>${top ? esc(top) : ''}${time}${x.crew ? `<div class="mf">${esc(x.crew)}</div>` : ''}${nt || pd ? `<div class="mn">${nt}${pd}</div>` : ''}</span><span class="mh">${x.hours ? fmtH(x.hours) + '&nbsp;h' : ''}${att}</span></div>`;
-  }).join('') + `<div class="msum"><span>Celkem odpracovaných hodin<div class="mf" style="font-weight:600">směny ${d.shifts}${d.leaveDays ? ` · dovolená ${d.leaveDays} ${dayN(d.leaveDays)}` : ''}${d.sickDays ? ` · nemoc ${d.sickDays} ${dayN(d.sickDays)}` : ''}</div><div class="mf" style="font-weight:600">podle docházky (mzda) ${fmtH(d.attHours)}&nbsp;h</div></span><span>${fmtH(d.hours)}&nbsp;h</span></div>`;
+    const att = x.att && x.att.st ? `<div class="msub">dispečink ${attMark(x.att)}</div>` : '';
+    return `<div class="mrow ${x.weekend ? 'wk' : ''} ${x.missing ? 'miss' : ''}"><span class="md">${esc(x.label)}</span><span>${time}${top ? `<div class="mf2">${esc(top)}</div>` : ''}${x.crew ? `<div class="mf">${esc(x.crew)}</div>` : ''}${nt || pd ? `<div class="mn">${nt}${pd}</div>` : ''}</span><span class="mh">${x.hours ? fmtH(x.hours) + '&nbsp;h' : ''}${att}</span></div>`;
+  }).join('') + `<div class="msum"><span>Celkem odpracovaných hodin<div class="mf" style="font-weight:600">směny ${d.shifts}${d.leaveDays ? ` · dovolená ${d.leaveDays} ${dayN(d.leaveDays)}` : ''}${d.sickDays ? ` · nemoc ${d.sickDays} ${dayN(d.sickDays)}` : ''}</div><div class="mf" style="font-weight:600">podle dispečinku (mzda) ${fmtH(d.attHours)}&nbsp;h</div></span><span>${fmtH(d.hours)}&nbsp;h</span></div>`;
   renderConf();
 }
 /* V3.74: klepnutí na nezapsaný den → formulář zápisu pro ten den */
