@@ -84,6 +84,12 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#84adff;box-sh
 .chip.ok{background:var(--greenBg);color:var(--green)}
 .chip.no{background:var(--redBg);color:var(--red)}
 .chip.ed{background:#eff4ff;color:#1849a9}
+.chip.lv{background:#eff4ff;color:#1849a9}
+/* V3.82: Práce / Dovolená */
+.ftype{display:grid;grid-template-columns:1fr 1fr;gap:0;background:#eef2f8;border-radius:12px;padding:4px;margin-bottom:14px}
+.ftype button{border:0;background:transparent;border-radius:9px;padding:10px 6px;font-weight:800;font-size:15px;color:#475467;font-family:inherit}
+.ftype button.on{background:#fff;color:var(--blue);box-shadow:0 1px 3px rgba(16,24,40,.12)}
+.it-lv{color:#1849a9;font-weight:800}
 .edited{font-size:13px;color:#1849a9;margin-top:4px;font-weight:600}
 /* V3.65: Můj měsíc */
 .mtop{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:12px}
@@ -347,6 +353,15 @@ body.home{background:linear-gradient(var(--blue) 0,var(--blue) 120px,var(--bg) 1
   <div id="formCard" class="card hidden">
     <h2 id="formTitle">Zapsat docházku</h2>
     <div id="formMsg" class="msg"></div>
+    <div class="ftype" id="fType"><button type="button" id="fTypeP" class="on" onclick="setType('P')">Práce</button><button type="button" id="fTypeD" onclick="setType('D')">Dovolená</button></div>
+    <div id="fLeave" class="hidden">
+      <div class="grid2">
+        <div class="f"><label for="fLFrom">Od dne</label><input id="fLFrom" type="date" onchange="lvChanged('from')"></div>
+        <div class="f"><label for="fLTo">Do dne</label><input id="fLTo" type="date" onchange="lvChanged('to')"></div>
+      </div>
+      <div class="hrs" id="fLDays"></div>
+    </div>
+    <div id="fWork">
     <div class="f"><label for="fDate">Den</label><input id="fDate" type="date" onchange="readyAtt()"></div>
     <div class="grid2">
       <div class="f"><label for="fFrom">OD</label><input id="fFrom" type="time"></div>
@@ -359,10 +374,11 @@ body.home{background:linear-gradient(var(--blue) 0,var(--blue) 120px,var(--bg) 1
       </select>
     </div>
     <div class="hrs" id="fHours"></div>
+    </div>
     <div class="f"><label for="fNote">Poznámka (nepovinné)</label><textarea id="fNote" maxlength="300" placeholder="např. čekání na vykládku, oprava vozidla…"></textarea></div>
     <button class="btn dim" id="sendBtn" onclick="send()">Odeslat dispečinku</button>
     <button class="btn sec hidden" id="cancelEditBtn" style="margin-top:8px" onclick="resetForm()">Zrušit úpravu</button>
-    <div class="hint">Zápis se odešle ke schválení dispečinku. Dokud ho dispečink nepřevezme, můžete ho upravit nebo smazat.</div>
+    <div class="hint" id="fHint">Zápis se odešle ke schválení dispečinku. Dokud ho dispečink nepřevezme, můžete ho upravit nebo smazat.</div>
   </div>
 
   <!-- Moje zápisy -->
@@ -391,7 +407,7 @@ body.home{background:linear-gradient(var(--blue) 0,var(--blue) 120px,var(--bg) 1
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '3.81';
+const APP_VER = '3.83';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -621,7 +637,48 @@ function resetForm(){
   d.max = S.today; d.min = S.minDate || isoShift(S.today, -S.daysBack);   // V3.74: i od 1. dne minulého měsíce
   d.value = S.today; d.disabled = false;
   $('fFrom').value = ''; $('fTo').value = ''; $('fPause').value = '0'; $('fNote').value = '';
+  const lvMin = isoShift(S.today.slice(0, 8) + '01', -1).slice(0, 8) + '01', lvMax = lastOfMonth(S.today);   // V3.83: od 1. dne minulého měsíce do konce měsíce
+  ['fLFrom', 'fLTo'].forEach(k => { const x = $(k); x.max = lvMax; x.min = lvMin; x.value = ''; x.disabled = false; });
+  setType('P', true);
   calcHours(); TRIED.att = false; clearErrs('formCard'); readyAtt();
+}
+/* V3.82: dovolená z mobilu – jen zpětně, rozsah dní; víkendy a svátky se nepočítají */
+function setType(t, quiet){
+  S.ftype = t;
+  $('fTypeP').classList.toggle('on', t === 'P'); $('fTypeD').classList.toggle('on', t === 'D');
+  $('fWork').classList.toggle('hidden', t !== 'P'); $('fLeave').classList.toggle('hidden', t !== 'D');
+  $('fNote').placeholder = t === 'D' ? 'nepovinné' : 'např. čekání na vykládku, oprava vozidla…';
+  $('fHint').textContent = t === 'D' ? 'Dovolenou lze zapsat od 1. dne minulého měsíce do konce tohoto měsíce. Odešle se ke schválení dispečinku – po převzetí se zapíše do docházky.' : 'Zápis se odešle ke schválení dispečinku. Dokud ho dispečink nepřevezme, můžete ho upravit nebo smazat.';
+  if(t === 'D' && !$('fLFrom').value && !S.editing){ const v = $('fDate').value || ''; $('fLFrom').value = v; $('fLTo').value = v; }
+  if(!quiet){ clearErrs('formCard'); TRIED.att = false; msg('formMsg', '', ''); }
+  lvDays(); readyAtt();
+}
+function lastOfMonth(iso){ const p = iso.split('-').map(Number); return iso.slice(0, 8) + String(new Date(p[0], p[1], 0).getDate()).padStart(2, '0'); }
+function lvChanged(which){
+  const a = $('fLFrom'), b = $('fLTo');
+  if(which === 'from' && a.value && (!b.value || b.value < a.value)) b.value = a.value;
+  if(which === 'to' && b.value && (!a.value || a.value > b.value)) a.value = b.value;
+  lvDays(); readyAtt();
+}
+function easter(y){ const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3),
+  h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451),
+  mo = Math.floor((h + l - 7 * m + 114) / 31), da = ((h + l - 7 * m + 114) % 31) + 1; return new Date(y, mo - 1, da, 12); }
+function isWorkday(iso){
+  const p = iso.split('-').map(Number), dt = new Date(p[0], p[1] - 1, p[2], 12), wd = dt.getDay();
+  if(wd === 0 || wd === 6) return false;
+  if(['01-01','05-01','05-08','07-05','07-06','09-28','10-28','11-17','12-24','12-25','12-26'].includes(iso.slice(5))) return false;
+  const e = easter(p[0]), f = n => { const x = new Date(e.getFullYear(), e.getMonth(), e.getDate() + n, 12); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); };
+  return iso !== f(-2) && iso !== f(1);
+}
+function lvList(){
+  const a = $('fLFrom').value, b = $('fLTo').value, out = []; if(!a || !b || b < a) return out;
+  for(let iso = a, n = 0; iso <= b && n < 40; iso = isoShift(iso, 1), n++) if(isWorkday(iso)) out.push(iso);
+  return out;
+}
+function lvDays(){
+  const n = lvList().length, a = $('fLFrom').value, b = $('fLTo').value;
+  $('fLDays').textContent = a && b && b >= a ? (n ? `Dovolená: ${n} ${dayN(n)} (bez víkendů a svátků)` : 'Ve vybraných dnech není pracovní den.') : '';
+  return n;
 }
 function editEntry(id){
   const e = S.entries.find(x => x.id === id); if(!e) return;
@@ -632,6 +689,8 @@ function editEntry(id){
   const opt = Array.from($('fPause').options).find(o => Number(o.value) === Number(e.pause));
   $('fPause').value = opt ? opt.value : '0';
   $('fNote').value = e.note || '';
+  $('fLFrom').value = e.date; $('fLTo').value = e.date; $('fLFrom').disabled = true; $('fLTo').disabled = true;
+  setType(e.type === 'Dovolená' ? 'D' : 'P', true);
   $('cancelEditBtn').classList.remove('hidden');
   calcHours(); msg('formMsg', '', ''); readyAtt();
   window.scrollTo({ top:0, behavior:'smooth' });
@@ -641,12 +700,19 @@ async function send(){
   msg('formMsg', '', '');
   const errs = attErrs();
   if(errs.length){ TRIED.att = true; showErrs('formCard', errs); goFirstErr(errs); return; }
-  const dup = !S.editing && S.entries.find(x => x.date === date && x.state === 'Ke schválení');
+  const leave = S.ftype === 'D', lf = $('fLFrom').value, lt = $('fLTo').value;
+  if(leave){   // V3.82: přepíše čekající zápis práce za stejný den → zeptat se
+    const days = lvList(), clash = S.entries.filter(x => days.includes(x.date) && x.state === 'Ke schválení' && x.type !== 'Dovolená' && x.id !== S.editing);
+    if(clash.length && !(await ask(`Za ${clash.map(x => ddmm(x.date)).join(', ')} už máte čekající zápis práce. Nahradit ho dovolenou?`, 'Nahradit', true))) return;
+  }
+  const dup = !S.editing && !leave && S.entries.find(x => x.date === date && x.state === 'Ke schválení');
   $('sendBtn').disabled = true; busy(true, 'Odesílám…');
   try{
-    const r = await call('mSubmit', { token:S.token, date, from, to, pause:$('fPause').value, note:$('fNote').value });
+    const r = await call('mSubmit', leave ? { token:S.token, type:'Dovolená', dateFrom:lf, dateTo:lt, note:$('fNote').value }
+                                          : { token:S.token, date, from, to, pause:$('fPause').value, note:$('fNote').value });
     S.entries = r.entries || []; renderList();
-    msg('formMsg', 'ok', (dup || S.editing ? 'Zápis upraven' : 'Odesláno') + ` – ${dayLabel(date)}, ${from}–${to}. Čeká na schválení dispečinkem.`);
+    if(leave){ const n = (r.saved || []).length; msg('formMsg', 'ok', `${S.editing ? 'Zápis upraven' : 'Odesláno'} – dovolená ${lf === lt ? ddmm(lf) : ddmm(lf) + '–' + ddmm(lt)} (${n} ${dayN(n)}). Čeká na schválení dispečinkem.`); }
+    else msg('formMsg', 'ok', (dup || S.editing ? 'Zápis upraven' : 'Odesláno') + ` – ${dayLabel(date)}, ${from}–${to}. Čeká na schválení dispečinkem.`);
     resetForm();
   }catch(e){
     if(/vypršelo/i.test(e)){ store.del('m_token'); showLogin(); msg('loginMsg', 'err', e); }
@@ -692,7 +758,7 @@ function renderList(){
     const pause = Number(e.pause) ? ` · pauza ${fmtHM(e.pause)}` : '';
     return `<div class="item">
       <div class="h"><span class="d">${esc(dayLabel(e.date))}</span>${chip}</div>
-      <div class="t">${esc(e.from)}–${esc(e.to)}${pause} · <b>${fmtHM(e.hours)}</b></div>
+      ${e.type === 'Dovolená' ? '<div class="t it-lv">Dovolená</div>' : `<div class="t">${esc(e.from)}–${esc(e.to)}${pause} · <b>${fmtHM(e.hours)}</b></div>`}
       ${e.note ? `<div class="n">${esc(e.note)}</div>` : ''}
       ${e.state === 'Zamítnuto' && e.reason ? `<div class="reason">Důvod: ${esc(e.reason)}</div>` : ''}
       ${edited ? `<div class="edited">${esc(e.reason)}</div>` : ''}
@@ -752,7 +818,8 @@ function renderMonth(){
   if(!d.days.some(x => !x.empty)){ $('mBody').innerHTML = `<div class="empty">V ${esc(monthLabel(d.month))} zatím nemáte žádný zápis ani směnu.</div>`; $('mConf').innerHTML = ''; return; }
   $('mBody').innerHTML = d.days.map(x => {
     if(x.empty) return `<div class="mrow gray"><span class="md">${esc(x.label)}</span><span></span><span></span></div>`;
-    if(x.leave) return `<div class="mrow"><span class="md">${esc(x.label)}</span><span><b class="mlv">${esc(x.activity)}</b>${x.note ? `<div class="mn">${esc(x.note)}</div>` : ''}</span><span class="mh"></span></div>`;
+    if(x.leave){ const ln = esc(x.note || ''), lp = x.pending ? `<span class="mpend">${ln ? ' · ' : ''}ke schválení</span>` : '';
+      return `<div class="mrow"><span class="md">${esc(x.label)}</span><span><b class="mlv">${esc(x.activity)}</b>${ln || lp ? `<div class="mn">${ln}${lp}</div>` : ''}</span><span class="mh">${x.att && x.att.st ? `<div class="msub">dispečink ${attMark(x.att)}</div>` : ''}</span></div>`; }
     const top = [x.activity, x.vehicle].filter(Boolean).join(' · ');
     const time = x.missing ? (x.date >= (d.minDate || '') ? `<button type="button" class="nz" onclick="openDay('${x.date}')">nezapsal – doplnit ›</button>` : '<span class="nzs">nezapsal</span>') : `<div class="mt">${esc(x.from)}–${esc(x.to)}</div>`;
     const nt = x.note ? esc(x.note) : '', pd = x.pending ? `<span class="mpend">${nt ? ' · ' : ''}ke schválení</span>` : '';
@@ -944,6 +1011,15 @@ function readyFuel(){
 /* V3.13: docházka */
 function attErrs(){
   const errs = [], add = (el, text, focus) => { if(el) errs.push({ el, text, focus }); };
+  if(S.ftype === 'D'){
+    const a = $('fLFrom'), b = $('fLTo');
+    if(!a.value) add(a, 'Vyberte první den dovolené.', true);
+    else if(a.min && a.value < a.min) add(a, 'Tak starý den už zapsat nelze – obraťte se na dispečink.', true);
+    if(!b.value) add(b, 'Vyberte poslední den dovolené.', true);
+    else if(b.max && b.value > b.max) add(b, 'Dovolenou lze zapsat nejdéle do konce tohoto měsíce.', true);
+    if(a.value && b.value && b.value >= a.value && !lvList().length) add(b, 'Ve vybraných dnech není žádný pracovní den.', false);
+    return errs;
+  }
   if(!$('fDate').value) add($('fDate'), 'Vyberte den.', true);
   else if($('fDate').value > todayIso()) add($('fDate'), 'Docházku nelze zapsat dopředu – vyberte dnešní nebo dřívější den.', true);
   else if($('fDate').min && $('fDate').value < $('fDate').min) add($('fDate'), 'Tak starý den už zapsat nelze – obraťte se na dispečink.', true);
