@@ -139,7 +139,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#84adff;box-sh
   .ptitle{display:block;margin:0 0 10px}
   .ptitle .pc{font-size:12px;color:#555}
   .ptitle .pn{font-size:18px;font-weight:800;margin-top:2px}
-  #mBody,#mLoad{display:none !important}
+  #mBody{display:none !important}
   .ptable{display:block}
   .ptable table{width:100%;border-collapse:collapse;font-size:11.5px;color:#000}
   .ptable th{text-align:center;border-bottom:1.5px solid #000;padding:4px 5px;font-weight:800}
@@ -177,8 +177,12 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#84adff;box-sh
 .spn.sm{width:16px;height:16px;border-width:2.5px}
 .busy .bbox{display:flex;align-items:center;gap:12px}
 .loadrow{display:flex;align-items:center;justify-content:center;gap:10px;padding:22px 0;color:var(--muted);font-weight:700}
-.mload{display:flex;align-items:center;gap:8px;color:var(--muted);font-weight:700;font-size:14px;margin-bottom:8px}
-#mBody.dim{opacity:.4;pointer-events:none;transition:opacity .15s}
+/* V3.88: náhled výkazu při načítání (šedé pulzující řádky místo textu) */
+@keyframes skp{0%,100%{opacity:1}50%{opacity:.45}}
+.sk{animation:skp 1.2s ease-in-out infinite}
+.sk i{display:block;height:12px;border-radius:6px;background:#dbe2ec}
+.skr{display:grid;grid-template-columns:62px 1fr 64px;gap:12px;padding:12px 0;border-bottom:1px solid #eef1f6}
+.skr span{display:flex;flex-direction:column;gap:7px}
 /* V3.44: indikace aktualizace dat na pozadí */
 .upd{position:fixed;left:0;right:0;top:0;height:3px;z-index:60;overflow:hidden}
 .upd div{position:absolute;top:0;bottom:0;width:35%;background:#fdb022;animation:ub 1.1s ease-in-out infinite}
@@ -404,8 +408,7 @@ body.home{background:linear-gradient(var(--blue) 0,var(--blue) 120px,var(--bg) 1
     <div class="ptitle" id="mPrintTitle"></div>
     <div id="mHead"></div>
     <div class="ptable" id="mPrint"></div>
-    <div id="mLoad" class="mload hidden"><span class="spn sm"></span><span>Načítám výkaz…</span></div>
-    <div id="mBody"><div class="loadrow"><span class="spn"></span>Načítám výkaz…</div></div>
+    <div id="mBody"></div>
     <div id="mConf" class="mconf"></div>
   </div>
 
@@ -419,7 +422,7 @@ body.home{background:linear-gradient(var(--blue) 0,var(--blue) 120px,var(--bg) 1
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '3.87';
+const APP_VER = '3.88';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -839,13 +842,17 @@ function monthLabel(k){ const p = k.split('-').map(Number); return `${MONTHS[p[1
 async function loadMonth(month){
   if(M.busy || !S.token) return;
   M.busy = true;
-  if(!M.data) $('mBody').innerHTML = '<div class="loadrow"><span class="spn"></span>Načítám výkaz…</div>';
-  else { $('mLoad').classList.remove('hidden'); $('mBody').classList.add('dim'); }   // V3.85: přepnutí měsíce / obnovení – starý výkaz zešedne
-  const done = () => { $('mLoad').classList.add('hidden'); $('mBody').classList.remove('dim'); };
+  /* V3.88: první načtení = šedý náhled výkazu; přepnutí měsíce = okénko uprostřed; obnovení na pozadí bez rušení */
+  const sw = !!(M.data && month && month !== M.data.month);
+  if(!M.data) $('mBody').innerHTML = skel();
+  if(sw) busy(true, 'Načítám výkaz…');
+  const done = () => { if(sw) busy(false); };
   try{ M.data = await call('mMyMonth', { token:S.token, month:month || '' }); M.month = M.data.month; }
   catch(e){ done(); if(!M.data) $('mBody').innerHTML = `<div class="empty">${esc(e === NET_ERR ? 'Přehled měsíce teď nejde načíst – slabý nebo žádný signál.' : e)}</div>`; M.busy = false; return; }
   done(); M.busy = false; renderMonth();
 }
+function skel(){ const r = (a, b, c) => `<div class="skr"><span><i style="width:${a}%"></i></span><span><i style="width:${b}%"></i><i style="width:${c}%"></i></span><span><i style="width:80%;margin-left:auto"></i></span></div>`;
+  return `<div class="sk" aria-label="Načítám výkaz"><i style="width:55%;height:16px;margin:4px 0 8px"></i><i style="width:38%;margin-bottom:12px"></i>${r(90,55,70)}${r(90,45,60)}${r(90,60,40)}${r(90,50,65)}${r(90,40,55)}</div>`; }
 function dayN(n){ return n === 1 ? 'den' : (n >= 2 && n <= 4 ? 'dny' : 'dní'); }
 /* V3.75: sloupec „Dispečink“ (dříve V docházce) – ✓ / čas z docházky / bez směny */
 function attMark(m){ return !m || !m.st ? '' : (m.st === 'ok' ? `<span class="mk ok">${esc(m.txt || '✓')}</span>` : `<span class="mk df">${esc(m.txt || '')}</span>`); }
