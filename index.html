@@ -103,7 +103,9 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#84adff;box-sh
 .cst.warn{background:var(--amberBg);color:var(--amber)}
 .cst .cn{margin-top:4px;color:#475467;font-size:13.5px}
 .mbtns{display:grid;grid-template-columns:1fr 2fr;gap:8px;margin-top:10px}
-.mlv{color:#1849a9}
+.mlv{color:#1849a9;font-weight:800}
+.mlv.sick{color:var(--red)}
+.it-lv.no{color:var(--red);text-decoration:line-through}
 .mvh{font-size:13.5px;color:#475467;margin-bottom:8px}
 .mvh .mvt{font-size:15.5px;font-weight:800;color:var(--ink,#101828)}
 .mmob{border-radius:10px;padding:9px 12px;font-size:14px;margin-bottom:10px}
@@ -407,7 +409,7 @@ body.home{background:linear-gradient(var(--blue) 0,var(--blue) 120px,var(--bg) 1
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '3.83';
+const APP_VER = '3.84';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -758,7 +760,7 @@ function renderList(){
     const pause = Number(e.pause) ? ` · pauza ${fmtHM(e.pause)}` : '';
     return `<div class="item">
       <div class="h"><span class="d">${esc(dayLabel(e.date))}</span>${chip}</div>
-      ${e.type === 'Dovolená' ? '<div class="t it-lv">Dovolená</div>' : `<div class="t">${esc(e.from)}–${esc(e.to)}${pause} · <b>${fmtHM(e.hours)}</b></div>`}
+      ${e.type === 'Dovolená' ? `<div class="t it-lv ${e.state === 'Zamítnuto' ? 'no' : ''}">Dovolená</div>` : `<div class="t">${esc(e.from)}–${esc(e.to)}${pause} · <b>${fmtHM(e.hours)}</b></div>`}
       ${e.note ? `<div class="n">${esc(e.note)}</div>` : ''}
       ${e.state === 'Zamítnuto' && e.reason ? `<div class="reason">Důvod: ${esc(e.reason)}</div>` : ''}
       ${edited ? `<div class="edited">${esc(e.reason)}</div>` : ''}
@@ -779,7 +781,7 @@ function buildPrint(){
   const d = M.data, c = d.confirm;
   const pm = m => !m || !m.st ? '' : (m.st === 'ok' ? `<span style="color:#067647">${esc(m.txt || '✓')}</span>` : `<span style="color:#b54708">${esc(m.txt || '')}</span>`);
   const rows = d.days.map(x => x.empty ? `<tr class="g"><td>${esc(x.label)}</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="l"></td><td class="l"></td></tr>`
-    : `<tr class="${x.weekend ? 'w' : ''} ${x.missing ? 'nzr' : ''}"><td>${esc(x.label)}</td><td>${esc(x.activity || '')}</td><td>${esc(x.vehicle || '')}</td>`
+    : `<tr class="${x.weekend ? 'w' : ''} ${x.missing ? 'nzr' : ''}"><td>${esc(x.label)}</td><td>${x.leave ? `<b style="color:${x.activity === 'Nemoc' ? '#b42318' : '#1849a9'}">${esc(x.activity)}</b>` : esc(x.activity || '')}</td><td>${esc(x.vehicle || '')}</td>`
       + (x.missing ? '<td colspan="2" style="color:#b42318;font-weight:700">nezapsal</td>' : `<td>${esc(x.from || '')}</td><td>${esc(x.to || '')}</td>`)
       + `<td>${x.hours ? fmtH(x.hours) : ''}</td><td>${pm(x.att)}</td><td class="l">${esc(x.crew || '')}</td><td class="l">${esc(noteTxt(x))}</td></tr>`).join('');
   const issues = [d.missing.length ? `Nezapsané směny: ${d.missing.length}` : '', d.diffs ? `Rozdíl s dispečinkem: ${d.diffs}` : ''].filter(Boolean).join(' · ');
@@ -819,7 +821,7 @@ function renderMonth(){
   $('mBody').innerHTML = d.days.map(x => {
     if(x.empty) return `<div class="mrow gray"><span class="md">${esc(x.label)}</span><span></span><span></span></div>`;
     if(x.leave){ const ln = esc(x.note || ''), lp = x.pending ? `<span class="mpend">${ln ? ' · ' : ''}ke schválení</span>` : '';
-      return `<div class="mrow"><span class="md">${esc(x.label)}</span><span><b class="mlv">${esc(x.activity)}</b>${ln || lp ? `<div class="mn">${ln}${lp}</div>` : ''}</span><span class="mh">${x.att && x.att.st ? `<div class="msub">dispečink ${attMark(x.att)}</div>` : ''}</span></div>`; }
+      return `<div class="mrow"><span class="md">${esc(x.label)}</span><span><b class="mlv ${x.activity === 'Nemoc' ? 'sick' : ''}">${esc(x.activity)}</b>${ln || lp ? `<div class="mn">${ln}${lp}</div>` : ''}</span><span class="mh">${x.att && x.att.st ? `<div class="msub">dispečink ${attMark(x.att)}</div>` : ''}</span></div>`; }
     const top = [x.activity, x.vehicle].filter(Boolean).join(' · ');
     const time = x.missing ? (x.date >= (d.minDate || '') ? `<button type="button" class="nz" onclick="openDay('${x.date}')">nezapsal – doplnit ›</button>` : '<span class="nzs">nezapsal</span>') : `<div class="mt">${esc(x.from)}–${esc(x.to)}</div>`;
     const nt = x.note ? esc(x.note) : '', pd = x.pending ? `<span class="mpend">${nt ? ' · ' : ''}ke schválení</span>` : '';
