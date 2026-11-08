@@ -3,7 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#1769e0">
+<meta name="theme-color" content="#1769e0" id="themeMeta">
+<script>/* V3.89: světlý / tmavý vzhled – nastaví se hned, aby stránka neblikla */
+(function(){ var p = 'auto'; try{ p = localStorage.getItem('m_theme') || 'auto'; }catch(e){}
+  var d = p === 'dark' || (p === 'auto' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+  document.documentElement.setAttribute('data-theme', d ? 'dark' : 'light');
+  var m = document.getElementById('themeMeta'); if(m) m.setAttribute('content', d ? '#13305e' : '#1769e0'); })();</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <!-- V3.50: bez apple-mobile-web-app-status-bar-style – iOS 26.1+ u „black-translucent“ kreslí přes horní okraj vlastní mlhavý přechod; bez něj má stavový řádek plnou barvu (theme-color / pozadí stránky = modrá) -->
@@ -14,13 +19,13 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>Dopravaplus</title>
 <style>
-:root{--blue:#1769e0;--blue2:#1257c0;--bg:#e9eff8;--card:#fff;--text:#101828;--muted:#667085;--line:#d8e1ee;--green:#067647;--greenBg:#ecfdf3;--amber:#b54708;--amberBg:#fffaeb;--red:#b42318;--redBg:#fef3f2}
+:root{--hdr:#1769e0;--blue:#1769e0;--blue2:#1257c0;--bg:#e9eff8;--card:#fff;--text:#101828;--muted:#667085;--line:#d8e1ee;--green:#067647;--greenBg:#ecfdf3;--amber:#b54708;--amberBg:#fffaeb;--red:#b42318;--redBg:#fef3f2}
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:16px;-webkit-text-size-adjust:100%}
 body{min-height:100vh;min-height:100dvh}
-.top{background:#1769e0;color:#fff;padding:calc(14px + env(safe-area-inset-top)) 16px 16px;position:sticky;top:0;z-index:5}
+.top{background:var(--hdr);color:#fff;padding:calc(14px + env(safe-area-inset-top)) 16px 16px;position:sticky;top:0;z-index:5}
 /* V3.49: iOS 26 rozmazává horní okraj do barvy pozadí stránky – pozadí stránky je proto modré a světlá plocha je samostatná vrstva pod obsahem */
-html,body{background:#1769e0 !important}
+html,body{background:var(--hdr) !important}
 body::before{content:'';position:fixed;inset:0;background:var(--bg);z-index:0;pointer-events:none}
 body>.wrap{position:relative;z-index:1}
 .top .logo{width:42px;height:42px;border-radius:9px;background:#fff;object-fit:cover;flex:0 0 auto;display:block}   /* V3.47: čtvercová ikona aplikace (stejná jako na ploše) */
@@ -198,7 +203,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#84adff;box-sh
 .tile .ar{margin-left:auto;color:#98a2b3;font-size:22px}
 .ic.b{background:#1769e0}.ic.g{background:#079455}.ic.a{background:#f79009}
 /* V3.15: barvy – úvod s modrým přechodem a barevnými dlaždicemi, karty s jemným stínem */
-body.home{background:linear-gradient(var(--blue) 0,var(--blue) 120px,var(--bg) 120px) no-repeat,var(--bg)}
+body.home{background:linear-gradient(var(--hdr) 0,var(--hdr) 120px,var(--bg) 120px) no-repeat,var(--bg)}
 .tile{border:0;box-shadow:0 2px 8px rgba(16,24,40,.10)}
 .tile .ic{width:52px;height:52px;border-radius:14px}
 .card{box-shadow:0 1px 3px rgba(16,24,40,.08)}
@@ -270,6 +275,67 @@ body.home{background:linear-gradient(var(--blue) 0,var(--blue) 120px,var(--bg) 1
 .vterms .vh{font-weight:800;color:#344054;margin-bottom:2px}
 .vterms div.w{color:var(--amber);font-weight:700}
 .vterms div.b{color:var(--red);font-weight:700}
+
+/* ===== V3.89: TMAVÝ VZHLED (html[data-theme=dark]) ===== */
+html[data-theme="dark"]{color-scheme:dark;--hdr:#13305e;--blue:#3b7ff0;--blue2:#2f6ad0;--bg:#0b1220;--card:#151e2e;--text:#e6ebf2;--muted:#98a2b3;--line:#263247;
+  --green:#47cd89;--greenBg:#0f2d20;--amber:#fdb022;--amberBg:#2e2210;--red:#f97066;--redBg:#3a1614}
+html[data-theme="dark"] label,html[data-theme="dark"] .chk .ct,html[data-theme="dark"] .conf,html[data-theme="dark"] .vterms .vh{color:#c3cad5}
+html[data-theme="dark"] input,html[data-theme="dark"] textarea{background:#0f1726;border-color:#33415a}
+html[data-theme="dark"] select{background:#0f1726 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%23aab3c2' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 16px center;border-color:#33415a}
+html[data-theme="dark"] input:focus,html[data-theme="dark"] select:focus,html[data-theme="dark"] textarea:focus{border-color:#4a8cf0;box-shadow:0 0 0 3px rgba(74,140,240,.25)}
+html[data-theme="dark"] .chk,html[data-theme="dark"] .secbox,html[data-theme="dark"] .tile,html[data-theme="dark"] .busy div{background:var(--card);border-color:#33415a}
+html[data-theme="dark"] .chk.on{background:var(--amberBg);border-color:#7a5a16}
+html[data-theme="dark"] .btn.dim{background:#22324e;color:#7f93b5}
+html[data-theme="dark"] .btn.sec,html[data-theme="dark"] .mprint,html[data-theme="dark"] .moreold,html[data-theme="dark"] .item .acts button,html[data-theme="dark"] .yn button,html[data-theme="dark"] .mk button,html[data-theme="dark"] .mmiss button,html[data-theme="dark"] .nz{background:#1b2638;border-color:#33415a;color:#d0d6e0}
+html[data-theme="dark"] .moreold{color:#8fb5ff}
+html[data-theme="dark"] .item .acts button.del,html[data-theme="dark"] .mk button,html[data-theme="dark"] .nz{color:var(--red);border-color:#7a2b26}
+html[data-theme="dark"] .mk button.on{background:var(--red);color:#fff}
+html[data-theme="dark"] .mmiss button{color:var(--amber);border-color:#7a5a16}
+html[data-theme="dark"] .yn button.on.y{background:var(--greenBg);border-color:#2a7a52;color:var(--green)}
+html[data-theme="dark"] .yn button.on.n{background:var(--redBg);border-color:#7a2b26;color:var(--red)}
+html[data-theme="dark"] .chip.ed,html[data-theme="dark"] .chip.lv{background:#172a4d;color:#8fb5ff}
+html[data-theme="dark"] .it-lv,html[data-theme="dark"] .mlv,html[data-theme="dark"] .edited{color:#8fb5ff}
+html[data-theme="dark"] .mlv.sick,html[data-theme="dark"] .it-lv.no{color:var(--red)}
+html[data-theme="dark"] .ftype{background:#0f1726}
+html[data-theme="dark"] .ftype button{color:#98a2b3}
+html[data-theme="dark"] .ftype button.on{background:#22324e;color:#fff;box-shadow:none}
+html[data-theme="dark"] .cst .cn,html[data-theme="dark"] .mvh,html[data-theme="dark"] .mrow .mn{color:#aab3c2}
+html[data-theme="dark"] .mvh .mvt{color:var(--text)}
+html[data-theme="dark"] .mrow.gray{color:#56627a}
+html[data-theme="dark"] .mrow.wk .md{color:#98a2b3}
+html[data-theme="dark"] .mrow.miss{background:var(--redBg)}
+html[data-theme="dark"] .msum{background:#1b2638}
+html[data-theme="dark"] .busy{background:rgba(0,0,0,.55)}
+html[data-theme="dark"] .spn{border-color:#33415a;border-top-color:var(--blue)}
+html[data-theme="dark"] .sk i{background:#263247}
+html[data-theme="dark"] .skr{border-bottom-color:var(--line)}
+html[data-theme="dark"] .tile:active{background:#1b2638}
+html[data-theme="dark"] .tile,html[data-theme="dark"] .card{box-shadow:0 1px 3px rgba(0,0,0,.4)}
+html[data-theme="dark"] .grp .gh{background:#172338}
+html[data-theme="dark"] .grp.has .gh{background:var(--redBg)}
+html[data-theme="dark"] .grp.knw:not(.has) .gh{background:var(--amberBg)}
+html[data-theme="dark"] .opt{background:var(--card);color:#d0d6e0}
+html[data-theme="dark"] .opt.kn{background:#241d0f}
+html[data-theme="dark"] .opt.on{background:var(--redBg);color:var(--red)}
+html[data-theme="dark"] .opt.on .oh,html[data-theme="dark"] .opt .on-note{color:var(--red)}
+html[data-theme="dark"] .opt .os{background:#222c3d;color:#98a2b3}
+html[data-theme="dark"] .opt .os.ok{background:none;border-color:#3a475e}
+html[data-theme="dark"] .opt .os.kn{background:var(--amberBg);color:var(--amber);border-color:#7a5a16}
+html[data-theme="dark"] .opt.on .os{background:var(--red);color:#fff}
+html[data-theme="dark"] .infobox{background:#172338;border-color:#2a3d5e;color:#b9cdf0}
+html[data-theme="dark"] .onote .rm{color:#98a2b3}
+html[data-theme="dark"] .onote textarea{border-color:#7a2b26}
+html[data-theme="dark"] .ph{background:#0f1726;border-color:#3a475e}
+html[data-theme="dark"] .dph .ph{background:#1b2638;border-color:#7a2b26}
+html[data-theme="dark"] .vterms{border-color:#7a5a16}
+html[data-theme="dark"] .vterms.bad{border-color:#7a2b26}
+html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:#5b6678}
+/* volba vzhledu na úvodu */
+.themebox{margin-top:18px;text-align:center}
+.themebox .tl{font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:6px}
+.themebox .ftype{max-width:330px;margin:0 auto;grid-template-columns:1fr 1fr 1fr}
+.themebox .ftype button{font-size:14px;padding:8px 4px}
+@media print{html[data-theme="dark"]{--text:#101828;--card:#fff;--muted:#555;--line:#ccc}}
 </style>
 </head>
 <body>
@@ -297,11 +363,13 @@ body.home{background:linear-gradient(var(--blue) 0,var(--blue) 120px,var(--bg) 1
   <!-- V3.0 Úvod s dlaždicemi -->
   <div id="homeCard" class="hidden">
     <div id="homeMsg" class="msg"></div>
+    <div id="homeRem" class="msg wait hidden"></div>
     <div class="tiles">
       <button class="tile" onclick="openView('att')"><span class="ic b"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span><div class="tt">Docházka</div><div class="ts">Zapsat odpracovaný den</div></span><span class="ar">›</span></button>
       <button class="tile" onclick="openView('check')"><span class="ic g"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9z"/><path d="M9 13l2 2 4-4"/></svg></span><span><div class="tt">Kontrola vozidla</div><div class="ts">Před jízdou / při převzetí vozidla</div></span><span class="ar">›</span></button>
       <button class="tile" onclick="openView('fuel')"><span class="ic a"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16"/><path d="M3 21h12"/><path d="M6 8h6"/><path d="M14 10h2a2 2 0 0 1 2 2v5a1.5 1.5 0 0 0 3 0V9l-3-3"/></svg></span><span><div class="tt">Tankování</div><div class="ts">Litry a stav km</div></span><span class="ar">›</span></button>
     </div>
+    <div class="themebox"><div class="tl">Vzhled</div><div class="ftype"><button type="button" id="thAuto" onclick="setTheme('auto')">Automaticky</button><button type="button" id="thLight" onclick="setTheme('light')">Světlý</button><button type="button" id="thDark" onclick="setTheme('dark')">Tmavý</button></div></div>
   </div>
 
   <!-- V3.0 Kontrola vozidla -->
@@ -422,7 +490,7 @@ body.home{background:linear-gradient(var(--blue) 0,var(--blue) 120px,var(--bg) 1
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '3.88';
+const APP_VER = '3.91';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -497,6 +565,18 @@ function calcHours(){
 }
 ['fFrom','fTo','fPause'].forEach(id => document.addEventListener('DOMContentLoaded', () => { $(id).addEventListener('input', () => { calcHours(); readyAtt(); }); $(id).addEventListener('change', readyAtt); }));
 
+/* V3.89: vzhled Automaticky (podle telefonu) / Světlý / Tmavý – volba se pamatuje v telefonu */
+function themePref(){ return store.get('m_theme') || 'auto'; }
+function applyTheme(){
+  const p = themePref(), dark = p === 'dark' || (p === 'auto' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  const m = $('themeMeta'); if(m) m.setAttribute('content', dark ? '#13305e' : '#1769e0');
+  [['thAuto','auto'],['thLight','light'],['thDark','dark']].forEach(([id, v]) => { const b = $(id); if(b) b.classList.toggle('on', p === v); });
+}
+function setTheme(p){ store.set('m_theme', p); applyTheme(); }
+try{ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme); }catch(e){}
+document.addEventListener('DOMContentLoaded', applyTheme);
+
 /* ---------- přihlášení ---------- */
 async function init(){
   if(location.hash){ try{ history.replaceState(null, '', location.pathname + location.search); }catch(e){} }
@@ -560,12 +640,12 @@ function showApp(){
   homeRemind();
 }
 /* V3.74: oranžové upozornění na úvodu – nezapsaný den a nepotvrzený výkaz (klepnutím se otevře) */
+const WDAYS = ['neděli','pondělí','úterý','středu','čtvrtek','pátek','sobotu'];   // V3.91: „za pátek 06.11.“
 function homeRemind(){
-  const el = $('homeMsg'), parts = [];
-  if(S.missing) parts.push(`<button type="button" class="hlink" onclick="openDay('${S.missing}')">Nemáte zapsanou docházku za ${ddmm(S.missing)} – doplnit ›</button>`);
-  if(S.remind) parts.push(`<button type="button" class="hlink" onclick="M.month='${S.remind}';openView('att');setTimeout(()=>$('monthCard').scrollIntoView({behavior:'smooth'}),400)">Potvrďte prosím výkaz za ${monthLabel(S.remind)} ›</button>`);
-  if(!parts.length) return;
-  el.className = 'msg wait'; el.innerHTML = parts.join('');
+  const el = $('homeRem'), parts = [];   // V3.90: vlastní místo – připomínky jsou vidět při každém návratu na úvod
+  if(S.missing) parts.push(`<button type="button" class="hlink" onclick="openDay('${S.missing}')">Doplňte docházku za ${WDAYS[new Date(S.missing + 'T12:00').getDay()]} ${ddmm(S.missing)} ›</button>`);
+  if(S.remind) parts.push(`<button type="button" class="hlink" onclick="M.month='${S.remind}';openView('att');setTimeout(()=>$('monthCard').scrollIntoView({behavior:'smooth'}),400)">Potvrďte pracovní výkaz za ${monthLabel(S.remind)} ›</button>`);
+  el.innerHTML = parts.join(''); el.classList.toggle('hidden', !parts.length);
 }
 /* V3.0: obrazovky – úvod (dlaždice), docházka, kontrola vozidla, tankování */
 const VIEWS = { home:['homeCard'], att:['formCard','listCard','monthCard'], check:['checkCard','vehListCard'], fuel:['fuelCard','vehListCard'] };
@@ -580,6 +660,7 @@ function showView(v){
   $('refBtn').classList.remove('hidden');
   $('topTitle').textContent = TITLES[v];
   $('topSub').textContent = S.name;
+  if(v === 'home') homeRemind();
   window.scrollTo(0, 0);
 }
 /* V3.31: potvrzení na úvodu zůstane, dokud řidič neotevře další dlaždici; s časem odeslání */
@@ -618,7 +699,6 @@ async function refreshAll(){
     checkUpdate();
     if(S.view === 'att') loadMonth(M.month);
     await Promise.all([ loadEntries().catch(() => {}), (async () => { refreshVeh.busy = false; await refreshVeh(); })() ]);
-    if(S.view === 'home') msg('homeMsg', 'ok', '✓ Data aktualizována');
   }finally{
     refreshAll.busy = false; $('refBtn').classList.remove('spin'); updUi(false); $('topSub').textContent = S.name;
   }
@@ -646,6 +726,7 @@ async function loadEntries(){
   S.name = r.name; S.today = r.today; S.entries = r.entries || []; store.set('m_sname', r.name);
   S.remind = r.remind || '';   // V3.72: 1.–5. den – výkaz za minulý měsíc ještě nepotvrzen
   S.missing = r.missing || ''; if(r.minDate) S.minDate = r.minDate;   // V3.74: nezapsaný včerejšek / poslední pracovní den
+  if(S.view === 'home') homeRemind();
   renderList();
 }
 function resetForm(){
@@ -729,7 +810,7 @@ async function send(){
   try{
     const r = await call('mSubmit', leave ? { token:S.token, type:'Dovolená', dateFrom:lf, dateTo:lt, note:$('fNote').value }
                                           : { token:S.token, date, from, to, pause:$('fPause').value, note:$('fNote').value });
-    S.entries = r.entries || []; renderList();
+    S.entries = r.entries || []; if('missing' in r) S.missing = r.missing || ''; if('remind' in r) S.remind = r.remind || ''; renderList();
     if(leave){ const n = (r.saved || []).length; msg('formMsg', 'ok', `${S.editing ? 'Zápis upraven' : 'Odesláno'} – dovolená ${lf === lt ? ddmm(lf) : ddmm(lf) + '–' + ddmm(lt)} (${n} ${dayN(n)}). Čeká na schválení dispečinkem.`); }
     else msg('formMsg', 'ok', (dup || S.editing ? 'Zápis upraven' : 'Odesláno') + ` – ${dayLabel(date)}, ${from}–${to}. Čeká na schválení dispečinkem.`);
     resetForm();
@@ -742,7 +823,7 @@ async function delEntry(id){
   const e = S.entries.find(x => x.id === id); if(!e) return;
   if(!(await ask('Smazat zápis ' + dayLabel(e.date) + '?', 'Smazat'))) return;
   busy(true, 'Mažu…');
-  try{ const r = await call('mDelete', { token:S.token, id }); S.entries = r.entries || []; renderList(); if(S.editing === id) resetForm(); }
+  try{ const r = await call('mDelete', { token:S.token, id }); S.entries = r.entries || []; if('missing' in r) S.missing = r.missing || ''; if('remind' in r) S.remind = r.remind || ''; renderList(); if(S.editing === id) resetForm(); }
   catch(err){ msg('formMsg', 'err', err); }
   finally{ busy(false); }
 }
