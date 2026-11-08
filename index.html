@@ -211,6 +211,7 @@ body.home{background:linear-gradient(var(--hdr) 0,var(--hdr) 120px,var(--bg) 120
 .grp:first-of-type{border-top:0;margin-top:0;padding-top:0}
 .grp{border-top:0 !important;margin-top:22px !important;padding-top:0 !important}
 .grp:first-of-type{margin-top:6px !important}
+.card h2.sech{font-weight:900;font-size:17px;color:var(--text);border-left:4px solid var(--blue);background:#eef3fc;border-radius:4px 10px 10px 4px;padding:8px 10px 8px 12px;margin:0 0 14px}   /* V3.92: nadpisy karet jako oddíly kontroly */
 .grp .gh{font-weight:900;font-size:17px;color:var(--text);border-left:4px solid var(--blue);background:#eef3fc;border-radius:4px 10px 10px 4px;padding:8px 10px 8px 12px}
 .grp .gs{font-size:13px;font-weight:700;margin:5px 0 9px;padding-left:16px}
 .grp.has .gh{border-left-color:var(--red);background:#fdf0ef}
@@ -311,7 +312,7 @@ html[data-theme="dark"] .sk i{background:#263247}
 html[data-theme="dark"] .skr{border-bottom-color:var(--line)}
 html[data-theme="dark"] .tile:active{background:#1b2638}
 html[data-theme="dark"] .tile,html[data-theme="dark"] .card{box-shadow:0 1px 3px rgba(0,0,0,.4)}
-html[data-theme="dark"] .grp .gh{background:#172338}
+html[data-theme="dark"] .grp .gh,html[data-theme="dark"] .card h2.sech{background:#172338}
 html[data-theme="dark"] .grp.has .gh{background:var(--redBg)}
 html[data-theme="dark"] .grp.knw:not(.has) .gh{background:var(--amberBg)}
 html[data-theme="dark"] .opt{background:var(--card);color:#d0d6e0}
@@ -434,7 +435,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 
   <!-- Zápis dne -->
   <div id="formCard" class="card hidden">
-    <h2 id="formTitle">Zapsat docházku</h2>
+    <h2 id="formTitle" class="sech">Zapsat docházku</h2>
     <div id="formMsg" class="msg"></div>
     <div class="ftype" id="fType"><button type="button" id="fTypeP" class="on" onclick="setType('P')">Práce</button><button type="button" id="fTypeD" onclick="setType('D')">Dovolená</button></div>
     <div id="fLeave" class="hidden">
@@ -466,12 +467,12 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 
   <!-- Moje zápisy -->
   <div id="listCard" class="card hidden">
-    <h2>Moje zápisy</h2>
+    <h2 class="sech">Odeslané zápisy</h2>
     <div id="list"><div class="empty">Zatím nic.</div></div>
   </div>
-  <!-- V3.65: Můj měsíc – přehled vlastní docházky z hlavní aplikace (jen čtení) -->
+  <!-- V3.65: Můj měsíc (od V3.92 „Pracovní výkaz“) – výkaz posádky a jeho potvrzení -->
   <div id="monthCard" class="card hidden">
-    <h2>Můj měsíc</h2>
+    <h2 class="sech">Pracovní výkaz</h2>
     <div class="mtop"><select id="mSel" onchange="loadMonth(this.value)"></select><button type="button" class="mprint" onclick="printMonth()">Vytisknout / PDF</button></div>
     <div class="ptitle" id="mPrintTitle"></div>
     <div id="mHead"></div>
@@ -490,7 +491,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '3.91';
+const APP_VER = '3.93';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -941,12 +942,12 @@ function noteTxt(x){ return [x.note || '', x.pending ? 'ke schválení' : ''].fi
 function ddmm(iso){ const p = iso.split('-'); return `${p[2]}.${p[1]}.`; }
 function renderMonth(){
   const d = M.data; if(!d) return;
-  $('mSel').innerHTML = d.months.map(k => `<option value="${k}" ${k === d.month ? 'selected' : ''}>${esc(monthLabel(k))}</option>`).join('');
+  $('mSel').innerHTML = d.months.map(k => `<option value="${k}" ${k === d.month ? 'selected' : ''}>${k.slice(5)}/${k.slice(0, 4)}</option>`).join('');   // V3.93: roletka 11/2026
   const mm = d.month.slice(5) + '/' + d.month.slice(0, 4);
   $('mPrintTitle').innerHTML = `<div class="pn">Pracovní výkaz</div><div class="pc">${mm} · ${esc(d.name || S.name)}${d.branch ? ' · ' + esc(d.branch) : ''}</div>`;
   if(!d.available){ $('mHead').innerHTML = ''; $('mBody').innerHTML = '<div class="empty">Přehled měsíce zatím není k dispozici.</div>'; $('mConf').innerHTML = ''; return; }
   const issues = [d.missing.length ? `<div>Nezapsané směny: <b>${d.missing.length}</b></div>` : '', d.diffs ? `<div>Rozdíl s dispečinkem: <b>${d.diffs}</b></div>` : ''].join('');
-  $('mHead').innerHTML = `<div class="mvh"><div class="mvt">Pracovní výkaz ${mm}</div>${esc(d.name || S.name)}${d.branch ? ' · ' + esc(d.branch) : ''}</div>`
+  $('mHead').innerHTML = ''   // V3.93: měsíc je v roletce, jméno v horní liště – nad výkazem jen souhrn
     + (issues ? `<div class="mmob warn">${issues}`
     + (d.missing.length ? `<div class="mmiss"><span class="mml">Doplnit směnu:</span>${d.missing.map(x => x >= (d.minDate || '') ? `<button type="button" onclick="openDay('${x}')">${ddmm(x)}</button>` : `<span>${ddmm(x)}</span>`).join(' ')}</div>` : '') + '</div>' : '');
   if(!d.days.some(x => !x.empty)){ $('mBody').innerHTML = `<div class="empty">V ${esc(monthLabel(d.month))} zatím nemáte žádný zápis ani směnu.</div>`; $('mConf').innerHTML = ''; return; }
