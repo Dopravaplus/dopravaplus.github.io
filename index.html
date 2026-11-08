@@ -491,7 +491,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '3.93';
+const APP_VER = '3.94';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1133,7 +1133,7 @@ function fuelErrs(){
   const l = Number($('tL').value.trim().replace(',', '.'));
   if(!(l > 0)) add($('tL'), 'Zadejte litry, např. 72,5.', true);
   else if(l > 400) add($('tL'), 'Tolik litrů nejde – zkontrolujte číslo.', true);
-  if(isCash() && !V.tPhotos.length) add($('tPhotos'), 'Vyfoťte účtenku (platba hotově nebo soukromou kartou).', false);
+  if(isCash() && !V.tPhotos.length) add($('tPhotos'), 'Vyfoťte účtenku (platba v hotovosti nebo soukromou platební kartou).', false);
   if(isCash()){ const a = Number(String($('tAmt').value).replace(/\s/g, '').replace(',', '.')) || 0; if(!(a > 0)) add($('tAmt'), 'Zadejte zaplacenou částku z účtenky.', true); else if(a > 20000) add($('tAmt'), 'Tak vysoká částka nejde – zkontrolujte číslo.', true); }
   return errs;
 }
@@ -1318,8 +1318,7 @@ function resetFuel(){
   const today = V.data.today > lt ? V.data.today : lt;   // V3.62: uložená data můžou být ze včerejška
   const d = $('tDate'); d.max = today; d.min = isoShift(today, -V.data.daysBack); d.value = today;
   $('tKm').value = ''; $('tL').value = ''; $('tNote').value = ''; $('tAmt').value = ''; $('tPart').checked = false; $('tPartLbl').classList.remove('on');
-  const lp = store.get('m_pay');
-  $('tPay').innerHTML = V.data.pays.map(p => `<option ${p === (lp || V.data.pays[0]) ? 'selected' : ''}>${esc(p)}</option>`).join('');
+  $('tPay').innerHTML = V.data.pays.map((p, i) => `<option ${i === 0 ? 'selected' : ''}>${esc(p)}</option>`).join('');   // V3.94: vždy nabídne Tankovací kartu MOL
   V.tPhotos = []; renderPhotos('tPhotos', 'tPhotos', 1); kmHint('t'); payHint();
   TRIED.fuel = false; clearErrs('fuelCard'); readyFuel();
 }
