@@ -90,6 +90,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#84adff;box-sh
 .ftype button{border:0;background:transparent;border-radius:9px;padding:10px 6px;font-weight:800;font-size:15px;color:#475467;font-family:inherit}
 .ftype button.on{background:#fff;color:var(--blue);box-shadow:0 1px 3px rgba(16,24,40,.12)}
 .it-lv{color:#1849a9;font-weight:800}
+.moreold{display:block;width:100%;margin-top:12px;border:1px solid var(--line);background:#fff;color:var(--blue);border-radius:12px;padding:11px;font-weight:800;font-size:15px;font-family:inherit}
 .edited{font-size:13px;color:#1849a9;margin-top:4px;font-weight:600}
 /* V3.65: Můj měsíc */
 .mtop{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:12px}
@@ -418,7 +419,7 @@ body.home{background:linear-gradient(var(--blue) 0,var(--blue) 120px,var(--bg) 1
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '3.85';
+const APP_VER = '3.87';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -765,7 +766,11 @@ function ask(text, okLabel, blue){
 function renderList(){
   const list = $('list');
   if(!S.entries.length){ list.innerHTML = '<div class="empty">Zatím jste nic neodeslali.</div>'; return; }
-  list.innerHTML = S.entries.map(e => {
+  /* V3.87: jen čekající zápisy a posledních 14 dní, starší pod tlačítkem */
+  const from14 = isoShift(S.today || todayIso(), -14);
+  const recent = S.entries.filter(e => e.state === 'Ke schválení' || e.date >= from14), old = S.entries.filter(e => !recent.includes(e));
+  const shown = S.showOld ? S.entries : recent;
+  list.innerHTML = (shown.length ? '' : '<div class="empty">Za posledních 14 dní nemáte žádný zápis.</div>') + shown.map(e => {
     const edited = e.state === 'Převzato' && /^\s*upraveno/i.test(e.reason || '');   // V3.74: text ze sl. N, pokud začíná „Upraveno na …“
     const chip = e.state === 'Souhlasí' ? '<span class="chip ok">Souhlasí s docházkou</span>'   // V3.73: automaticky ověřeno hlavní aplikací
       : e.state === 'Převzato' ? '<span class="chip ok">Převzato</span>'
@@ -780,7 +785,7 @@ function renderList(){
       <div class="n">Odesláno ${esc(e.sent)}</div>
       ${e.state === 'Ke schválení' ? `<div class="acts"><button onclick="editEntry('${esc(e.id)}')">Upravit</button><button class="del" onclick="delEntry('${esc(e.id)}')">Smazat</button></div>` : ''}
     </div>`;
-  }).join('');
+  }).join('') + (old.length ? `<button type="button" class="moreold" onclick="S.showOld=!S.showOld;renderList()">${S.showOld ? 'Skrýt starší zápisy' : `Zobrazit starší (${old.length})`}</button>` : '');
 }
 
 /* ================= V3.65 MŮJ MĚSÍC ================= */
@@ -788,7 +793,31 @@ const M = { month:'', data:null, busy:false };
 const MONTHS = ['leden','únor','březen','duben','květen','červen','červenec','srpen','září','říjen','listopad','prosinec'];
 /* V3.66: hodiny jako čas 9:30 */
 function fmtClock(h){ const m = Math.round((Number(h) || 0) * 60); return Math.floor(m / 60) + ':' + String(m % 60).padStart(2, '0'); }
-function printMonth(){ if(!M.data || !M.data.available) return; buildPrint(); window.print(); }
+/* V3.86: PDF výkazu vytvoří server – iPhone (aplikace z plochy) tisk stránky neumí.
+   Po přípravě se PDF nabídne ke sdílení (Tisk, Uložit do Souborů, poslat) – na počítači se stáhne. */
+async function printMonth(){
+  if(!M.data || !M.data.available || printMonth.busy) return;
+  printMonth.busy = true; busy(true, 'Připravuji PDF…');
+  let r;
+  try{ r = await call('mMonthPdf', { token:S.token, month:M.data.month }); }
+  catch(e){ busy(false); printMonth.busy = false; await ask(netTxt(e), 'OK', true); return; }
+  busy(false); printMonth.busy = false;
+  const bin = atob(r.b64), bytes = new Uint8Array(bin.length);
+  for(let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  const blob = new Blob([bytes], { type:'application/pdf' });
+  const fname = r.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\w.-]+/g, '-');   // bez diakritiky – stahování v některých prohlížečích
+  let file = null; try{ file = new File([blob], fname, { type:'application/pdf' }); }catch(e){}
+  const touch = window.matchMedia && matchMedia('(pointer:coarse)').matches;
+  const canShare = touch && file && navigator.canShare && navigator.canShare({ files:[file] });
+  if(!(await ask(`PDF výkazu za ${monthLabel(M.data.month)} je připravené.` + (canShare ? ' V nabídce zvolte Tisk, Uložit do Souborů nebo komu ho poslat.' : ''), canShare ? 'Otevřít PDF' : 'Stáhnout PDF', true))) return;
+  if(canShare){
+    try{ await navigator.share({ files:[file], title:r.name }); return; }
+    catch(e){ if(e && e.name === 'AbortError') return; }   // zrušeno uživatelem
+  }
+  const url = URL.createObjectURL(blob), a = document.createElement('a');
+  a.href = url; a.download = fname; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
 /* V3.70: tisk jako tabulka se sloupci */
 function buildPrint(){
   const d = M.data, c = d.confirm;
