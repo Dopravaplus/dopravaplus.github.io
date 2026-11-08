@@ -491,7 +491,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '3.94';
+const APP_VER = '3.95';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -848,6 +848,8 @@ function ask(text, okLabel, blue){
     $('askOk').onclick = () => done(true); $('askNo').onclick = () => done(false);
   });
 }
+/* V3.95: „… – podle ONI“ z hlavní aplikace → „… (ONI systém)“ */
+function oniTxt(t){ return String(t || '').replace(/\s*[–-]\s*(podle|dle|z)\s+ONI(\s+syst[eé]mu)?\b/i, ' (ONI systém)'); }
 function renderList(){
   const list = $('list');
   if(!S.entries.length){ list.innerHTML = '<div class="empty">Zatím jste nic neodeslali.</div>'; return; }
@@ -866,7 +868,7 @@ function renderList(){
       ${e.type === 'Dovolená' ? `<div class="t it-lv ${e.state === 'Zamítnuto' ? 'no' : ''}">Dovolená</div>` : `<div class="t">${esc(e.from)}–${esc(e.to)}${pause} · <b>${fmtHM(e.hours)}</b></div>`}
       ${e.note ? `<div class="n">${esc(e.note)}</div>` : ''}
       ${e.state === 'Zamítnuto' && e.reason ? `<div class="reason">Důvod: ${esc(e.reason)}</div>` : ''}
-      ${edited ? `<div class="edited">${esc(e.reason)}</div>` : ''}
+      ${edited ? `<div class="edited">${esc(oniTxt(e.reason))}</div>` : ''}
       <div class="n">Odesláno ${esc(e.sent)}</div>
       ${e.state === 'Ke schválení' ? `<div class="acts"><button onclick="editEntry('${esc(e.id)}')">Upravit</button><button class="del" onclick="delEntry('${esc(e.id)}')">Smazat</button></div>` : ''}
     </div>`;
