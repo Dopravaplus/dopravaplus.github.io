@@ -122,6 +122,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#84adff;box-sh
 .mmob.warn{background:var(--amberBg);color:var(--amber)}
 .mmiss{margin-top:4px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .mmiss .mml{flex-basis:100%;margin-bottom:2px}   /* V3.97: data pod textem „Doplnit směnu:“ */
+.msel{margin-top:2px;font-size:16px;font-weight:700;padding:10px 40px 10px 12px;border-color:#fec84b;color:var(--amber)}   /* V3.99 */
+html[data-theme="dark"] .msel{border-color:#7a5a16;color:var(--amber)}
 .mmiss button{border:1px solid #fec84b;background:#fff;color:var(--amber);border-radius:999px;padding:3px 10px;font-weight:800;font-size:13.5px;font-family:inherit}
 .mrow.gray{color:#98a2b3;padding:5px 0}
 .mrow.gray .md{font-weight:600}
@@ -494,7 +496,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '3.98';
+const APP_VER = '3.99';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -644,6 +646,7 @@ function showApp(){
   homeRemind();
 }
 /* V3.74: oranžové upozornění na úvodu – nezapsaný den a nepotvrzený výkaz (klepnutím se otevře) */
+const WD2 = ['ne','po','út','st','čt','pá','so'];
 const WDAYS = ['neděli','pondělí','úterý','středu','čtvrtek','pátek','sobotu'];   // V3.91: „za pátek 06.11.“
 function homeRemind(){
   const el = $('homeRem'), parts = [];   // V3.90: vlastní místo – připomínky jsou vidět při každém návratu na úvod
@@ -954,7 +957,7 @@ function renderMonth(){
   const issues = [d.missing.length ? `<div>Nezapsané směny: <b>${d.missing.length}</b></div>` : '', d.diffs ? `<div>Rozdíl s dispečinkem: <b>${d.diffs}</b></div>` : ''].join('');
   $('mHead').innerHTML = ''   // V3.93: měsíc je v roletce, jméno v horní liště – nad výkazem jen souhrn
     + (issues ? `<div class="mmob warn">${issues}`
-    + (d.missing.length ? `<div class="mmiss"><span class="mml">Doplnit směnu:</span>${d.missing.map(x => x >= (d.minDate || '') ? `<button type="button" onclick="openDay('${x}')">${ddmm(x)}</button>` : `<span>${ddmm(x)}</span>`).join(' ')}</div>` : '') + '</div>' : '');
+    + (d.missing.length ? `<div class="mmiss"><span class="mml">Doplnit směnu:</span><select class="msel" onchange="if(this.value){ openDay(this.value); this.value=''; }"><option value="">— vyberte den (${d.missing.length}) —</option>${d.missing.map(x => `<option value="${x}" ${x < (d.minDate || '') ? 'disabled' : ''}>${WD2[new Date(x + 'T12:00').getDay()]} ${ddmm(x)}${x.slice(0, 4)}${x < (d.minDate || '') ? ' – už nelze doplnit' : ''}</option>`).join('')}</select></div>` : '') + '</div>' : '');   // V3.99: dny v roletce
   if(!d.days.some(x => !x.empty)){ $('mBody').innerHTML = `<div class="empty">V ${esc(monthLabel(d.month))} zatím nemáte žádný zápis ani směnu.</div>`; $('mConf').innerHTML = ''; return; }
   $('mBody').innerHTML = d.days.map(x => {
     if(x.empty) return `<div class="mrow gray"><span class="md">${esc(x.label)}</span><span></span><span></span></div>`;
