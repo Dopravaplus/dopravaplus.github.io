@@ -111,6 +111,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#84adff;box-sh
 .cst.ok{background:var(--greenBg);color:var(--green)}
 .cst.warn{background:var(--amberBg);color:var(--amber)}
 .cst .cn{margin-top:4px;color:#475467;font-size:13.5px}
+.fbtns{display:grid;grid-template-columns:1fr 2fr;gap:8px}
+.fbtns .btn.sec{padding:14px 8px}
 .mbtns{display:grid;grid-template-columns:1fr 2fr;gap:8px;margin-top:10px}
 .mlv{color:#1849a9;font-weight:800}
 .mlv.sick{color:var(--red)}
@@ -465,8 +467,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
     <div class="hrs" id="fHours"></div>
     </div>
     <div class="f"><label for="fNote">Poznámka (nepovinné)</label><textarea id="fNote" maxlength="300" placeholder="např. čekání na vykládku, oprava vozidla…"></textarea></div>
-    <button class="btn dim" id="sendBtn" onclick="send()">Odeslat dispečinku</button>
-    <button class="btn sec hidden" id="cancelEditBtn" style="margin-top:8px" onclick="resetForm()">Zrušit úpravu</button>
+    <div class="fbtns"><button type="button" class="btn sec" id="cancelEditBtn" onclick="clearForm()">Vymazat</button><button class="btn dim" id="sendBtn" onclick="send()">Odeslat dispečinku</button></div>
     <div class="hint" id="fHint">Zápis se odešle ke schválení dispečinku. Dokud ho dispečink nepřevezme, můžete ho upravit nebo smazat.</div>
   </div>
 
@@ -496,7 +497,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '3.99';
+const APP_VER = '4.00';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -736,10 +737,12 @@ async function loadEntries(){
   if(S.view === 'home') homeRemind();
   renderList();
 }
+/* V4.00: tlačítko Vymazat / Zrušit úpravu – formulář do výchozího stavu a bez zprávy */
+function clearForm(){ resetForm(); msg('formMsg', '', ''); }
 function resetForm(){
   S.editing = null;
   $('formTitle').textContent = 'Zapsat docházku';
-  $('cancelEditBtn').classList.add('hidden');
+  $('cancelEditBtn').textContent = 'Vymazat';
   const d = $('fDate');
   d.max = S.today; d.min = S.minDate || isoShift(S.today, -S.daysBack);   // V3.74: i od 1. dne minulého měsíce
   d.value = S.today; d.disabled = false;
@@ -798,7 +801,7 @@ function editEntry(id){
   $('fNote').value = e.note || '';
   $('fLFrom').value = e.date; $('fLTo').value = e.date; $('fLFrom').disabled = true; $('fLTo').disabled = true;
   setType(e.type === 'Dovolená' ? 'D' : 'P', true);
-  $('cancelEditBtn').classList.remove('hidden');
+  $('cancelEditBtn').textContent = 'Zrušit úpravu';
   calcHours(); msg('formMsg', '', ''); readyAtt();
   window.scrollTo({ top:0, behavior:'smooth' });
 }
@@ -957,7 +960,7 @@ function renderMonth(){
   const issues = [d.missing.length ? `<div>Nezapsané směny: <b>${d.missing.length}</b></div>` : '', d.diffs ? `<div>Rozdíl s dispečinkem: <b>${d.diffs}</b></div>` : ''].join('');
   $('mHead').innerHTML = ''   // V3.93: měsíc je v roletce, jméno v horní liště – nad výkazem jen souhrn
     + (issues ? `<div class="mmob warn">${issues}`
-    + (d.missing.length ? `<div class="mmiss"><span class="mml">Doplnit směnu:</span><select class="msel" onchange="if(this.value){ openDay(this.value); this.value=''; }"><option value="">— vyberte den (${d.missing.length}) —</option>${d.missing.map(x => `<option value="${x}" ${x < (d.minDate || '') ? 'disabled' : ''}>${WD2[new Date(x + 'T12:00').getDay()]} ${ddmm(x)}${x.slice(0, 4)}${x < (d.minDate || '') ? ' – už nelze doplnit' : ''}</option>`).join('')}</select></div>` : '') + '</div>' : '');   // V3.99: dny v roletce
+    + '</div>' : '');   // V4.00: dny k doplnění jen u řádků výkazu (Doplnit směnu ›)
   if(!d.days.some(x => !x.empty)){ $('mBody').innerHTML = `<div class="empty">V ${esc(monthLabel(d.month))} zatím nemáte žádný zápis ani směnu.</div>`; $('mConf').innerHTML = ''; return; }
   $('mBody').innerHTML = d.days.map(x => {
     if(x.empty) return `<div class="mrow gray"><span class="md">${esc(x.label)}</span><span></span><span></span></div>`;
