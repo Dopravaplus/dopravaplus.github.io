@@ -60,6 +60,9 @@ select{background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2
 .chk.on{background:var(--amberBg);border-color:#fec84b}
 .chk.on .ct{color:var(--amber)}
 textarea{min-height:70px;resize:vertical}
+input[type=date],input[type=time]{min-height:50px;text-align:left;display:block}   /* V3.97: prázdný čas na iPhonu se nesmršťuje */
+input::-webkit-date-and-time-value{text-align:left}
+#formCard,#monthCard{scroll-margin-top:calc(90px + env(safe-area-inset-top))}   /* V3.97: po posunu není nadpis karty pod lištou */
 input:focus,select:focus,textarea:focus{outline:none;border-color:#84adff;box-shadow:0 0 0 3px rgba(23,105,224,.15)}
 .f{margin-bottom:12px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -118,7 +121,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#84adff;box-sh
 .mmob.ok{background:var(--greenBg);color:var(--green)}
 .mmob.warn{background:var(--amberBg);color:var(--amber)}
 .mmiss{margin-top:4px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.mmiss .mml{margin-right:2px}
+.mmiss .mml{flex-basis:100%;margin-bottom:2px}   /* V3.97: data pod textem „Doplnit směnu:“ */
 .mmiss button{border:1px solid #fec84b;background:#fff;color:var(--amber);border-radius:999px;padding:3px 10px;font-weight:800;font-size:13.5px;font-family:inherit}
 .mrow.gray{color:#98a2b3;padding:5px 0}
 .mrow.gray .md{font-weight:600}
@@ -131,7 +134,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#84adff;box-sh
 .mrow.miss{background:#fef3f2;margin:0 -8px;padding-left:8px;padding-right:8px;border-radius:8px}
 .nz{border:1px solid #fda29b;background:#fff;color:var(--red);border-radius:999px;padding:2px 10px;font-weight:800;font-size:13.5px;font-family:inherit;margin-top:2px}
 .nzs{color:var(--red);font-weight:800}
-.mpend{color:var(--amber);font-weight:600}
+.mpend{display:block;color:var(--amber);font-weight:600;white-space:nowrap}   /* V3.96: „ke schválení“ vždy samostatně na jednom řádku */
 .msub{font-size:12.5px;color:var(--muted);font-weight:600;margin-top:3px}
 /* V3.66: tisk / PDF – jen přehled měsíce, bez lišty a tlačítek */
 @page{margin:15mm}
@@ -491,7 +494,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '3.95';
+const APP_VER = '3.98';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -644,7 +647,7 @@ function showApp(){
 const WDAYS = ['neděli','pondělí','úterý','středu','čtvrtek','pátek','sobotu'];   // V3.91: „za pátek 06.11.“
 function homeRemind(){
   const el = $('homeRem'), parts = [];   // V3.90: vlastní místo – připomínky jsou vidět při každém návratu na úvod
-  if(S.missing) parts.push(`<button type="button" class="hlink" onclick="openDay('${S.missing}')">Doplňte docházku za ${WDAYS[new Date(S.missing + 'T12:00').getDay()]} ${ddmm(S.missing)} ›</button>`);
+  if(S.missing) parts.push(`<button type="button" class="hlink" onclick="openDay('${S.missing}')">Doplňte docházku za ${WDAYS[new Date(S.missing + 'T12:00').getDay()]} ${ddmm(S.missing)}${S.missing.slice(0, 4)} ›</button>`);
   if(S.remind) parts.push(`<button type="button" class="hlink" onclick="M.month='${S.remind}';openView('att');setTimeout(()=>$('monthCard').scrollIntoView({behavior:'smooth'}),400)">Potvrďte pracovní výkaz za ${monthLabel(S.remind)} ›</button>`);
   el.innerHTML = parts.join(''); el.classList.toggle('hidden', !parts.length);
 }
@@ -955,11 +958,11 @@ function renderMonth(){
   if(!d.days.some(x => !x.empty)){ $('mBody').innerHTML = `<div class="empty">V ${esc(monthLabel(d.month))} zatím nemáte žádný zápis ani směnu.</div>`; $('mConf').innerHTML = ''; return; }
   $('mBody').innerHTML = d.days.map(x => {
     if(x.empty) return `<div class="mrow gray"><span class="md">${esc(x.label)}</span><span></span><span></span></div>`;
-    if(x.leave){ const ln = esc(x.note || ''), lp = x.pending ? `<span class="mpend">${ln ? ' · ' : ''}ke schválení</span>` : '';
+    if(x.leave){ const ln = esc(x.note || ''), lp = x.pending ? `<span class="mpend">ke schválení</span>` : '';
       return `<div class="mrow"><span class="md">${esc(x.label)}</span><span><b class="mlv ${x.activity === 'Nemoc' ? 'sick' : ''}">${esc(x.activity)}</b>${ln || lp ? `<div class="mn">${ln}${lp}</div>` : ''}</span><span class="mh">${x.att && x.att.st ? `<div class="msub">dispečink ${attMark(x.att)}</div>` : ''}</span></div>`; }
     const top = [x.activity, x.vehicle].filter(Boolean).join(' · ');
-    const time = x.missing ? (x.date >= (d.minDate || '') ? `<button type="button" class="nz" onclick="openDay('${x.date}')">nezapsal – doplnit ›</button>` : '<span class="nzs">nezapsal</span>') : `<div class="mt">${esc(x.from)}–${esc(x.to)}</div>`;
-    const nt = x.note ? esc(x.note) : '', pd = x.pending ? `<span class="mpend">${nt ? ' · ' : ''}ke schválení</span>` : '';
+    const time = x.missing ? (x.date >= (d.minDate || '') ? `<button type="button" class="nz" onclick="openDay('${x.date}')">Doplnit směnu ›</button>` : '<span class="nzs">chybí zápis</span>') : `<div class="mt">${esc(x.from)}–${esc(x.to)}</div>`;
+    const nt = x.note ? esc(x.note) : '', pd = x.pending ? `<span class="mpend">ke schválení</span>` : '';
     const att = x.att && x.att.st ? `<div class="msub">dispečink ${attMark(x.att)}</div>` : '';
     return `<div class="mrow ${x.weekend ? 'wk' : ''} ${x.missing ? 'miss' : ''}"><span class="md">${esc(x.label)}</span><span>${time}${top ? `<div class="mf2">${esc(top)}</div>` : ''}${x.crew ? `<div class="mf">${esc(x.crew)}</div>` : ''}${nt || pd ? `<div class="mn">${nt}${pd}</div>` : ''}</span><span class="mh">${x.hours ? fmtH(x.hours) + '&nbsp;h' : ''}${att}</span></div>`;
   }).join('') + `<div class="msum"><span>Celkem odpracovaných hodin<div class="mf" style="font-weight:600">směny ${d.shifts}${d.leaveDays ? ` · dovolená ${d.leaveDays} ${dayN(d.leaveDays)}` : ''}${d.sickDays ? ` · nemoc ${d.sickDays} ${dayN(d.sickDays)}` : ''}</div><div class="mf" style="font-weight:600">podle dispečinku (mzda) ${fmtH(d.attHours)}&nbsp;h</div></span><span>${fmtH(d.hours)}&nbsp;h</span></div>`;
@@ -970,7 +973,8 @@ function openDay(iso){
   openView('att');
   resetForm(); $('fDate').value = iso; readyAtt();
   setTimeout(() => { $('formCard').scrollIntoView({ behavior:'smooth', block:'start' }); $('fFrom').focus({ preventScroll:true }); }, 80);
-  msg('formMsg', 'wait', `Doplňte docházku za ${ddmm(iso)} – odešle se ke schválení dispečinku.`);
+  msg('formMsg', 'wait', '');   // V3.97: dva řádky
+  $('formMsg').innerHTML = `<b>Doplňte docházku za ${WDAYS[new Date(iso + 'T12:00').getDay()]} ${ddmm(iso)}${iso.slice(0, 4)}</b><br>Odešle se ke schválení na dispečink.`;
 }
 /* V3.72: potvrzení výkazu místo podpisu na papíře */
 function renderConf(){
