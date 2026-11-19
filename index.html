@@ -63,6 +63,10 @@ select{background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2
 textarea{min-height:70px;resize:vertical}
 input[type=date],input[type=time]{min-height:50px;text-align:left;display:block}   /* V3.97: prázdný čas na iPhonu se nesmršťuje */
 input::-webkit-date-and-time-value{text-align:left}
+/* V4.09: výběr (vozidlo, měsíc…) a datum / čas na střed políčka */
+select{text-align:center;text-align-last:center;padding-left:44px}
+input[type=date],input[type=time]{text-align:center}
+input[type=date]::-webkit-date-and-time-value,input[type=time]::-webkit-date-and-time-value{text-align:center}
 #formCard,#monthCard{scroll-margin-top:calc(90px + env(safe-area-inset-top))}   /* V3.97: po posunu není nadpis karty pod lištou */
 input:focus,select:focus,textarea:focus{outline:none;border-color:#84adff;box-shadow:0 0 0 3px rgba(23,105,224,.15)}
 .f{margin-bottom:12px}
@@ -548,7 +552,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.08';
+const APP_VER = '4.09';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
