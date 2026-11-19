@@ -201,7 +201,7 @@ html[data-theme="dark"] .msel{border-color:#7a5a16;color:var(--amber)}
 .item .acts button.del{color:var(--red);border-color:#fda29b}
 .reason{font-size:13px;color:var(--red);margin-top:4px;font-weight:600}
 .empty{color:var(--muted);font-size:14px}
-.hint{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.4}
+.hint{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.4}.hint.hc{text-align:center}   /* V4.51: text pod tlačítkem Odeslat na střed */
 .hidden{display:none !important}
 .busy{position:fixed;inset:0;background:rgba(16,24,40,.25);display:flex;align-items:center;justify-content:center;z-index:50}
 .busy div{background:#fff;border-radius:14px;padding:16px 20px;font-weight:700}
@@ -471,7 +471,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
     <div class="f"><label id="tPhLabel">Fotka účtenky</label><div class="photos" id="tPhotos"></div><div class="hint" id="tPhHint" style="margin-top:6px"></div></div>
     <div class="f"><label for="tNote">Poznámka (nepovinné)</label><textarea id="tNote" maxlength="300" placeholder="např. tankováno i AdBlue"></textarea></div>
     <button class="btn dim" id="tSend" onclick="sendFuel()">Odeslat tankování</button>
-    <div class="hint">Tankování zkontroluje dispečink a zapíše do karty vozidla. Dokud se tak nestane, můžete ho smazat.</div>
+    <div class="hint hc">Tankování zkontroluje dispečink a zapíše do karty vozidla. Dokud se tak nestane, můžete ho smazat.</div>
   </div>
 
   <!-- V4.01: Tlak pneumatik -->
@@ -503,7 +503,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
     <div class="f"><label class="chk" id="yInfLbl"><input type="checkbox" id="yInf" onchange="this.parentNode.classList.toggle('on', this.checked)"><span><div class="ct">Dohuštěno na předepsaný tlak</div><div class="cs">Zaškrtněte, když jste po měření pneumatiky dohustili.</div></span></label></div>
     <div class="f"><label for="yNote">Poznámka (nepovinné)</label><textarea id="yNote" maxlength="300" placeholder="např. pravé zadní kolo ztrácí tlak"></textarea></div>
     <button class="btn dim" id="ySend" onclick="sendTyre()">Odeslat měření</button>
-    <div class="hint">Tlak se měří každé 3 týdny – u vozidla vám aplikace připomene, až bude na řadě. Měření zapíše kancelář do karty vozidla; do té doby ho můžete smazat.</div>
+    <div class="hint hc">Tlak se měří každé 3 týdny – u vozidla vám aplikace připomene, až bude na řadě. Měření zapíše kancelář do karty vozidla; do té doby ho můžete smazat.</div>
   </div>
 
   <!-- V3.0 Moje záznamy vozidel -->
@@ -540,7 +540,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
     </div>
     <div class="f"><label for="fNote">Poznámka (nepovinné)</label><textarea id="fNote" maxlength="300" placeholder="např. čekání na vykládku, oprava vozidla…"></textarea></div>
     <div class="fbtns"><button type="button" class="btn sec" id="cancelEditBtn" onclick="clearForm()">Vymazat</button><button class="btn dim" id="sendBtn" onclick="send()">Odeslat dispečinku</button></div>
-    <div class="hint" id="fHint">Zápis se odešle ke schválení dispečinku. Upravit nebo smazat ho můžete, dokud dispečink za ten den nemá zapsanou směnu.</div>
+    <div class="hint hc" id="fHint">Docházka se odešle dispečinku ke schválení. Upravit nebo smazat ji můžete, dokud dispečink nemá za ten den zapsanou směnu.</div>
   </div>
 
   <!-- Moje zápisy -->
@@ -569,7 +569,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.50';
+const APP_VER = '4.51';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -911,7 +911,7 @@ function setType(t, quiet){
   $('fTypeP').classList.toggle('on', t === 'P'); $('fTypeD').classList.toggle('on', t === 'D');
   $('fWork').classList.toggle('hidden', t !== 'P'); $('fLeave').classList.toggle('hidden', t !== 'D');
   $('fNote').placeholder = t === 'D' ? 'nepovinné' : 'např. čekání na vykládku, oprava vozidla…';
-  $('fHint').textContent = t === 'D' ? 'Dovolenou lze zapsat od 1. dne minulého měsíce do konce tohoto měsíce. Odešle se ke schválení dispečinku – po převzetí se zapíše do docházky.' : 'Zápis se odešle ke schválení dispečinku. Upravit nebo smazat ho můžete, dokud dispečink za ten den nemá zapsanou směnu.';
+  $('fHint').textContent = t === 'D' ? 'Dovolenou lze zapsat od 1. dne minulého měsíce do konce tohoto měsíce. Odešle se ke schválení dispečinku – po převzetí se zapíše do docházky.' : 'Docházka se odešle dispečinku ke schválení. Upravit nebo smazat ji můžete, dokud dispečink nemá za ten den zapsanou směnu.';
   if(t === 'D' && !$('fLFrom').value && !S.editing){ const v = $('fDate').value || ''; $('fLFrom').value = v; $('fLTo').value = v; }
   if(!quiet){ clearErrs('formCard'); TRIED.att = false; msg('formMsg', '', ''); }
   lvDays(); readyAtt();
