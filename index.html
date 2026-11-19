@@ -569,7 +569,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.43';
+const APP_VER = '4.44';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -848,6 +848,22 @@ function backToMonth(){
 function goHome(){ if(S.view === 'att' && S.fromDay){ resetForm(); msg('formMsg', '', ''); backToMonth(); return; }
   if(location.hash){ try{ history.back(); return; }catch(e){} } showView('home'); }
 window.addEventListener('popstate', () => { if(S.token && S.view && S.view !== 'home') showView('home'); });
+/* V4.44: při každém otevření aplikace (návrat z pozadí po 1 min a víc) úvodní stránka s ikonami;
+   rozepsaný formulář se nezahodí – zůstane otevřený */
+let hiddenAt = 0;
+function homeOnOpen(){
+  if(!S.token || !S.view || S.view === 'home') return;
+  const id = FORM_CARD[S.view]; if(id && formDirty(id)) return;
+  if(S.view === 'att'){ resetForm(); S.fromDay = ''; msg('formMsg', '', ''); }
+  if(location.hash){ try{ history.replaceState(null, '', location.pathname + location.search); }catch(e){} }
+  showView('home');
+}
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'hidden'){ hiddenAt = Date.now(); return; }
+  if(hiddenAt && Date.now() - hiddenAt >= 60000) homeOnOpen();
+  hiddenAt = 0;
+});
+window.addEventListener('pageshow', e => { if(e.persisted) homeOnOpen(); });
 async function loadEntries(){
   const r = await call('mMyEntries', { token:S.token });
   S.name = r.name; S.today = r.today; S.entries = r.entries || []; store.set('m_sname', r.name);
