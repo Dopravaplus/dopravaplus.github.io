@@ -545,7 +545,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 
   <!-- Moje zápisy -->
   <div id="listCard" class="card hidden">
-    <h2 class="sech">Odeslané zápisy</h2>
+    <h2 class="sech">Odeslaná docházka</h2>
     <div id="list"><div class="empty">Zatím nic.</div></div>
   </div>
   <!-- V3.65: Můj měsíc (od V3.92 „Pracovní výkaz“) – výkaz posádky a jeho potvrzení -->
@@ -569,7 +569,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.48';
+const APP_VER = '4.49';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
