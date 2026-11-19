@@ -142,7 +142,7 @@ html[data-theme="dark"] .msel{border-color:#7a5a16;color:var(--amber)}
 .mrow .mf2{margin-top:1px}
 .mob{font-size:12px;color:var(--muted);font-weight:600;margin-top:2px}
 .mk{font-weight:800}
-.mk.ok{color:var(--green)}.mk.df{color:var(--amber)}.mk.no{color:var(--red)}
+.mk.ok{color:var(--green)}.mk.ed{color:var(--blue)}.mk.df{color:var(--amber)}.mk.no{color:var(--red)}
 .mrow.miss{background:#fef3f2;margin:0 -8px;padding-left:8px;padding-right:8px;border-radius:8px}
 .nz{border:1px solid #fda29b;background:#fff;color:var(--red);border-radius:999px;padding:2px 10px;font-weight:800;font-size:13.5px;font-family:inherit;margin-top:2px}
 .nzs{color:var(--red);font-weight:800}
@@ -563,7 +563,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.22';
+const APP_VER = '4.24';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1082,6 +1082,7 @@ function skel(){ const r = (a, b, c) => `<div class="skr"><span><i style="width:
 function dayN(n){ return n === 1 ? 'den' : (n >= 2 && n <= 4 ? 'dny' : 'dní'); }
 /* V3.75: sloupec „Dispečink“ (dříve V docházce) – ✓ / čas z docházky / bez směny */
 function attMark(m){ if(!m || !m.st) return ''; if(m.st === 'ok') return `<span class="mk ok">souhlasí</span>`;   // V4.15
+  if(m.st === 'edit') return `<span class="mk ed">upraveno</span>`;   // V4.24: dispečink čas upravil (Odeslané zápisy: Převzato + text úpravy)
   return `<span class="mk df">${esc(m.txt || 'jiný čas')}</span>`; }   // V4.16: při rozdílu čas dispečinku
 function noteTxt(x){ return [x.note || '', x.pending ? 'ke schválení' : ''].filter(Boolean).join(' · '); }
 function ddmm(iso){ const p = iso.split('-'); return `${p[2]}.${p[1]}.`; }
@@ -1102,7 +1103,7 @@ function renderMonth(){
       return `<div class="mrow"><span class="md">${esc(x.label)}</span><span><b class="mlv ${x.activity === 'Nemoc' ? 'sick' : ''}">${esc(x.activity)}</b>${ln || lp ? `<div class="mn">${ln}${lp}</div>` : ''}</span><span class="mh">${x.att && x.att.st && x.att.st !== 'ok' ? `<div class="msub">dispečink ${attMark(x.att)}</div>` : ''}</span></div>`; }
     const top = [x.activity, x.vehicle].filter(Boolean).join(' · ');
     const time = x.missing ? (x.date >= (d.minDate || '') ? `<div class="nzt">${x.rejected ? 'Zamítnuto – upravit směnu' : 'Doplnit směnu'}</div>` : '<span class="nzs">chybí zápis</span>') : `<div class="mt">${esc(x.from)}–${esc(x.to)}</div>`;
-    const nt = [x.note, x.edited].filter(Boolean).map(esc).join(' · '), pd = x.pending ? `<span class="mpend">ke schválení</span>` : '';   // V4.19: + „upraveno dispečinkem (ONI systém)“
+    const nt = x.note ? esc(x.note) : '', pd = x.pending ? `<span class="mpend">ke schválení</span>` : '';   // V4.23: „upraveno dispečinkem“ jen v Odeslaných zápisech
     // V4.14: dispečink jen když nesedí (shoda se nevypisuje); u nezapsané směny bez časů – „Doplnit směnu“, klepnutím na řádek
     const att = !x.missing && x.att && x.att.st ? `<div class="msub">dispečink ${attMark(x.att)}</div>` : '';   // V4.15: i shoda – „souhlasí“
     const tap = x.missing && x.date >= (d.minDate || '');   // V4.18: klepnutím na celý den se otevře zápis
