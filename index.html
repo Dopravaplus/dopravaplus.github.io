@@ -411,7 +411,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
     <div class="grp sec" style="margin-top:4px !important"><div class="gh">Základní údaje</div><div class="gs mut">povinné</div>
       <div class="secbox">
         <div class="f"><label for="cVeh">Vozidlo</label><select id="cVeh" onchange="kmHint('c');vehChanged()"></select><div id="cTerms"></div></div>
-        <div class="f" style="margin-bottom:0"><label for="cKm">Stav tachometru</label><div class="unit"><input id="cKm" type="number" inputmode="numeric" oninput="kmHint('c');ready()"><span>km</span></div><div class="kmhint" id="cKmHint"></div></div>
+        <div class="f" style="margin-bottom:0"><label for="cKm">Stav tachometru</label><div class="unit"><input id="cKm" class="kmIn" type="text" inputmode="numeric" pattern="[0-9 ]*" autocomplete="off" maxlength="9" oninput="kmHint('c');ready()"><span>km</span></div><div class="kmhint" id="cKmHint"></div></div>
       </div>
     </div>
     <div id="cNZ" class="nzban hidden">Vozidlo je nahlášené jako nezpůsobilé k provozu. Před jízdou kontaktujte dispečera.</div>
@@ -444,7 +444,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
     <div class="f"><label for="tVeh">Vozidlo</label><select id="tVeh" onchange="kmHint('t');readyFuel()"></select><div id="tTerms"></div></div>
     <div class="f"><label for="tDate">Datum tankování</label><input id="tDate" type="date" onchange="readyFuel()"></div>
     <div class="grid2">
-      <div class="f"><label for="tKm">Stav tachometru</label><div class="unit"><input id="tKm" type="number" inputmode="numeric" oninput="kmHint('t');readyFuel()"><span>km</span></div></div>
+      <div class="f"><label for="tKm">Stav tachometru</label><div class="unit"><input id="tKm" class="kmIn" type="text" inputmode="numeric" pattern="[0-9 ]*" autocomplete="off" maxlength="9" oninput="kmHint('t');readyFuel()"><span>km</span></div></div>
       <div class="f"><label for="tL">Natankováno</label><div class="unit"><input id="tL" type="text" inputmode="decimal" oninput="readyFuel()"><span>l</span></div></div>
     </div>
     <div class="kmhint" id="tKmHint" style="margin:-6px 0 12px"></div>
@@ -464,7 +464,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
     <div class="f"><label for="yVeh">Vozidlo</label><select id="yVeh" onchange="kmHint('y');tyreVeh();readyTyre()"></select><div id="yTerms"></div></div>
     <div class="grid2">
       <div class="f"><label for="yDate">Datum měření</label><input id="yDate" type="date" onchange="readyTyre()"></div>
-      <div class="f"><label for="yKm">Stav tachometru</label><div class="unit"><input id="yKm" type="number" inputmode="numeric" oninput="kmHint('y');readyTyre()"><span>km</span></div></div>
+      <div class="f"><label for="yKm">Stav tachometru</label><div class="unit"><input id="yKm" class="kmIn" type="text" inputmode="numeric" pattern="[0-9 ]*" autocomplete="off" maxlength="9" oninput="kmHint('y');readyTyre()"><span>km</span></div></div>
     </div>
     <div class="kmhint" id="yKmHint" style="margin:-6px 0 12px"></div>
     <div class="ypres" id="yPres"></div>
@@ -553,7 +553,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.10';
+const APP_VER = '4.12';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -639,6 +639,19 @@ function applyTheme(){
 function setTheme(p){ store.set('m_theme', p); applyTheme(); }
 try{ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme); }catch(e){}
 document.addEventListener('DOMContentLoaded', applyTheme);
+/* V4.11: stav tachometru ve tvaru 560 000 – při psaní se doplní mezery, odesílá se jen číslo */
+function kmVal(id){ return String($(id).value || '').replace(/\D/g, ''); }
+function kmFmt(d){ return d.replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+document.addEventListener('input', e => {
+  const el = e.target; if(!el.classList || !el.classList.contains('kmIn')) return;
+  const pos = el.selectionStart == null ? el.value.length : el.selectionStart;
+  const digitsBefore = el.value.slice(0, pos).replace(/\D/g, '').length;
+  const d = el.value.replace(/\D/g, '').replace(/^0+(?=\d)/, '').slice(0, 7), f = kmFmt(d);
+  if(f === el.value) return;
+  el.value = f;
+  let c = 0, k = 0; while(k < f.length && c < digitsBefore){ if(/\d/.test(f[k])) c++; k++; }
+  try{ el.setSelectionRange(k, k); }catch(_){}
+}, true);
 /* V4.10: mezera mezi číslem a jednotkou podle délky jednotky (km / bar / Kč) */
 function unitPad(){ document.querySelectorAll('.unit').forEach(u => {
   const i = u.querySelector('input'), sp = u.querySelector('span'); if(!i || !sp) return;
@@ -974,7 +987,7 @@ function renderList(){
     const pause = Number(e.pause) ? ` · pauza ${fmtHM(e.pause)}` : '';
     return `<div class="item">
       <div class="h"><span class="d">${esc(dayLabel(e.date))}</span>${chip}</div>
-      ${e.type === 'Dovolená' ? `<div class="t it-lv ${e.state === 'Zamítnuto' ? 'no' : ''}">Dovolená</div>` : `<div class="t">${esc(e.from)}–${esc(e.to)}${pause} · <b>${fmtHM(e.hours)}</b></div>`}
+      ${e.type === 'Dovolená' ? `<div class="t it-lv ${e.state === 'Zamítnuto' ? 'no' : ''}">Dovolená</div>` : `<div class="t"><b>${esc(e.from)}–${esc(e.to)}</b>${pause} · <b>${fmtHM(e.hours)}</b></div>`}
       ${e.note ? `<div class="n">${esc(e.note)}</div>` : ''}
       ${e.state === 'Zamítnuto' && e.reason ? `<div class="reason">Důvod: ${esc(e.reason)}</div>` : ''}
       ${edited ? `<div class="edited">${esc(oniTxt(e.reason))}</div>` : ''}
@@ -1135,7 +1148,7 @@ function kmHint(p){
   termBox(p);
   const v = vehOf($(p + 'Veh').value), el = $(p + 'KmHint');
   if(!v || !v.lastKm){ el.textContent = ''; el.className = 'kmhint'; return; }
-  const km = Number($(p + 'Km').value) || 0;
+  const km = Number(kmVal(p + 'Km')) || 0;
   if(km && km < v.lastKm){ el.className = 'kmhint w'; el.textContent = `Pozor: nižší než poslední stav (${fmtKm(v.lastKm)} km)`; }
   else if(km && km - v.lastKm > KM_JUMP){ el.className = 'kmhint w'; el.textContent = `Pozor: neobvykle vysoký nárůst (+${fmtKm(km - v.lastKm)} km)`; }
   else { el.className = 'kmhint'; el.textContent = `Poslední známý stav: ${fmtKm(v.lastKm)} km`; }
@@ -1392,7 +1405,7 @@ function setOk(v){
   defBox();
 }
 async function sendCheck(){
-  const vehicle = $('cVeh').value, km = $('cKm').value.trim();
+  const vehicle = $('cVeh').value, km = kmVal('cKm');
   const keys = Object.keys(V.defects).sort((a, b) => { const x = a.split(':').map(Number), y = b.split(':').map(Number); return x[0] - y[0] || x[1] - y[1]; });
   const notes = {};
   const defects = keys.map(k => {
@@ -1450,7 +1463,7 @@ function payHint(){
   $('tPhHint').textContent = cash ? 'Vyfoťte účtenku hned u pumpy. Papírovou účtenku i tak odevzdejte na dispečink.' : 'Stačí odevzdat papírovou účtenku na dispečink.';
 }
 async function sendFuel(){
-  const vehicle = $('tVeh').value, date = $('tDate').value, km = $('tKm').value.trim(), liters = $('tL').value.trim(), pay = $('tPay').value;
+  const vehicle = $('tVeh').value, date = $('tDate').value, km = kmVal('tKm'), liters = $('tL').value.trim(), pay = $('tPay').value;
   msg('fuelMsg', '', '');
   const errs = fuelErrs();
   if(errs.length){ TRIED.fuel = true; showErrs('fuelCard', errs); goFirstErr(errs); return; }
@@ -1568,7 +1581,7 @@ function tyreErrs(){
   if(!$('yDate').value) add($('yDate'), 'Vyberte datum měření.', true);
   else if($('yDate').value > todayIso()) add($('yDate'), 'Měření nelze zapsat dopředu.', true);
   else if($('yDate').min && $('yDate').value < $('yDate').min) add($('yDate'), 'Tak staré měření už zapsat nelze.', true);
-  if(!(Number($('yKm').value) > 0)) add($('yKm'), 'Zadejte stav tachometru.', true);
+  if(!(Number(kmVal('yKm')) > 0)) add($('yKm'), 'Zadejte stav tachometru.', true);
   TY.forEach(([id]) => {
     if(/I$/.test(id) && !$('yTwin').checked) return;
     const v = barNum($(id).value);
@@ -1587,7 +1600,7 @@ async function sendTyre(){
   msg('yMsg', '', '');
   const errs = tyreErrs();
   if(errs.length){ TRIED.tyre = true; showErrs('tyreCard', errs); goFirstErr(errs); return; }
-  const vehicle = $('yVeh').value, km = $('yKm').value.trim();
+  const vehicle = $('yVeh').value, km = kmVal('yKm');
   if(!(await kmOk(vehicle, km))){ $('yKm').scrollIntoView({ behavior:'smooth', block:'center' }); setTimeout(() => $('yKm').focus({ preventScroll:true }), 350); return; }
   const p = tyrePress(), twin = $('yTwin').checked;
   const low = p && TY.some(([id, ax]) => { const rg = presRange(p, ax); return (twin || !/I$/.test(id)) && rg && barNum($(id).value) <= rg[0] - 0.25; });
