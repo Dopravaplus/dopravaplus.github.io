@@ -553,7 +553,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.12';
+const APP_VER = '4.13';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -987,7 +987,7 @@ function renderList(){
     const pause = Number(e.pause) ? ` · pauza ${fmtHM(e.pause)}` : '';
     return `<div class="item">
       <div class="h"><span class="d">${esc(dayLabel(e.date))}</span>${chip}</div>
-      ${e.type === 'Dovolená' ? `<div class="t it-lv ${e.state === 'Zamítnuto' ? 'no' : ''}">Dovolená</div>` : `<div class="t"><b>${esc(e.from)}–${esc(e.to)}</b>${pause} · <b>${fmtHM(e.hours)}</b></div>`}
+      ${e.type === 'Dovolená' ? `<div class="t it-lv ${e.state === 'Zamítnuto' ? 'no' : ''}">Dovolená</div>` : `<div class="t">${esc(e.from)}–${esc(e.to)}${pause} · ${fmtHM(e.hours)}</div>`}
       ${e.note ? `<div class="n">${esc(e.note)}</div>` : ''}
       ${e.state === 'Zamítnuto' && e.reason ? `<div class="reason">Důvod: ${esc(e.reason)}</div>` : ''}
       ${edited ? `<div class="edited">${esc(oniTxt(e.reason))}</div>` : ''}
