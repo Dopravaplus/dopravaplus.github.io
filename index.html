@@ -564,7 +564,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.27';
+const APP_VER = '4.28';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1053,15 +1053,16 @@ async function printMonth(){
 /* V3.70: tisk jako tabulka se sloupci */
 function buildPrint(){
   const d = M.data, c = d.confirm;
-  const pm = m => !m || !m.st ? '' : (m.st === 'ok' ? `<span style="color:#067647">${esc(m.txt || '✓')}</span>` : `<span style="color:#b54708">${esc(m.txt || '')}</span>`);
-  const rows = d.days.map(x => x.empty ? `<tr class="g"><td>${esc(x.label)}</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="l"></td><td class="l"></td></tr>`
+  const pm = m => !m || !m.st ? '' : (m.st === 'ok' ? `<span style="color:#067647">${esc(m.txt || '✓')}</span>` : `<span style="color:${m.st === 'edit' ? '#1849a9' : '#b54708'}">${esc(m.txt || '')}</span>`);
+  const dv = x => x.missing && x.rejected ? `<span style="color:#b42318">zamítnuto: ${esc(x.rejected)}</span>` : (x.edited ? `<span style="color:#1849a9">${esc(x.edited.replace(/^upraveno dispečinkem/, 'upraveno'))}</span>` : '');   // V4.28: Vyjádření dispečinku
+  const rows = d.days.map(x => x.empty ? `<tr class="g"><td>${esc(x.label)}</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="l"></td><td class="l"></td><td class="l"></td></tr>`
     : `<tr class="${x.weekend ? 'w' : ''} ${x.missing ? 'nzr' : ''}"><td>${esc(x.label)}</td><td>${x.leave ? `<b style="color:${x.activity === 'Nemoc' ? '#b42318' : '#1849a9'}">${esc(x.activity)}</b>` : esc(x.activity || '')}</td><td>${esc(x.vehicle || '')}</td>`
       + (x.missing ? '<td colspan="2" style="color:#b42318;font-weight:700">nezapsal</td>' : `<td>${esc(x.from || '')}</td><td>${esc(x.to || '')}</td>`)
-      + `<td>${x.hours ? fmtH(x.hours) : ''}</td><td>${pm(x.att)}</td><td class="l">${esc(x.crew || '')}</td><td class="l">${esc(noteTxt(x))}</td></tr>`).join('');
+      + `<td>${x.hours ? fmtH(x.hours) : ''}</td><td>${pm(x.att)}</td><td class="l">${esc(x.crew || '')}</td><td class="l">${esc(noteTxt(x))}</td><td class="l">${dv(x)}</td></tr>`).join('');
   const issues = [d.missing.length ? `Nezapsané směny: ${d.missing.length}` : '', d.diffs ? `Rozdíl s dispečinkem: ${d.diffs}` : ''].filter(Boolean).join(' · ');
   const n = new Date();
   const conf = c ? (c.note ? `Výkaz odeslán s připomínkou ${esc(c.at)}: ${esc(c.note)}` : `Výkaz potvrzen zaměstnancem ${esc(c.at)}.`) : 'Výkaz zatím nebyl potvrzen.';
-  $('mPrint').innerHTML = `${issues ? `<div class="pis">${issues}</div>` : ''}<table><thead><tr><th>Datum</th><th>Činnost</th><th>Vozidlo</th><th>Od</th><th>Do</th><th>Hodiny</th><th>Dispečink</th><th>Posádka</th><th>Poznámka</th></tr></thead>
+  $('mPrint').innerHTML = `${issues ? `<div class="pis">${issues}</div>` : ''}<table><thead><tr><th>Datum</th><th>Činnost</th><th>Vozidlo</th><th>Od</th><th>Do</th><th>Hodiny</th><th>Dispečink</th><th>Posádka</th><th>Poznámka zaměstnance</th><th>Vyjádření dispečinku</th></tr></thead>
     <tbody>${rows}</tbody></table>
     <div class="psum"><div><b>Celkem odpracovaných hodin: ${fmtH(d.hours)}</b></div><div>Směny: ${d.shifts} · Dovolená: ${d.leaveDays} ${dayN(d.leaveDays)} · Nemoc: ${d.sickDays} ${dayN(d.sickDays)}</div><div>Podle dispečinku (mzda): ${fmtH(d.attHours)} h</div></div>
     <div class="pf"><b>${conf}</b><br>Vytištěno ${n.getDate()}.${n.getMonth() + 1}.${n.getFullYear()} z mobilní aplikace Dopravaplus. Přehled je informativní – závazné jsou údaje v docházce a na výplatní pásce.</div>`;
