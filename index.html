@@ -23,6 +23,7 @@
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:16px;-webkit-text-size-adjust:100%}
 body{min-height:100vh;min-height:100dvh}
+html,body{overscroll-behavior-y:none}   /* V4.08: stránka na začátku/konci nepruží – hlavička se netřepe */
 .top{background:var(--hdr);color:#fff;padding:calc(14px + env(safe-area-inset-top)) 16px 16px;position:sticky;top:0;z-index:5}
 /* V3.49: iOS 26 rozmazává horní okraj do barvy pozadí stránky – pozadí stránky je proto modré a světlá plocha je samostatná vrstva pod obsahem */
 html,body{background:var(--hdr) !important}
@@ -547,7 +548,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.07';
+const APP_VER = '4.08';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -640,11 +641,14 @@ document.addEventListener('DOMContentLoaded', applyTheme);
   const vv = window.visualViewport; if(!vv) return;
   const fix = () => {
     const el = document.getElementById('topBar'); if(!el) return;
-    const off = Math.max(0, Math.round(vv.offsetTop));
-    el.style.transform = off > 0 ? `translateY(${off}px)` : '';
+    // V4.08: jen při otevřené klávesnici – při běžném rolování (a pružení na konci stránky) se hlavičky nedotýkáme, jinak se třepala
+    const ae = document.activeElement, kb = ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName) && vv.height < window.innerHeight - 80;
+    const off = kb ? Math.max(0, Math.round(vv.offsetTop)) : 0;
+    const t = off > 0 ? `translateY(${off}px)` : '';
+    if(el.style.transform !== t) el.style.transform = t;
   };
   vv.addEventListener('resize', fix); vv.addEventListener('scroll', fix);
-  document.addEventListener('focusout', () => setTimeout(fix, 300));
+  document.addEventListener('focusout', () => setTimeout(fix, 300)); document.addEventListener('focusin', () => setTimeout(fix, 300));
 })();
 
 /* ---------- přihlášení ---------- */
