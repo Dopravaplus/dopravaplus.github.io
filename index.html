@@ -185,9 +185,10 @@ html[data-theme="dark"] .msel{border-color:#7a5a16;color:var(--amber)}
 .mrow.tap{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .mrow.tap:active{filter:brightness(.92)}
 .mrow .nzt{color:var(--red);font-weight:800}   /* V4.18: „Doplnit směnu“ jako text, klepe se na celý řádek */
-.mrow .mgo{color:var(--red);font-size:26px;font-weight:700;line-height:1;align-self:center}
+.mrow .mgo{color:var(--red);font-size:26px;font-weight:700;line-height:1}
 .mrow.tap .mh{align-self:center}
-.mrow .mrej{font-size:13px;color:var(--red);font-weight:700;margin-top:2px}   /* V4.17 */
+.mrow.miss{grid-template-columns:70px 1fr 22px}   /* V4.21: u dne k doplnění vpravo jen šipka – text má víc místa */
+.mrow .mrej{font-size:13px;color:var(--red);font-weight:700;margin-top:2px}   /* V4.20: důvod zamítnutí pod údaji dne (jako v Odeslaných zápisech) */   /* V4.17 */
 .msum{display:flex;justify-content:space-between;margin-top:10px;padding:11px 13px;background:#f2f6fc;border-radius:10px;font-weight:800;font-size:15px}
 .item .acts{display:flex;gap:8px;margin-top:8px}
 .item .acts button{flex:1;border-radius:10px;padding:9px;font-size:14px;font-weight:700;border:1px solid #d0d5dd;background:#fff;color:#344054}
@@ -562,7 +563,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.18';
+const APP_VER = '4.22';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1100,13 +1101,12 @@ function renderMonth(){
     if(x.leave){ const ln = esc(x.note || ''), lp = x.pending ? `<span class="mpend">ke schválení</span>` : '';
       return `<div class="mrow"><span class="md">${esc(x.label)}</span><span><b class="mlv ${x.activity === 'Nemoc' ? 'sick' : ''}">${esc(x.activity)}</b>${ln || lp ? `<div class="mn">${ln}${lp}</div>` : ''}</span><span class="mh">${x.att && x.att.st && x.att.st !== 'ok' ? `<div class="msub">dispečink ${attMark(x.att)}</div>` : ''}</span></div>`; }
     const top = [x.activity, x.vehicle].filter(Boolean).join(' · ');
-    const time = x.missing ? (x.date >= (d.minDate || '') ? `<div class="nzt">Doplnit směnu</div>` : '<span class="nzs">chybí zápis</span>') : `<div class="mt">${esc(x.from)}–${esc(x.to)}</div>`;
-    const nt = x.note ? esc(x.note) : '', pd = x.pending ? `<span class="mpend">ke schválení</span>` : '';
-    const rj = x.missing && x.rejected ? `<div class="mrej">zamítnuto: ${esc(x.rejected)}</div>` : '';   // V4.17: důvod zamítnutí
+    const time = x.missing ? (x.date >= (d.minDate || '') ? `<div class="nzt">${x.rejected ? 'Zamítnuto – upravit směnu' : 'Doplnit směnu'}</div>` : '<span class="nzs">chybí zápis</span>') : `<div class="mt">${esc(x.from)}–${esc(x.to)}</div>`;
+    const nt = [x.note, x.edited].filter(Boolean).map(esc).join(' · '), pd = x.pending ? `<span class="mpend">ke schválení</span>` : '';   // V4.19: + „upraveno dispečinkem (ONI systém)“
     // V4.14: dispečink jen když nesedí (shoda se nevypisuje); u nezapsané směny bez časů – „Doplnit směnu“, klepnutím na řádek
     const att = !x.missing && x.att && x.att.st ? `<div class="msub">dispečink ${attMark(x.att)}</div>` : '';   // V4.15: i shoda – „souhlasí“
     const tap = x.missing && x.date >= (d.minDate || '');   // V4.18: klepnutím na celý den se otevře zápis
-    return `<div class="mrow ${x.weekend ? 'wk' : ''} ${x.missing ? 'miss' : ''} ${tap ? 'tap' : ''}" id="md_${x.date}"${tap ? ` role="button" tabindex="0" onclick="openDay('${x.date}')"` : ''}><span class="md">${esc(x.label)}</span><span>${time}${top ? `<div class="mf2">${esc(top)}</div>` : ''}${x.crew ? `<div class="mf">${esc(x.crew)}</div>` : ''}${nt || pd ? `<div class="mn">${nt}${pd}</div>` : ''}${rj}</span><span class="mh">${tap ? '<span class="mgo">›</span>' : ''}${x.hours ? fmtHM(x.hours).replace(/ /g, '&nbsp;') : ''}${att}</span></div>`;
+    return `<div class="mrow ${x.weekend ? 'wk' : ''} ${x.missing ? 'miss' : ''} ${tap ? 'tap' : ''}" id="md_${x.date}"${tap ? ` role="button" tabindex="0" onclick="openDay('${x.date}')"` : ''}><span class="md">${esc(x.label)}</span><span>${time}${top ? `<div class="mf2">${esc(top)}</div>` : ''}${x.crew ? `<div class="mf">${esc(x.crew)}</div>` : ''}${nt || pd ? `<div class="mn">${nt}${pd}</div>` : ''}${x.missing && x.rejected ? `<div class="mrej">Důvod: ${esc(x.rejected)}</div>` : ''}</span><span class="mh">${tap ? '<span class="mgo">›</span>' : ''}${x.hours ? fmtHM(x.hours).replace(/ /g, '&nbsp;') : ''}${att}</span></div>`;
   }).join('') + `<div class="msum"><span>Celkem odpracovaných hodin<div class="mf" style="font-weight:600">směny ${d.shifts}${d.leaveDays ? ` · dovolená ${d.leaveDays} ${dayN(d.leaveDays)}` : ''}${d.sickDays ? ` · nemoc ${d.sickDays} ${dayN(d.sickDays)}` : ''}</div><div class="mf" style="font-weight:600">podle dispečinku (mzda) ${fmtHM(d.attHours).replace(/ /g, '&nbsp;')}</div></span><span>${fmtHM(d.hours).replace(/ /g, '&nbsp;')}</span></div>`;
   renderConf();
 }
@@ -1117,7 +1117,9 @@ function openDay(iso){
   resetForm(); $('fDate').value = iso; readyAtt();
   setTimeout(() => { $('formCard').scrollIntoView({ behavior:'smooth', block:'start' }); $('fFrom').focus({ preventScroll:true }); }, 80);
   msg('formMsg', 'wait', '');   // V3.97: dva řádky
-  $('formMsg').innerHTML = `<b>Doplňte docházku za ${WDAYS[new Date(iso + 'T12:00').getDay()]} ${ddmm(iso)}${iso.slice(0, 4)}</b><br>Odešle se ke schválení na dispečink.`;
+  const dy = M.data && (M.data.days || []).find(x => x.date === iso);   // V4.19: důvod zamítnutí přímo ve formuláři
+  $('formMsg').innerHTML = `<b>Doplňte docházku za ${WDAYS[new Date(iso + 'T12:00').getDay()]} ${ddmm(iso)}${iso.slice(0, 4)}</b><br>`
+    + (dy && dy.rejected ? `Zápis byl zamítnut: <b>${esc(dy.rejected)}</b><br>` : '') + 'Odešle se ke schválení na dispečink.';
 }
 /* V3.72: potvrzení výkazu místo podpisu na papíře */
 function renderConf(){
