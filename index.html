@@ -208,7 +208,7 @@ html[data-theme="dark"] .msel{border-color:#7a5a16;color:var(--amber)}
 .tile .tt{font-size:17px;font-weight:800}
 .tile .ts{font-size:13px;color:var(--muted);margin-top:2px}
 .tile .ar{margin-left:auto;color:#98a2b3;font-size:22px}
-.ic.b{background:#1769e0}.ic.g{background:#079455}.ic.a{background:#f79009}
+.ic.b{background:#1769e0}.ic.g{background:#079455}.ic.a{background:#f79009}.ic.p{background:#7a5af8}
 /* V3.15: barvy – úvod s modrým přechodem a barevnými dlaždicemi, karty s jemným stínem */
 body.home{background:linear-gradient(var(--hdr) 0,var(--hdr) 120px,var(--bg) 120px) no-repeat,var(--bg)}
 .tile{border:0;box-shadow:0 2px 8px rgba(16,24,40,.10)}
@@ -278,6 +278,15 @@ body.home{background:linear-gradient(var(--hdr) 0,var(--hdr) 120px,var(--bg) 120
 .conf input{width:24px;height:24px;flex:0 0 auto;margin:0;-webkit-appearance:checkbox;appearance:checkbox}
 .kmhint{font-size:12.5px;color:var(--muted);margin-top:5px}
 .kmhint.w{color:var(--amber);font-weight:700}
+.ypres{background:#eef3fc;border:1px solid #d3e0f7;color:#1d3a6b;border-radius:12px;padding:10px 13px;font-size:14px;line-height:1.4;margin:0 0 14px}   /* V4.01 tlak pneumatik */
+.ypres b{font-weight:800}.ypres .nw{white-space:nowrap}
+.ylab{font-weight:800;font-size:15px;margin:0 0 8px}.ylab span{font-weight:600;color:var(--muted);font-size:13px}
+.axle{border:1px solid var(--line);border-radius:12px;padding:10px 12px 2px;margin-bottom:12px}
+.axh{font-size:12.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px}
+.ydev{font-size:12.5px;font-weight:700;margin-top:4px;min-height:0}
+.ydev.ok{color:var(--green)}.ydev.w{color:var(--amber)}.ydev.b{color:var(--red)}
+.ytwin{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--muted);margin:0 0 10px}
+.ytwin input{width:20px;height:20px;margin:0;-webkit-appearance:checkbox;appearance:checkbox}
 .vterms{margin:8px 0 0;border-radius:10px;background:var(--amberBg);border:1px solid #fedf89;padding:8px 11px;font-size:13px;line-height:1.45}
 .vterms.bad{background:var(--redBg);border-color:#fecdca}
 .vterms .vh{font-weight:800;color:#344054;margin-bottom:2px}
@@ -330,7 +339,7 @@ html[data-theme="dark"] .opt .os{background:#222c3d;color:#98a2b3}
 html[data-theme="dark"] .opt .os.ok{background:none;border-color:#3a475e}
 html[data-theme="dark"] .opt .os.kn{background:var(--amberBg);color:var(--amber);border-color:#7a5a16}
 html[data-theme="dark"] .opt.on .os{background:var(--red);color:#fff}
-html[data-theme="dark"] .infobox{background:#172338;border-color:#2a3d5e;color:#b9cdf0}
+html[data-theme="dark"] .infobox,html[data-theme="dark"] .ypres{background:#172338;border-color:#2a3d5e;color:#b9cdf0}
 html[data-theme="dark"] .onote .rm{color:#98a2b3}
 html[data-theme="dark"] .onote textarea{border-color:#7a2b26}
 html[data-theme="dark"] .ph{background:#0f1726;border-color:#3a475e}
@@ -376,6 +385,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
       <button class="tile" onclick="openView('att')"><span class="ic b"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span><div class="tt">Docházka</div><div class="ts">Zapsat odpracovaný den</div></span><span class="ar">›</span></button>
       <button class="tile" onclick="openView('check')"><span class="ic g"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9z"/><path d="M9 13l2 2 4-4"/></svg></span><span><div class="tt">Kontrola vozidla</div><div class="ts">Před jízdou / při převzetí vozidla</div></span><span class="ar">›</span></button>
       <button class="tile" onclick="openView('fuel')"><span class="ic a"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16"/><path d="M3 21h12"/><path d="M6 8h6"/><path d="M14 10h2a2 2 0 0 1 2 2v5a1.5 1.5 0 0 0 3 0V9l-3-3"/></svg></span><span><div class="tt">Tankování</div><div class="ts">Litry a stav km</div></span><span class="ar">›</span></button>
+      <button class="tile" onclick="openView('tyre')"><span class="ic p"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 17a8.5 8.5 0 1 1 15 0"/><path d="M12 13l3.5-4"/><circle cx="12" cy="13.5" r="1.3"/></svg></span><span><div class="tt">Tlak pneumatik</div><div class="ts">Měření každé 2 týdny</div></span><span class="ar">›</span></button>
     </div>
     <div class="themebox"><div class="tl">Vzhled</div><div class="ftype"><button type="button" id="thAuto" onclick="setTheme('auto')">Automaticky</button><button type="button" id="thLight" onclick="setTheme('light')">Světlý</button><button type="button" id="thDark" onclick="setTheme('dark')">Tmavý</button></div></div>
   </div>
@@ -432,6 +442,38 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
     <div class="f"><label for="tNote">Poznámka (nepovinné)</label><textarea id="tNote" maxlength="300" placeholder="např. tankováno i AdBlue"></textarea></div>
     <button class="btn dim" id="tSend" onclick="sendFuel()">Odeslat tankování</button>
     <div class="hint">Tankování zkontroluje dispečink a zapíše do karty vozidla. Dokud se tak nestane, můžete ho smazat.</div>
+  </div>
+
+  <!-- V4.01: Tlak pneumatik -->
+  <div id="tyreCard" class="card hidden">
+    <div id="yMsg" class="msg"></div>
+    <div class="f"><label for="yVeh">Vozidlo</label><select id="yVeh" onchange="kmHint('y');tyreVeh();readyTyre()"></select><div id="yTerms"></div></div>
+    <div class="grid2">
+      <div class="f"><label for="yDate">Datum měření</label><input id="yDate" type="date" onchange="readyTyre()"></div>
+      <div class="f"><label for="yKm">Stav tachometru</label><div class="unit"><input id="yKm" type="number" inputmode="numeric" oninput="kmHint('y');readyTyre()"><span>km</span></div></div>
+    </div>
+    <div class="kmhint" id="yKmHint" style="margin:-6px 0 12px"></div>
+    <div class="ypres" id="yPres"></div>
+    <div class="ylab">Naměřený tlak <span>(před dohuštěním)</span></div>
+    <div class="axle"><div class="axh">Přední kola</div>
+      <div class="grid2">
+        <div class="f"><label for="yFL">Levé</label><div class="unit"><input id="yFL" type="text" inputmode="decimal" oninput="tyreDev();readyTyre()"><span>bar</span></div><div class="ydev" id="yFLd"></div></div>
+        <div class="f"><label for="yFR">Pravé</label><div class="unit"><input id="yFR" type="text" inputmode="decimal" oninput="tyreDev();readyTyre()"><span>bar</span></div><div class="ydev" id="yFRd"></div></div>
+      </div></div>
+    <div class="axle"><div class="axh">Zadní kola</div>
+      <div class="grid2">
+        <div class="f"><label for="yRL" id="yRLl">Levé</label><div class="unit"><input id="yRL" type="text" inputmode="decimal" oninput="tyreDev();readyTyre()"><span>bar</span></div><div class="ydev" id="yRLd"></div></div>
+        <div class="f"><label for="yRR" id="yRRl">Pravé</label><div class="unit"><input id="yRR" type="text" inputmode="decimal" oninput="tyreDev();readyTyre()"><span>bar</span></div><div class="ydev" id="yRRd"></div></div>
+      </div>
+      <div class="grid2 hidden" id="yTwinBox">
+        <div class="f"><label for="yRLI">Levé vnitřní</label><div class="unit"><input id="yRLI" type="text" inputmode="decimal" oninput="tyreDev();readyTyre()"><span>bar</span></div><div class="ydev" id="yRLId"></div></div>
+        <div class="f"><label for="yRRI">Pravé vnitřní</label><div class="unit"><input id="yRRI" type="text" inputmode="decimal" oninput="tyreDev();readyTyre()"><span>bar</span></div><div class="ydev" id="yRRId"></div></div>
+      </div>
+      <label class="ytwin"><input type="checkbox" id="yTwin" onchange="tyreTwin();readyTyre()"> Zdvojená zadní kola (6 kol)</label></div>
+    <div class="f"><label class="chk" id="yInfLbl"><input type="checkbox" id="yInf" onchange="this.parentNode.classList.toggle('on', this.checked)"><span><div class="ct">Dohuštěno na předepsaný tlak</div><div class="cs">Zaškrtněte, když jste po měření pneumatiky dohustili.</div></span></label></div>
+    <div class="f"><label for="yNote">Poznámka (nepovinné)</label><textarea id="yNote" maxlength="300" placeholder="např. pravé zadní kolo ztrácí tlak"></textarea></div>
+    <button class="btn dim" id="ySend" onclick="sendTyre()">Odeslat měření</button>
+    <div class="hint">Tlak se měří každé 2 týdny – u vozidla vám aplikace připomene, až bude na řadě. Měření zapíše kancelář do karty vozidla; do té doby ho můžete smazat.</div>
   </div>
 
   <!-- V3.0 Moje záznamy vozidel -->
@@ -497,7 +539,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.00';
+const APP_VER = '4.01';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -508,7 +550,7 @@ async function checkUpdate(){
   }catch(e){}
 }
 checkUpdate();
-document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible'){ checkUpdate(); flushOutbox(); if(S.view === 'check' || S.view === 'fuel') refreshVeh(); } });
+document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible'){ checkUpdate(); flushOutbox(); if(S.view === 'check' || S.view === 'fuel' || S.view === 'tyre') refreshVeh(); } });
 const S = { token:'', name:'', today:'', daysBack:31, editing:null, entries:[], view:'' };
 const V = { data:null, defects:{}, notes:{}, open:{}, exp:{}, dPhotos:{}, ok:'', cPhotos:[], tPhotos:[] };
 const store = {
@@ -656,9 +698,9 @@ function homeRemind(){
   el.innerHTML = parts.join(''); el.classList.toggle('hidden', !parts.length);
 }
 /* V3.0: obrazovky – úvod (dlaždice), docházka, kontrola vozidla, tankování */
-const VIEWS = { home:['homeCard'], att:['formCard','listCard','monthCard'], check:['checkCard','vehListCard'], fuel:['fuelCard','vehListCard'] };
-const VIEWS_ALL = ['homeCard','formCard','listCard','monthCard','checkCard','fuelCard','vehListCard'];
-const TITLES = { home:'Dopravaplus', att:'Docházka', check:'Kontrola vozidla', fuel:'Tankování' };
+const VIEWS = { home:['homeCard'], att:['formCard','listCard','monthCard'], check:['checkCard','vehListCard'], fuel:['fuelCard','vehListCard'], tyre:['tyreCard','vehListCard'] };
+const VIEWS_ALL = ['homeCard','formCard','listCard','monthCard','checkCard','fuelCard','tyreCard','vehListCard'];
+const TITLES = { home:'Dopravaplus', att:'Docházka', check:'Kontrola vozidla', fuel:'Tankování', tyre:'Tlak pneumatik' };
 function showView(v){
   S.view = v;
   document.body.classList.toggle('home', v === 'home');
@@ -687,13 +729,13 @@ async function openView(v){
   if(!V.data){
     busy(true, 'Načítám vozidla…');
     try{ V.data = await call('mVehInit', { token:S.token }); }
-    catch(e){ busy(false); if(/vypršelo/i.test(e)){ store.del('m_token'); showLogin(); msg('loginMsg', 'err', e); return; } msg(v === 'check' ? 'checkMsg' : 'fuelMsg', 'err', e); return; }
+    catch(e){ busy(false); if(/vypršelo/i.test(e)){ store.del('m_token'); showLogin(); msg('loginMsg', 'err', e); return; } msg({ check:'checkMsg', fuel:'fuelMsg', tyre:'yMsg' }[v], 'err', e); return; }
     busy(false);
-    if(v === 'check') resetCheck(); else resetFuel();
+    resetVeh(v);
     renderVehList();
     return;
   }
-  if(v === 'check') resetCheck(); else resetFuel();
+  resetVeh(v);
   renderVehList();
   refreshVeh();   // V3.43: formulář hned z uložených dat, čerstvá data ze serveru na pozadí
 }
@@ -711,9 +753,10 @@ async function refreshAll(){
     refreshAll.busy = false; $('refBtn').classList.remove('spin'); updUi(false); $('topSub').textContent = S.name;
   }
 }
+function resetVeh(v){ if(v === 'check') resetCheck(); else if(v === 'tyre') resetTyre(); else resetFuel(); }
 function updUi(on){
   $('upd').classList.toggle('hidden', !on);
-  if(S.view === 'check' || S.view === 'fuel') $('topSub').textContent = on ? 'Aktualizuji data…' : S.name;
+  if(S.view === 'check' || S.view === 'fuel' || S.view === 'tyre') $('topSub').textContent = on ? 'Aktualizuji data…' : S.name;
 }
 async function refreshVeh(){
   if(!S.token || refreshVeh.busy) return;
@@ -723,6 +766,7 @@ async function refreshVeh(){
     V.data = d;
     if(S.view === 'check'){ const sel = $('cVeh').value; vehOptions('cVeh'); $('cVeh').value = sel; const ae = document.activeElement; if(!(ae && ae.tagName === 'TEXTAREA' && $('checkCard').contains(ae))) vehChanged(); kmHint('c'); }   // při psaní popisu nepřekreslovat
     if(S.view === 'fuel'){ const sel = $('tVeh').value; vehOptions('tVeh'); $('tVeh').value = sel; kmHint('t'); }
+    if(S.view === 'tyre'){ const sel = $('yVeh').value; vehOptions('yVeh'); $('yVeh').value = sel; kmHint('y'); tyrePres(); tyreDev(); }
     renderVehList();
   }catch(e){}
   finally{ refreshVeh.busy = false; updUi(false); }
@@ -1127,7 +1171,7 @@ function goFirstErr(errs){
   f.el.scrollIntoView({ behavior:'smooth', block:'center' });
   if(f.focus) setTimeout(() => { try{ f.el.focus({ preventScroll:true }); }catch(e){} }, 350);
 }
-const TRIED = { check:false, fuel:false, att:false };
+const TRIED = { check:false, fuel:false, att:false, tyre:false };
 function ready(){
   const btn = $('cSend'); if(!btn || !V.data) return;
   const errs = checkErrs();
@@ -1413,14 +1457,111 @@ async function delFuel(id){
   catch(e){ msg('fuelMsg', 'err', e); }
   finally{ busy(false); }
 }
+/* ================= V4.01 TLAK PNEUMATIK ================= */
+const TY = [['yFL','f'],['yFR','f'],['yRL','r'],['yRR','r'],['yRLI','r'],['yRRI','r']];
+function barNum(v){ const n = Number(String(v || '').replace(/\s/g, '').replace(',', '.')); return Number.isFinite(n) ? n : 0; }
+function fmtBar(n){ const v = Math.round(n * 100) / 100; return (v % 1 === 0 ? v + '.0' : String(v)).replace('.', ','); }
+function tyrePress(){ return ((V.data && V.data.press) || {})[$('yVeh').value] || null; }
+function resetTyre(){
+  vehOptions('yVeh');
+  const n = new Date(), lt = `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;
+  const today = V.data.today > lt ? V.data.today : lt;
+  const d = $('yDate'); d.max = today; d.min = isoShift(today, -V.data.daysBack); d.value = today;
+  ['yKm','yNote'].concat(TY.map(t => t[0])).forEach(id => { $(id).value = ''; });
+  $('yInf').checked = false; $('yInfLbl').classList.remove('on'); $('yTwin').checked = false;
+  tyreTwin(); kmHint('y'); tyrePres(); tyreDev();
+  TRIED.tyre = false; clearErrs('tyreCard'); readyTyre();
+}
+/* vozidlo vybráno: předepsaný tlak + zdvojená kola podle posledního měření */
+function tyreVeh(){ $('yTwin').checked = !!(V.data && V.data.tyreTwin && V.data.tyreTwin[$('yVeh').value]); tyreTwin(); tyrePres(); tyreDev(); }
+function tyrePres(){
+  const el = $('yPres'), v = $('yVeh').value, p = tyrePress();
+  if(!v){ el.classList.add('hidden'); return; }
+  el.classList.remove('hidden');
+  el.innerHTML = p && (p.front || p.rear)
+    ? `Předepsaný tlak:<br><span class="nw">přední <b>${p.front ? fmtBar(p.front) + '&nbsp;bar' : '–'}</b></span> · <span class="nw">zadní <b>${p.rear ? fmtBar(p.rear) + '&nbsp;bar' : '–'}</b></span>`
+    : 'Předepsaný tlak pro toto vozidlo není v Přehledu vozidel uveden – zapište naměřené hodnoty.';
+}
+function tyreTwin(){
+  const on = $('yTwin').checked;
+  $('yTwinBox').classList.toggle('hidden', !on);
+  $('yRLl').textContent = on ? 'Levé vnější' : 'Levé'; $('yRRl').textContent = on ? 'Pravé vnější' : 'Pravé';
+  if(!on){ $('yRLI').value = ''; $('yRRI').value = ''; }
+  tyreDev();
+}
+/* odchylka od předepsaného tlaku: do 0,2 bar v pořádku, od 0,3 oranžově, od 0,6 červeně */
+function tyreDev(){
+  const p = tyrePress();
+  TY.forEach(([id, ax]) => {
+    const el = $(id + 'd'), v = barNum($(id).value), ref = p ? (ax === 'f' ? p.front : p.rear) : 0;
+    if(!v || !ref || v < 1 || v > 12){ el.className = 'ydev'; el.textContent = ''; return; }
+    const d = Math.round((v - ref) * 100) / 100, a = Math.abs(d);
+    if(a < 0.25){ el.className = 'ydev ok'; el.textContent = 'v pořádku'; return; }
+    el.className = 'ydev ' + (a >= 0.6 ? 'b' : 'w');
+    el.textContent = (d < 0 ? 'nízký, o ' : 'vysoký, o ') + fmtBar(a) + ' bar ' + (d < 0 ? 'méně' : 'více');
+  });
+}
+function tyreErrs(){
+  const errs = [], add = (el, text, focus) => { if(el) errs.push({ el, text, focus }); };
+  if(!$('yVeh').value) add($('yVeh'), 'Vyberte vozidlo.', true);
+  if(!$('yDate').value) add($('yDate'), 'Vyberte datum měření.', true);
+  else if($('yDate').value > todayIso()) add($('yDate'), 'Měření nelze zapsat dopředu.', true);
+  else if($('yDate').min && $('yDate').value < $('yDate').min) add($('yDate'), 'Tak staré měření už zapsat nelze.', true);
+  if(!(Number($('yKm').value) > 0)) add($('yKm'), 'Zadejte stav tachometru.', true);
+  TY.forEach(([id]) => {
+    if(/I$/.test(id) && !$('yTwin').checked) return;
+    const v = barNum($(id).value);
+    if(!$(id).value.trim()) add($(id), 'Zadejte tlak.', true);
+    else if(!(v >= 1 && v <= 12)) add($(id), 'Tlak v barech, např. 3,5.', true);
+  });
+  return errs;
+}
+function readyTyre(){
+  const btn = $('ySend'); if(!btn || !V.data) return;
+  const errs = tyreErrs();
+  btn.classList.toggle('dim', errs.length > 0);
+  if(TRIED.tyre) showErrs('tyreCard', errs);
+}
+async function sendTyre(){
+  msg('yMsg', '', '');
+  const errs = tyreErrs();
+  if(errs.length){ TRIED.tyre = true; showErrs('tyreCard', errs); goFirstErr(errs); return; }
+  const vehicle = $('yVeh').value, km = $('yKm').value.trim();
+  if(!(await kmOk(vehicle, km))){ $('yKm').scrollIntoView({ behavior:'smooth', block:'center' }); setTimeout(() => $('yKm').focus({ preventScroll:true }), 350); return; }
+  const p = tyrePress(), twin = $('yTwin').checked;
+  const low = p && TY.some(([id, ax]) => (twin || !/I$/.test(id)) && (ax === 'f' ? p.front : p.rear) && barNum($(id).value) <= (ax === 'f' ? p.front : p.rear) - 0.25);
+  if(low && !$('yInf').checked){   // nízký tlak a nezaškrtnuto „Dohuštěno“ → zeptat se
+    const r = await ask2('Některá kola mají nižší tlak, než je předepsaný. Dohustili jste je?', 'Ano, dohuštěno', 'Ne');
+    if(r === null) return;
+    if(r === true){ $('yInf').checked = true; $('yInfLbl').classList.add('on'); }
+  }
+  const val = id => String($(id).value).replace(/\s/g, '').replace(',', '.');
+  const arg = { uid:uid(), vehicle, date:$('yDate').value, km, fl:val('yFL'), fr:val('yFR'), rl:val('yRL'), rr:val('yRR'),
+    twin, rli: twin ? val('yRLI') : '', rri: twin ? val('yRRI') : '', inflated: $('yInf').checked ? 'ANO' : 'NE', note:$('yNote').value };
+  $('ySend').disabled = true; busy(true, 'Odesílám měření…');
+  try{
+    V.data = await call('mVehTyre', Object.assign({ token:S.token }, arg));
+    homeOk(`Tlak pneumatik ${vehicle} odeslán`);
+    resetTyre(); renderVehList(); msg('yMsg', '', ''); goHome();
+  }catch(e){
+    if(/vypršelo/i.test(e)){ store.del('m_token'); showLogin(); msg('loginMsg', 'err', e); } else msg('yMsg', 'err', netTxt(e));
+  }finally{ $('ySend').disabled = false; busy(false); window.scrollTo({ top:0, behavior:'smooth' }); }
+}
+async function delTyre(id){
+  if(!(await ask('Smazat toto měření tlaku?', 'Smazat'))) return;
+  busy(true, 'Mažu…');
+  try{ V.data = await call('mVehDelete', { token:S.token, id, kind:'tyre' }); renderVehList(); }
+  catch(e){ msg('yMsg', 'err', e); }
+  finally{ busy(false); }
+}
 function renderVehList(){
   if(V.data) store.set('m_vdata', JSON.stringify(V.data));   // V3.62: data vozidel i pro start bez signálu
-  const kind = S.view === 'check' ? 'check' : 'fuel';
+  const kind = S.view === 'check' ? 'check' : (S.view === 'tyre' ? 'tyre' : 'fuel');
   const pend = kind === 'fuel' ? outbox().filter(x => x.name === S.name) : [];   // V3.62: neodeslaná tankování z telefonu
   const items = pend.map(x => ({ kind:'fuel', out:true, err:x.err, id:x.arg.uid, vehicle:x.arg.vehicle, date:x.arg.date, km:Number(x.arg.km) || 0,
       liters:Number(String(x.arg.liters).replace(',', '.')) || 0, pay:x.arg.pay, amount:Number(x.arg.amount) || 0, full:x.arg.full, receipt:!!x.arg.photo, sent:'' }))
     .concat(((V.data && V.data.mine) || []).filter(x => x.kind === kind)).slice(0, 5 + pend.length);   // V3.35: jen posledních 5, sbalené
-  $('vehListTitle').textContent = (kind === 'check' ? 'Moje poslední kontroly' : 'Moje poslední tankování') + ` (${items.length})`;
+  $('vehListTitle').textContent = ({ check:'Moje poslední kontroly', fuel:'Moje poslední tankování', tyre:'Moje poslední měření tlaku' }[kind]) + ` (${items.length})`;
   $('vehListTitle').classList.toggle('open', !!V.listOpen);
   $('vehList').classList.toggle('hidden', !V.listOpen);
   if(!items.length){ $('vehList').innerHTML = '<div class="empty">Za poslední měsíc zatím nic.</div>'; return; }
@@ -1430,6 +1571,15 @@ function renderVehList(){
         : (x.state === 'Vyřešeno' ? '<span class="chip ok">Vyřešeno</span>' : `<span class="chip ${x.ok === 'NE' ? 'no' : 'wait'}">${esc(x.state || 'Nová závada')}</span>`);
       return `<div class="item"><div class="h"><span class="d">${esc(x.vehicle)} · ${fmtKm(x.km)} km</span>${chip}</div>
         <div class="n">Odesláno ${esc(x.sent)}${x.defects ? ' · ' + x.defects + ' ' + (x.defects === 1 ? 'závada' : (x.defects < 5 ? 'závady' : 'závad')) + (x.ok === 'NE' ? ' · nezpůsobilé k provozu' : '') : ''}</div></div>`;
+    }
+    if(kind === 'tyre'){   // V4.01
+      const v = x.vals || [], t = v[4] || v[5];
+      const chip = x.state === 'Nové' ? '<span class="chip wait">Čeká na zápis</span>' : `<span class="chip ok">${esc(x.state)}</span>`;
+      return `<div class="item"><div class="h"><span class="d">${esc(x.vehicle)} · ${esc(dayLabel(x.date))}</span>${chip}</div>
+        <div class="t">přední ${fmtBar(v[0])} / ${fmtBar(v[1])} · zadní ${fmtBar(v[2])} / ${fmtBar(v[3])}${t ? ` · vnitřní ${fmtBar(v[4])} / ${fmtBar(v[5])}` : ''}&nbsp;bar</div>
+        <div class="n">${fmtKm(x.km)} km${x.inflated === 'ANO' ? ' · dohuštěno' : ''} · odesláno ${esc(x.sent)}</div>
+        ${x.note ? `<div class="n">${esc(x.note)}</div>` : ''}
+        ${x.state === 'Nové' ? `<div class="acts"><button class="del" onclick="delTyre('${esc(x.id)}')">Smazat</button></div>` : ''}</div>`;
     }
     if(x.out) return `<div class="item"><div class="h"><span class="d">${esc(x.vehicle)} · ${esc(dayLabel(x.date))}</span><span class="chip ${x.err ? 'no' : 'wait'}">${x.err ? 'Neodesláno' : 'Čeká na odeslání'}</span></div>
       <div class="t">${String(x.liters).replace('.', ',')} l${x.full === 'NE' ? ' (ne do plna)' : ''} · ${fmtKm(x.km)} km · ${esc(x.pay)}${x.amount ? ' · ' + fmtKc(x.amount) : ''}</div>
