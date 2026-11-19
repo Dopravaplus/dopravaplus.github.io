@@ -188,6 +188,7 @@ html[data-theme="dark"] .msel{border-color:#7a5a16;color:var(--amber)}
 .mrow .mgo{color:var(--red);font-size:26px;font-weight:700;line-height:1}
 .mrow.tap .mh{align-self:center}
 .mrow.miss{grid-template-columns:70px 1fr 22px}   /* V4.21: u dne k doplnění vpravo jen šipka – text má víc místa */
+.mleg{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.5}.mleg .mk{display:inline}   /* V4.31: vysvětlivka barev */
 .lockn{margin-top:8px;font-size:13.5px;color:var(--amber);font-weight:700}   /* V4.27 */
 .mrow .mrej{font-size:13px;color:var(--red);font-weight:700;margin-top:2px}   /* V4.20: důvod zamítnutí pod údaji dne (jako v Odeslaných zápisech) */   /* V4.17 */
 .msum{display:flex;justify-content:space-between;margin-top:10px;padding:11px 13px;background:#f2f6fc;border-radius:10px;font-weight:800;font-size:15px}
@@ -564,7 +565,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.30';
+const APP_VER = '4.31';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1014,7 +1015,7 @@ function renderList(){
       ${e.state === 'Zamítnuto' && e.reason ? `<div class="reason">Důvod: ${esc(e.reason)}</div>` : ''}
       ${edited ? `<div class="edited">${esc(oniTxt(e.reason))}</div>` : ''}
       <div class="n">Odesláno ${esc(e.sent)}</div>
-      ${e.state === 'Ke schválení' ? (e.locked ? `<div class="lockn">Dispečink má za tento den směnu – zápis už nejde upravit, rozhodne dispečink při schválení.</div>`   // V4.27: zamčeno, nejde dorovnat
+      ${e.state === 'Ke schválení' ? (e.locked ? `<div class="lockn">Dispečink má za tento den směnu – zápis už nejde upravit, rozhodne dispečink při schválení. Při chybě kontaktujte dispečink.</div>`   // V4.27: zamčeno, nejde dorovnat
         : `<div class="acts"><button onclick="editEntry('${esc(e.id)}')">Upravit</button><button class="del" onclick="delEntry('${esc(e.id)}')">Smazat</button></div>`) : ''}
     </div>`;
   }).join('') + (old.length ? `<button type="button" class="moreold" onclick="S.showOld=!S.showOld;renderList()">${S.showOld ? 'Skrýt starší zápisy' : `Zobrazit starší (${old.length})`}</button>` : '');
@@ -1112,7 +1113,7 @@ function renderMonth(){
     const att = !x.missing && x.att && x.att.st ? `<div class="msub">dispečink ${attMark(x.att)}</div>` : '';   // V4.15: i shoda – „souhlasí“
     const tap = x.missing && x.date >= (d.minDate || '');   // V4.18: klepnutím na celý den se otevře zápis
     return `<div class="mrow ${x.weekend ? 'wk' : ''} ${x.missing ? 'miss' : ''} ${tap ? 'tap' : ''}" id="md_${x.date}"${tap ? ` role="button" tabindex="0" onclick="openDay('${x.date}')"` : ''}><span class="md">${esc(x.label)}</span><span>${time}${top ? `<div class="mf2">${esc(top)}</div>` : ''}${x.crew ? `<div class="mf">${esc(x.crew)}</div>` : ''}${nt || pd ? `<div class="mn">${nt}${pd}</div>` : ''}${x.missing && x.rejected ? `<div class="mrej">Důvod: ${esc(x.rejected)}</div>` : ''}</span><span class="mh">${tap ? '<span class="mgo">›</span>' : ''}${x.hours ? fmtHM(x.hours).replace(/ /g, '&nbsp;') : ''}${att}</span></div>`;
-  }).join('') + `<div class="msum"><span>Celkem odpracovaných hodin<div class="mf" style="font-weight:600">směny ${d.shifts}${d.leaveDays ? ` · dovolená ${d.leaveDays} ${dayN(d.leaveDays)}` : ''}${d.sickDays ? ` · nemoc ${d.sickDays} ${dayN(d.sickDays)}` : ''}</div><div class="mf" style="font-weight:600">podle dispečinku (mzda) ${fmtHM(d.attHours).replace(/ /g, '&nbsp;')}</div></span><span>${fmtHM(d.hours).replace(/ /g, '&nbsp;')}</span></div>`;
+  }).join('') + `<div class="mleg"><b>Dispečink:</b> <span class="mk ok">souhlasí</span> = shoda · <span class="mk ed">upraveno</span> = čas upravil dispečink · <span class="mk df">čas</span> = liší se od dispečinku</div><div class="msum"><span>Celkem odpracovaných hodin<div class="mf" style="font-weight:600">směny ${d.shifts}${d.leaveDays ? ` · dovolená ${d.leaveDays} ${dayN(d.leaveDays)}` : ''}${d.sickDays ? ` · nemoc ${d.sickDays} ${dayN(d.sickDays)}` : ''}</div><div class="mf" style="font-weight:600">podle dispečinku (mzda) ${fmtHM(d.attHours).replace(/ /g, '&nbsp;')}</div></span><span>${fmtHM(d.hours).replace(/ /g, '&nbsp;')}</span></div>`;
   renderConf();
 }
 /* V3.74: klepnutí na nezapsaný den → formulář zápisu pro ten den */
