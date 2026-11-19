@@ -165,6 +165,7 @@ html[data-theme="dark"] .msel{border-color:#7a5a16;color:var(--amber)}
   .ptable th{text-align:center;border-bottom:1.5px solid #000;padding:4px 5px;font-weight:800}
   .ptable td{border-bottom:1px solid #ccc;padding:3px 5px;vertical-align:top;text-align:center}
   .ptable td.l{text-align:left}
+  .ptable td.nw{white-space:nowrap;text-align:left}   /* V4.38: posádka na jednom řádku, zarovnaná vlevo (hlavička na střed) */
   .ptable tr.g td{color:#999;background:#f3f3f3}
   .ptable tr.w td:first-child{color:#666}
   .ptable tr.nzr td{background:#fef3f2;-webkit-print-color-adjust:exact;print-color-adjust:exact}
@@ -192,7 +193,7 @@ html[data-theme="dark"] .msel{border-color:#7a5a16;color:var(--amber)}
 .msum .ss{font-size:13px;font-weight:600;color:var(--muted);margin-top:3px}
 .msum .s2{margin-top:9px;padding-top:9px;border-top:1px solid var(--line);font-size:14px}   /* V4.32 souhrn */
 .mleg{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.5}.mleg .mk{display:inline}   /* V4.31: vysvětlivka barev */
-.lockn{margin-top:8px;font-size:13.5px;color:var(--amber);font-weight:700}   /* V4.27 */
+.lockn{margin-top:6px;font-size:13.5px;color:var(--muted);font-weight:600}   /* V4.36: krátce */   /* V4.27 */
 .mrow .mrej{font-size:13px;color:var(--red);font-weight:700;margin-top:2px}   /* V4.20: důvod zamítnutí pod údaji dne (jako v Odeslaných zápisech) */   /* V4.17 */
 .msum{display:flex;justify-content:space-between;margin-top:10px;padding:11px 13px;background:#f2f6fc;border-radius:10px;font-weight:800;font-size:15px}
 .item .acts{display:flex;gap:8px;margin-top:8px}
@@ -568,7 +569,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.35';
+const APP_VER = '4.39';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1018,7 +1019,7 @@ function renderList(){
       ${e.state === 'Zamítnuto' && e.reason ? `<div class="reason">Důvod: ${esc(e.reason)}</div>` : ''}
       ${edited ? `<div class="edited">${esc(oniTxt(e.reason))}</div>` : ''}
       <div class="n">Odesláno ${esc(e.sent)}</div>
-      ${e.state === 'Ke schválení' ? (e.locked ? `<div class="lockn">Dispečink má za tento den směnu – zápis už nejde upravit, rozhodne dispečink při schválení. Při chybě kontaktujte dispečink.</div>`   // V4.27: zamčeno, nejde dorovnat
+      ${e.state === 'Ke schválení' ? (e.locked ? `<div class="lockn">🔒 Uzamčeno – posoudí dispečink</div>`   // V4.27: zamčeno, nejde dorovnat
         : `<div class="acts"><button onclick="editEntry('${esc(e.id)}')">Upravit</button><button class="del" onclick="delEntry('${esc(e.id)}')">Smazat</button></div>`) : ''}
     </div>`;
   }).join('') + (old.length ? `<button type="button" class="moreold" onclick="S.showOld=!S.showOld;renderList()">${S.showOld ? 'Skrýt starší zápisy' : `Zobrazit starší (${old.length})`}</button>` : '');
@@ -1062,11 +1063,11 @@ function buildPrint(){
   const rows = d.days.map(x => x.empty ? `<tr class="g"><td>${esc(x.label)}</td><td></td><td></td><td></td><td></td><td></td><td class="l"></td><td class="l"></td><td class="l"></td></tr>`
     : `<tr class="${x.weekend ? 'w' : ''} ${x.missing ? 'nzr' : ''}"><td>${esc(x.label)}</td><td>${x.leave ? `<b style="color:${x.activity === 'Nemoc' ? '#b42318' : '#1849a9'}">${esc(x.activity)}</b>` : esc(x.activity || '')}</td><td>${esc(x.vehicle || '')}</td>`
       + (x.missing ? '<td colspan="2" style="color:#b42318;font-weight:700">nezapsal</td>' : `<td>${esc(x.from || '')}</td><td>${esc(x.to || '')}</td>`)
-      + `<td>${x.hours ? fmtH(x.hours) : ''}</td><td class="l">${esc(crewShort(x.crew))}</td><td class="l">${esc(noteTxt(x))}</td><td class="l">${dv(x) || pm(x.att)}</td></tr>`).join('');   // V4.34: jeden sloupec Vyjádření dispečinku
+      + `<td>${x.hours ? fmtH(x.hours) : ''}</td><td class="nw">${esc(crewShort(x.crew)).replace(/; /g, '<br>')}</td><td class="l">${esc(noteTxt(x))}</td><td class="l">${dv(x) || pm(x.att)}</td></tr>`).join('');   // V4.34: jeden sloupec Vyjádření dispečinku
   const issues = [d.missing.length ? `Nezapsané směny: ${d.missing.length}` : '', d.diffs ? `Rozdíl s dispečinkem: ${d.diffs}` : ''].filter(Boolean).join(' · ');
   const n = new Date();
   const conf = c ? (c.note ? `Výkaz odeslán s připomínkou ${esc(c.at)}: ${esc(c.note)}` : `Výkaz potvrzen zaměstnancem ${esc(c.at)}.`) : 'Výkaz zatím nebyl potvrzen.';
-  $('mPrint').innerHTML = `${issues ? `<div class="pis">${issues}</div>` : ''}<table><thead><tr><th>Datum</th><th>Činnost</th><th>Vozidlo</th><th>Od</th><th>Do</th><th>Hodiny</th><th>Posádka</th><th>Poznámka zaměstnance</th><th>Vyjádření dispečinku</th></tr></thead>
+  $('mPrint').innerHTML = `${issues ? `<div class="pis">${issues}</div>` : ''}<table><thead><tr><th>Datum</th><th>Činnost</th><th>Vozidlo</th><th>Od</th><th>Do</th><th>Hodiny</th><th>Posádka</th><th style="text-align:left">Poznámka<br>zaměstnance</th><th style="text-align:left">Vyjádření<br>dispečinku</th></tr></thead>
     <tbody>${rows}</tbody></table>
     <div class="psum"><div><b>Odpracováno podle zápisů zaměstnance: ${fmtH(d.hours)} h</b></div><div>Směny: ${d.shifts} · Dovolená: ${d.leaveDays} ${dayN(d.leaveDays)} · Nemoc: ${d.sickDays} ${dayN(d.sickDays)}</div>${d.month < String(S.today || '').slice(0, 7) ? `<div>Odpracováno podle dispečinku: ${fmtH(d.attHours)} h</div>` : ''}</div>
     <div class="pf"><b>${conf}</b><br>Vytištěno ${n.getDate()}.${n.getMonth() + 1}.${n.getFullYear()} z mobilní aplikace Dopravaplus. Přehled je informativní – závazné jsou údaje v docházce a na výplatní pásce.</div>`;
