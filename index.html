@@ -162,10 +162,10 @@ html[data-theme="dark"] .msel{border-color:#7a5a16;color:var(--amber)}
   #mBody{display:none !important}
   .ptable{display:block}
   .ptable table{width:100%;border-collapse:collapse;font-size:11.5px;color:#000}
-  .ptable th{text-align:center;border-bottom:1.5px solid #000;padding:4px 5px;font-weight:800}
-  .ptable td{border-bottom:1px solid #ccc;padding:3px 5px;vertical-align:top;text-align:center}
-  .ptable td.l{text-align:left}
-  .ptable td.nw{white-space:nowrap;text-align:left}   /* V4.38: posádka na jednom řádku, zarovnaná vlevo (hlavička na střed) */
+  .ptable th{text-align:center;border-bottom:1.5px solid #000;padding:4px 8px;font-weight:800}
+  .ptable td{border-bottom:1px solid #ccc;padding:4px 8px;vertical-align:top;text-align:center}
+  .ptable td.l,.ptable th.l{text-align:left;padding-left:16px;width:25%}   /* V4.41: Poznámka / Vyjádření víc od sebe a od Posádky */
+  .ptable td.nw{white-space:nowrap;text-align:left;padding-right:6px}   /* V4.38: posádka na jednom řádku, zarovnaná vlevo (hlavička na střed) */
   .ptable tr.g td{color:#999;background:#f3f3f3}
   .ptable tr.w td:first-child{color:#666}
   .ptable tr.nzr td{background:#fef3f2;-webkit-print-color-adjust:exact;print-color-adjust:exact}
@@ -569,7 +569,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.40';
+const APP_VER = '4.41';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1067,9 +1067,9 @@ function buildPrint(){
   const issues = [d.missing.length ? `Nezapsané směny: ${d.missing.length}` : '', d.diffs ? `Rozdíl s dispečinkem: ${d.diffs}` : ''].filter(Boolean).join(' · ');
   const n = new Date();
   const conf = c ? (c.note ? `Výkaz odeslán s připomínkou ${esc(c.at)}: ${esc(c.note)}` : `Výkaz potvrzen zaměstnancem ${esc(c.at)}.`) : 'Výkaz zatím nebyl potvrzen.';
-  $('mPrint').innerHTML = `${issues ? `<div class="pis">${issues}</div>` : ''}<table><thead><tr><th>Datum</th><th>Činnost</th><th>Vozidlo</th><th>Od</th><th>Do</th><th>Hodiny</th><th>Posádka</th><th style="text-align:left">Poznámka<br>zaměstnance</th><th style="text-align:left">Vyjádření<br>dispečinku</th></tr></thead>
+  $('mPrint').innerHTML = `${issues ? `<div class="pis">${issues}</div>` : ''}<table><thead><tr><th>Datum</th><th>Činnost</th><th>Vozidlo</th><th>Od</th><th>Do</th><th>Hodiny</th><th>Posádka</th><th class="l">Poznámka<br>zaměstnance</th><th class="l">Vyjádření<br>dispečinku</th></tr></thead>
     <tbody>${rows}</tbody></table>
-    <div class="psum"><div><b>Odpracováno podle zápisů zaměstnance: ${fmtH(d.hours)} h</b></div><div>Směny: ${d.shifts} · Dovolená: ${d.leaveDays} ${dayN(d.leaveDays)} · Nemoc: ${d.sickDays} ${dayN(d.sickDays)}</div>${d.month < String(S.today || '').slice(0, 7) ? `<div>Odpracováno podle dispečinku: ${fmtH(d.attHours)} h</div>` : ''}</div>
+    <div class="psum"><div><b>Odpracováno podle zápisů zaměstnance: ${fmtH(d.hours)} h</b></div><div>Směny: ${d.shifts} · Dovolená: ${d.leaveDays} · Nemoc: ${d.sickDays}</div>${d.month < String(S.today || '').slice(0, 7) ? `<div>Odpracováno podle dispečinku: ${fmtH(d.attHours)} h</div>` : ''}</div>
     <div class="pf"><b>${conf}</b><br>Vytištěno ${n.getDate()}.${n.getMonth() + 1}.${n.getFullYear()} z mobilní aplikace Dopravaplus. Přehled je informativní – závazné jsou údaje v docházce a na výplatní pásce.</div>`;
 }
 window.addEventListener('beforeprint', () => { if(M.data && M.data.available) buildPrint(); });
@@ -1118,7 +1118,7 @@ function renderMonth(){
     const tap = x.missing && x.date >= (d.minDate || '');   // V4.18: klepnutím na celý den se otevře zápis
     return `<div class="mrow ${x.weekend ? 'wk' : ''} ${x.missing ? 'miss' : ''} ${tap ? 'tap' : ''}" id="md_${x.date}"${tap ? ` role="button" tabindex="0" onclick="openDay('${x.date}')"` : ''}><span class="md">${esc(x.label)}</span><span>${time}${top ? `<div class="mf2">${esc(top)}</div>` : ''}${x.crew ? `<div class="mf">${esc(x.crew)}</div>` : ''}${nt || pd ? `<div class="mn">${nt}${pd}</div>` : ''}${x.missing && x.rejected ? `<div class="mrej">Důvod: ${esc(x.rejected)}</div>` : ''}</span><span class="mh">${tap ? '<span class="mgo">›</span>' : ''}${x.hours ? fmtHM(x.hours).replace(/ /g, '&nbsp;') : ''}${att}</span></div>`;
   }).join('') + `<div class="mleg"><b>Dispečink:</b> <span class="mk ok">souhlasí</span> = shoda · <span class="mk ed">upraveno</span> = čas upravil dispečink · <span class="mk df">čas</span> = liší se od dispečinku</div><div class="msum"><div class="sr"><span>Odpracováno podle vašich zápisů</span><b>${fmtHM(d.hours).replace(/ /g, '&nbsp;')}</b></div>`
-    + `<div class="ss">Směny ${d.shifts}${d.leaveDays ? ` · dovolená ${d.leaveDays} ${dayN(d.leaveDays)}` : ''}${d.sickDays ? ` · nemoc ${d.sickDays} ${dayN(d.sickDays)}` : ''}</div>`
+    + `<div class="ss">Směny: ${d.shifts}${d.leaveDays ? ` · Dovolená: ${d.leaveDays}` : ''}${d.sickDays ? ` · Nemoc: ${d.sickDays}` : ''}</div>`   // V4.41: bez „den/dny“
     + (d.month < String(S.today || '').slice(0, 7) ? `<div class="sr s2"><span>Odpracováno podle dispečinku</span><b>${fmtHM(d.attHours).replace(/ /g, '&nbsp;')}</b></div>` : '')   // V4.32: až po skončení měsíce, bez „mzda“
     + `</div>`;
   renderConf();
