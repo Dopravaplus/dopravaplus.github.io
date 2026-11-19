@@ -54,7 +54,7 @@ select{background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2
 .unit span{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:16px;font-weight:600;pointer-events:none}
 /* V3.51: zaškrtávátko „Nedotankováno do plna“ */
 .chk{display:flex;gap:12px;align-items:center;border:1px solid #d0d5dd;border-radius:12px;padding:12px 14px;background:#fff;cursor:pointer}
-.chk input{width:24px;height:24px;flex:0 0 auto;margin:0;-webkit-appearance:checkbox;appearance:checkbox;accent-color:#b54708}
+.chk input{width:24px;height:24px;flex:0 0 auto;margin:0}
 .chk .ct{font-size:15.5px;font-weight:700;color:#344054;line-height:1.3}
 .chk .cs{font-size:13px;color:var(--muted);font-weight:500;margin-top:2px}
 .chk.on{background:var(--amberBg);border-color:#fec84b}
@@ -275,7 +275,7 @@ body.home{background:linear-gradient(var(--hdr) 0,var(--hdr) 120px,var(--bg) 120
 .ph input{position:absolute;inset:0;opacity:0}
 .ph .pi{font-size:26px;margin-bottom:2px}
 .conf{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.4;color:#344054}
-.conf input{width:24px;height:24px;flex:0 0 auto;margin:0;-webkit-appearance:checkbox;appearance:checkbox}
+.conf input{width:24px;height:24px;flex:0 0 auto;margin:0}
 .kmhint{font-size:12.5px;color:var(--muted);margin-top:5px}
 .kmhint.w{color:var(--amber);font-weight:700}
 .ypres{background:#eef3fc;border:1px solid #d3e0f7;color:#1d3a6b;border-radius:12px;padding:10px 13px;font-size:14px;line-height:1.4;margin:0 0 14px}   /* V4.01 tlak pneumatik */
@@ -286,8 +286,15 @@ body.home{background:linear-gradient(var(--hdr) 0,var(--hdr) 120px,var(--bg) 120
 .ydev{font-size:12.5px;font-weight:700;margin-top:4px;min-height:0}
 .ydev.ok{color:var(--green)}.ydev.w{color:var(--amber)}.ydev.b{color:var(--red)}
 .ytwin{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--muted);margin:0 0 10px}
-.ytwin input{width:20px;height:20px;margin:0;-webkit-appearance:checkbox;appearance:checkbox;accent-color:var(--blue)}
-html[data-theme="dark"] .ytwin input,html[data-theme="dark"] .chk input{accent-color:#3b7ff0;filter:brightness(1.6)}   /* V4.04: v tmavém vzhledu nevypadá jako zaškrtnuté */
+.ytwin input{width:22px;height:22px;margin:0}
+/* V4.05: vlastní zaškrtávací políčka – stejná ve světlém i tmavém vzhledu (iOS kreslí v tmavém černý čtverec) */
+.chk input,.conf input,.ytwin input{-webkit-appearance:none;appearance:none;border:2px solid #98a2b3;border-radius:6px;background:var(--card) no-repeat center/78%;padding:0;cursor:pointer;flex:0 0 auto}
+.chk input:checked,.conf input:checked,.ytwin input:checked{background-color:var(--blue);border-color:var(--blue);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3.2 3.2L13 5' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+.chk.on input:checked{background-color:var(--amber);border-color:var(--amber)}
+html[data-theme="dark"] .chk input,html[data-theme="dark"] .conf input,html[data-theme="dark"] .ytwin input{border-color:#5b6678}
+html[data-theme="dark"] .conf input:checked,html[data-theme="dark"] .ytwin input:checked,html[data-theme="dark"] .chk input:checked{border-color:var(--blue)}
+html[data-theme="dark"] .chk.on input:checked{border-color:var(--amber)}
+.chk input:focus,.conf input:focus,.ytwin input:focus{box-shadow:none}
 .vterms{margin:8px 0 0;border-radius:10px;background:var(--amberBg);border:1px solid #fedf89;padding:8px 11px;font-size:13px;line-height:1.45}
 .vterms.bad{background:var(--redBg);border-color:#fecdca}
 .vterms .vh{font-weight:800;color:#344054;margin-bottom:2px}
@@ -540,7 +547,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.04';
+const APP_VER = '4.05';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
