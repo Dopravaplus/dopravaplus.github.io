@@ -175,11 +175,12 @@ html[data-theme="dark"] .msel{border-color:#7a5a16;color:var(--amber)}
   .ptable tfoot td{border-top:1.5px solid #000;border-bottom:0;font-weight:800;padding-top:7px}
   .ptable .pf{margin-top:14px;font-size:10.5px;color:#555}
 }
-.mrow{display:grid;grid-template-columns:70px 1fr auto;gap:8px;align-items:baseline;padding:9px 0;border-top:1px solid var(--line);font-size:14.5px}
+.mrow{display:grid;grid-template-columns:70px 1fr 96px;gap:8px;align-items:baseline;padding:9px 0;border-top:1px solid var(--line);font-size:14.5px}
 .mrow:first-child{border-top:0}
 .mrow .md{font-weight:800}
 .mrow .mf{color:var(--muted);font-size:13px}
-.mrow .mh{font-weight:800;white-space:nowrap}
+.mrow .mh{font-weight:800;white-space:nowrap;text-align:right}
+.mrow .mh .mk{display:block;margin:0;text-align:right}   /* V4.15: stav dispečinku zarovnaný vpravo pod hodinami */   /* V4.15: pravý sloupec pod sebou */
 .mrow .mn{font-size:13px;color:#475467;font-style:italic;margin-top:1px}
 .msum{display:flex;justify-content:space-between;margin-top:10px;padding:11px 13px;background:#f2f6fc;border-radius:10px;font-weight:800;font-size:15px}
 .item .acts{display:flex;gap:8px;margin-top:8px}
@@ -555,7 +556,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.14';
+const APP_VER = '4.16';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1073,9 +1074,8 @@ function skel(){ const r = (a, b, c) => `<div class="skr"><span><i style="width:
   return `<div class="sk" aria-label="Načítám výkaz"><i style="width:55%;height:16px;margin:4px 0 8px"></i><i style="width:38%;margin-bottom:12px"></i>${r(90,55,70)}${r(90,45,60)}${r(90,60,40)}${r(90,50,65)}${r(90,40,55)}</div>`; }
 function dayN(n){ return n === 1 ? 'den' : (n >= 2 && n <= 4 ? 'dny' : 'dní'); }
 /* V3.75: sloupec „Dispečink“ (dříve V docházce) – ✓ / čas z docházky / bez směny */
-function attMark(m){ if(!m || !m.st) return ''; if(m.st === 'ok') return `<span class="mk ok">${esc(m.txt || '✓')}</span>`;
-  const t = /\d{1,2}:\d{2}/.test(m.txt || '') || m.txt === 'směna' ? 'jiný čas' : (m.txt || '');   // V4.14: časy dispečinku posádka nevidí – zapisuje své, ne opsané
-  return `<span class="mk df">${esc(t)}</span>`; }
+function attMark(m){ if(!m || !m.st) return ''; if(m.st === 'ok') return `<span class="mk ok">souhlasí</span>`;   // V4.15
+  return `<span class="mk df">${esc(m.txt || 'jiný čas')}</span>`; }   // V4.16: při rozdílu čas dispečinku
 function noteTxt(x){ return [x.note || '', x.pending ? 'ke schválení' : ''].filter(Boolean).join(' · '); }
 function ddmm(iso){ const p = iso.split('-'); return `${p[2]}.${p[1]}.`; }
 function renderMonth(){
@@ -1097,9 +1097,9 @@ function renderMonth(){
     const time = x.missing ? (x.date >= (d.minDate || '') ? `<button type="button" class="nz" onclick="openDay('${x.date}')">Doplnit směnu ›</button>` : '<span class="nzs">chybí zápis</span>') : `<div class="mt">${esc(x.from)}–${esc(x.to)}</div>`;
     const nt = x.note ? esc(x.note) : '', pd = x.pending ? `<span class="mpend">ke schválení</span>` : '';
     // V4.14: dispečink jen když nesedí (shoda se nevypisuje); u nezapsané směny bez časů – stačí „Doplnit směnu ›“
-    const att = !x.missing && x.att && x.att.st && x.att.st !== 'ok' ? `<div class="msub">dispečink ${attMark(x.att)}</div>` : '';
-    return `<div class="mrow ${x.weekend ? 'wk' : ''} ${x.missing ? 'miss' : ''}" id="md_${x.date}"><span class="md">${esc(x.label)}</span><span>${time}${top ? `<div class="mf2">${esc(top)}</div>` : ''}${x.crew ? `<div class="mf">${esc(x.crew)}</div>` : ''}${nt || pd ? `<div class="mn">${nt}${pd}</div>` : ''}</span><span class="mh">${x.hours ? fmtH(x.hours) + '&nbsp;h' : ''}${att}</span></div>`;
-  }).join('') + `<div class="msum"><span>Celkem odpracovaných hodin<div class="mf" style="font-weight:600">směny ${d.shifts}${d.leaveDays ? ` · dovolená ${d.leaveDays} ${dayN(d.leaveDays)}` : ''}${d.sickDays ? ` · nemoc ${d.sickDays} ${dayN(d.sickDays)}` : ''}</div><div class="mf" style="font-weight:600">podle dispečinku (mzda) ${fmtH(d.attHours)}&nbsp;h</div></span><span>${fmtH(d.hours)}&nbsp;h</span></div>`;
+    const att = !x.missing && x.att && x.att.st ? `<div class="msub">dispečink ${attMark(x.att)}</div>` : '';   // V4.15: i shoda – „souhlasí“
+    return `<div class="mrow ${x.weekend ? 'wk' : ''} ${x.missing ? 'miss' : ''}" id="md_${x.date}"><span class="md">${esc(x.label)}</span><span>${time}${top ? `<div class="mf2">${esc(top)}</div>` : ''}${x.crew ? `<div class="mf">${esc(x.crew)}</div>` : ''}${nt || pd ? `<div class="mn">${nt}${pd}</div>` : ''}</span><span class="mh">${x.hours ? fmtHM(x.hours).replace(/ /g, '&nbsp;') : ''}${att}</span></div>`;
+  }).join('') + `<div class="msum"><span>Celkem odpracovaných hodin<div class="mf" style="font-weight:600">směny ${d.shifts}${d.leaveDays ? ` · dovolená ${d.leaveDays} ${dayN(d.leaveDays)}` : ''}${d.sickDays ? ` · nemoc ${d.sickDays} ${dayN(d.sickDays)}` : ''}</div><div class="mf" style="font-weight:600">podle dispečinku (mzda) ${fmtHM(d.attHours).replace(/ /g, '&nbsp;')}</div></span><span>${fmtHM(d.hours).replace(/ /g, '&nbsp;')}</span></div>`;
   renderConf();
 }
 /* V3.74: klepnutí na nezapsaný den → formulář zápisu pro ten den */
