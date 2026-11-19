@@ -365,7 +365,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 </head>
 <body>
 
-<div class="top">
+<div class="top" id="topBar">
   <div class="row">
     <div class="brand"><img class="logo" src="icon-192.png" alt="Dopravaplus"><div><h1 id="topTitle">Dopravaplus</h1><div class="sub" id="topSub">řidiči a závozníci</div></div></div>
     <div class="tbtns"><button id="refBtn" class="hidden" onclick="refreshAll()" aria-label="Aktualizovat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 4v5h-5"/></svg></button><button id="backBtn" class="hidden" onclick="goHome()">‹ Zpět</button><button id="logoutBtn" class="hidden" onclick="logout()">Odhlásit</button></div>
@@ -547,7 +547,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.05';
+const APP_VER = '4.06';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -633,6 +633,19 @@ function applyTheme(){
 function setTheme(p){ store.set('m_theme', p); applyTheme(); }
 try{ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme); }catch(e){}
 document.addEventListener('DOMContentLoaded', applyTheme);
+
+/* V4.06: pevná hlavička i při otevřené klávesnici – iOS posune celé zobrazení nahoru a hlavičku vysune;
+   podle visualViewport ji vrátíme na horní okraj viditelné části */
+(function(){
+  const vv = window.visualViewport; if(!vv) return;
+  const fix = () => {
+    const el = document.getElementById('topBar'); if(!el) return;
+    const off = Math.max(0, Math.round(vv.offsetTop));
+    el.style.transform = off > 0 ? `translateY(${off}px)` : '';
+  };
+  vv.addEventListener('resize', fix); vv.addEventListener('scroll', fix);
+  document.addEventListener('focusout', () => setTimeout(fix, 300));
+})();
 
 /* ---------- přihlášení ---------- */
 async function init(){
