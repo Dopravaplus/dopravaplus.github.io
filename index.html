@@ -539,7 +539,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.02';
+const APP_VER = '4.03';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1479,9 +1479,12 @@ function tyrePres(){
   if(!v){ el.classList.add('hidden'); return; }
   el.classList.remove('hidden');
   el.innerHTML = p && (p.front || p.rear)
-    ? `Předepsaný tlak:<br><span class="nw">přední <b>${p.front ? fmtBar(p.front) + '&nbsp;bar' : '–'}</b></span> · <span class="nw">zadní <b>${p.rear ? fmtBar(p.rear) + '&nbsp;bar' : '–'}</b></span>`
+    ? `Předepsaný tlak:<br><span class="nw">přední <b>${presTxt(p.front, p.frontMax)}</b></span> · <span class="nw">zadní <b>${presTxt(p.rear, p.rearMax)}</b></span>`
     : 'Předepsaný tlak pro toto vozidlo není v Přehledu vozidel uveden – zapište naměřené hodnoty.';
 }
+/* V4.03: předepsaný tlak může být rozsah (3,8–4,0 bar) */
+function presTxt(a, b){ return !a ? '–' : (b && b > a ? fmtBar(a) + '–' + fmtBar(b) : fmtBar(a)) + '&nbsp;bar'; }
+function presRange(p, ax){ if(!p) return null; const a = ax === 'f' ? p.front : p.rear, b = ax === 'f' ? p.frontMax : p.rearMax; return a ? [a, b && b > a ? b : a] : null; }
 function tyreTwin(){
   const on = $('yTwin').checked;
   $('yTwinBox').classList.toggle('hidden', !on);
@@ -1493,9 +1496,9 @@ function tyreTwin(){
 function tyreDev(){
   const p = tyrePress();
   TY.forEach(([id, ax]) => {
-    const el = $(id + 'd'), v = barNum($(id).value), ref = p ? (ax === 'f' ? p.front : p.rear) : 0;
-    if(!v || !ref || v < 1 || v > 12){ el.className = 'ydev'; el.textContent = ''; return; }
-    const d = Math.round((v - ref) * 100) / 100, a = Math.abs(d);
+    const el = $(id + 'd'), v = barNum($(id).value), rg = presRange(p, ax);
+    if(!v || !rg || v < 1 || v > 12){ el.className = 'ydev'; el.textContent = ''; return; }
+    const d = Math.round((v < rg[0] ? v - rg[0] : (v > rg[1] ? v - rg[1] : 0)) * 100) / 100, a = Math.abs(d);
     if(a < 0.25){ el.className = 'ydev ok'; el.textContent = 'v pořádku'; return; }
     el.className = 'ydev ' + (a >= 0.6 ? 'b' : 'w');
     el.textContent = (d < 0 ? 'nízký, o ' : 'vysoký, o ') + fmtBar(a) + ' bar ' + (d < 0 ? 'méně' : 'více');
@@ -1529,7 +1532,7 @@ async function sendTyre(){
   const vehicle = $('yVeh').value, km = $('yKm').value.trim();
   if(!(await kmOk(vehicle, km))){ $('yKm').scrollIntoView({ behavior:'smooth', block:'center' }); setTimeout(() => $('yKm').focus({ preventScroll:true }), 350); return; }
   const p = tyrePress(), twin = $('yTwin').checked;
-  const low = p && TY.some(([id, ax]) => (twin || !/I$/.test(id)) && (ax === 'f' ? p.front : p.rear) && barNum($(id).value) <= (ax === 'f' ? p.front : p.rear) - 0.25);
+  const low = p && TY.some(([id, ax]) => { const rg = presRange(p, ax); return (twin || !/I$/.test(id)) && rg && barNum($(id).value) <= rg[0] - 0.25; });
   if(low && !$('yInf').checked){   // nízký tlak a nezaškrtnuto „Dohuštěno“ → zeptat se
     const r = await ask2('Některá kola mají nižší tlak, než je předepsaný. Dohustili jste je?', 'Ano, dohuštěno', 'Ne');
     if(r === null) return;
