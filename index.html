@@ -286,7 +286,8 @@ body.home{background:linear-gradient(var(--hdr) 0,var(--hdr) 120px,var(--bg) 120
 .ydev{font-size:12.5px;font-weight:700;margin-top:4px;min-height:0}
 .ydev.ok{color:var(--green)}.ydev.w{color:var(--amber)}.ydev.b{color:var(--red)}
 .ytwin{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--muted);margin:0 0 10px}
-.ytwin input{width:20px;height:20px;margin:0;-webkit-appearance:checkbox;appearance:checkbox}
+.ytwin input{width:20px;height:20px;margin:0;-webkit-appearance:checkbox;appearance:checkbox;accent-color:var(--blue)}
+html[data-theme="dark"] .ytwin input,html[data-theme="dark"] .chk input{accent-color:#3b7ff0;filter:brightness(1.6)}   /* V4.04: v tmavém vzhledu nevypadá jako zaškrtnuté */
 .vterms{margin:8px 0 0;border-radius:10px;background:var(--amberBg);border:1px solid #fedf89;padding:8px 11px;font-size:13px;line-height:1.45}
 .vterms.bad{background:var(--redBg);border-color:#fecdca}
 .vterms .vh{font-weight:800;color:#344054;margin-bottom:2px}
@@ -539,7 +540,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.03';
+const APP_VER = '4.04';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1480,7 +1481,9 @@ function tyrePres(){
   el.classList.remove('hidden');
   el.innerHTML = p && (p.front || p.rear)
     ? `Předepsaný tlak:<br><span class="nw">přední <b>${presTxt(p.front, p.frontMax)}</b></span> · <span class="nw">zadní <b>${presTxt(p.rear, p.rearMax)}</b></span>`
-    : 'Předepsaný tlak pro toto vozidlo není v Přehledu vozidel uveden – zapište naměřené hodnoty.';
+    : (!V.data.ver ? '<b>Na serveru běží starší verze.</b> Nasaďte MobilKód jako Novou verzi ve stávající implementaci – pak se předepsaný tlak načte.'   // V4.04
+      : (V.data.pressInfo ? 'Předepsaný tlak se nepodařilo načíst: ' + esc(V.data.pressInfo) + ' <span style="opacity:.7">(server ' + esc(V.data.ver) + ')</span>'
+      : 'Předepsaný tlak pro toto vozidlo není v Přehledu vozidel uveden – zapište naměřené hodnoty.'));
 }
 /* V4.03: předepsaný tlak může být rozsah (3,8–4,0 bar) */
 function presTxt(a, b){ return !a ? '–' : (b && b > a ? fmtBar(a) + '–' + fmtBar(b) : fmtBar(a)) + '&nbsp;bar'; }
