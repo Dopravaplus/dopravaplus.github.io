@@ -569,7 +569,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.41';
+const APP_VER = '4.43';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1059,11 +1059,13 @@ async function printMonth(){
 function buildPrint(){
   const d = M.data, c = d.confirm;
   const pm = m => !m || !m.st ? '' : (m.st === 'ok' ? `<span style="color:#067647">${esc(m.txt || '✓')}</span>` : `<span style="color:${m.st === 'edit' ? '#1849a9' : '#b54708'}">${esc(m.txt || '')}</span>`);
-  const dv = x => x.missing && x.rejected ? `<span style="color:#b42318">zamítnuto: ${esc(x.rejected)}</span>` : (x.edited ? `<span style="color:#1849a9">${esc(x.edited.replace(/^upraveno dispečinkem/, 'upraveno'))}</span>` : '');   // V4.28: Vyjádření dispečinku
+  const br = t => esc(t).replace(/ (\(|– )/g, '<br>$1');   // V4.42: logické zalomení – „upraveno<br>(ONI systém)“
+  const brN = t => br(t).replace(/([,;]) +/g, '$1<br>');   // V4.43: poznámka zaměstnance – nový řádek i za čárkou / středníkem
+  const dv = x => x.missing && x.rejected ? `<span style="color:#b42318">zamítnuto:<br>${esc(x.rejected)}</span>` : (x.edited ? `<span style="color:#1849a9">${br(x.edited.replace(/^upraveno dispečinkem/, 'upraveno'))}</span>` : '');   // V4.28: Vyjádření dispečinku
   const rows = d.days.map(x => x.empty ? `<tr class="g"><td>${esc(x.label)}</td><td></td><td></td><td></td><td></td><td></td><td class="l"></td><td class="l"></td><td class="l"></td></tr>`
     : `<tr class="${x.weekend ? 'w' : ''} ${x.missing ? 'nzr' : ''}"><td>${esc(x.label)}</td><td>${x.leave ? `<b style="color:${x.activity === 'Nemoc' ? '#b42318' : '#1849a9'}">${esc(x.activity)}</b>` : esc(x.activity || '')}</td><td>${esc(x.vehicle || '')}</td>`
       + (x.missing ? '<td colspan="2" style="color:#b42318;font-weight:700">nezapsal</td>' : `<td>${esc(x.from || '')}</td><td>${esc(x.to || '')}</td>`)
-      + `<td>${x.hours ? fmtH(x.hours) : ''}</td><td class="nw">${esc(crewShort(x.crew)).replace(/; /g, '<br>')}</td><td class="l">${esc(x.note || '')}</td><td class="l">${dv(x) || pm(x.att) || (x.pending ? '<span style="color:#b54708">ke schválení</span>' : '')}</td></tr>`).join('');   // V4.40: „ke schválení“ ve Vyjádření dispečinku, ne v Poznámce
+      + `<td>${x.hours ? fmtH(x.hours) : ''}</td><td class="nw">${esc(crewShort(x.crew)).replace(/; /g, '<br>')}</td><td class="l">${brN(x.note || '')}</td><td class="l">${dv(x) || pm(x.att) || (x.pending ? '<span style="color:#b54708">ke schválení</span>' : '')}</td></tr>`).join('');   // V4.40: „ke schválení“ ve Vyjádření dispečinku, ne v Poznámce
   const issues = [d.missing.length ? `Nezapsané směny: ${d.missing.length}` : '', d.diffs ? `Rozdíl s dispečinkem: ${d.diffs}` : ''].filter(Boolean).join(' · ');
   const n = new Date();
   const conf = c ? (c.note ? `Výkaz odeslán s připomínkou ${esc(c.at)}: ${esc(c.note)}` : `Výkaz potvrzen zaměstnancem ${esc(c.at)}.`) : 'Výkaz zatím nebyl potvrzen.';
