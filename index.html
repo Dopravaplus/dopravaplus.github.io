@@ -570,7 +570,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.55';
+const APP_VER = '4.56';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -760,6 +760,7 @@ const WDAYS = ['neděli','pondělí','úterý','středu','čtvrtek','pátek','so
 function homeRemind(){
   const el = $('homeRem'), parts = [];   // V3.90: vlastní místo – připomínky jsou vidět při každém návratu na úvod
   if(S.missing) parts.push(`<button type="button" class="hlink" onclick="openDay('${S.missing}')">Doplňte docházku za ${WDAYS[new Date(S.missing + 'T12:00').getDay()]} ${ddmm(S.missing)}${S.missing.slice(0, 4)} ›</button>`);
+  if(S.resolved) parts.push(`<button type="button" class="hlink" onclick="M.month='${S.resolved}';openView('att');setTimeout(()=>$('monthCard').scrollIntoView({behavior:'smooth'}),400)">Dispečink vyřídil připomínku k výkazu za ${monthLabel(S.resolved)} ›</button>`);   // V4.56
   if(S.remind) parts.push(`<button type="button" class="hlink" onclick="M.month='${S.remind}';openView('att');setTimeout(()=>$('monthCard').scrollIntoView({behavior:'smooth'}),400)">Potvrďte pracovní výkaz za ${monthLabel(S.remind)} ›</button>`);
   el.innerHTML = parts.join(''); el.classList.toggle('hidden', !parts.length);
 }
@@ -868,7 +869,7 @@ window.addEventListener('pageshow', e => { if(e.persisted) homeOnOpen(); });
 async function loadEntries(){
   const r = await call('mMyEntries', { token:S.token });
   S.name = r.name; S.today = r.today; S.entries = r.entries || []; store.set('m_sname', r.name);
-  S.remind = r.remind || '';   // V3.72: 1.–5. den – výkaz za minulý měsíc ještě nepotvrzen
+  S.remind = r.remind || ''; S.resolved = r.resolved || '';   // V3.72: 1.–5. den – výkaz za minulý měsíc ještě nepotvrzen
   S.missing = r.missing || ''; if(r.minDate) S.minDate = r.minDate;   // V3.74: nezapsaný včerejšek / poslední pracovní den
   if(S.view === 'home') homeRemind();
   renderList();
@@ -1169,7 +1170,9 @@ function openDay(iso){
 function renderConf(){
   const d = M.data, c = d.confirm, ml = monthLabel(d.month), el = $('mConf');
   let st = '';
-  if(c) st = c.note ? `<div class="cst warn"><b>Odesláno s připomínkou</b> ${esc(c.at)}<div class="cn">${esc(c.note)}</div></div>` : `<div class="cst ok"><b>Potvrzeno</b> ${esc(c.at)}</div>`;
+  if(c) st = c.note ? `<div class="cst warn"><b>Odesláno s připomínkou</b> ${esc(c.at)}<div class="cn">${esc(c.note)}</div></div>`
+    + (c.doneAt ? `<div class="cst ok" style="margin-top:8px"><b>Vyřízeno dispečinkem</b> ${esc(c.doneAt)}${c.reply ? `<div class="cn">${esc(c.reply)}</div>` : ''}<div class="cn">Zkontrolujte výkaz a potvrďte ho znovu.</div></div>` : '')   // V4.56: vyřízení připomínky dispečinkem
+    : `<div class="cst ok"><b>Potvrzeno</b> ${esc(c.at)}</div>`;
   if(!d.canConfirm){ const p = (d.confirmFrom || '').split('-').map(Number); el.innerHTML = st + `<div class="hint" style="text-align:center">Výkaz za ${esc(ml)} půjde potvrdit od ${p[2]}.${p[1]}.${p[0]}.</div>`; return; }
   el.innerHTML = st + (M.disagree
     ? `<label for="mNote" style="margin-top:10px">Se kterým dnem nesouhlasíte?</label><textarea id="mNote" maxlength="1000" placeholder="např. 5.10. jsem končil v 19:30, ne v 19:00">${esc(M.note || '')}</textarea>
@@ -1188,7 +1191,7 @@ async function sendConf(disagree){
   if(!disagree && !(await ask(`Potvrzujete, že výkaz za ${monthLabel(M.data.month)} odpovídá skutečnosti?`, 'Potvrzuji', true))) return;
   busy(true, 'Odesílám…');
   try{ M.data = await call('mConfirm', { token:S.token, month:M.data.month, note, disagree }); M.disagree = false; M.note = ''; renderMonth();
-       if(S.remind === M.data.month){ S.remind = ''; } }
+       if(S.remind === M.data.month){ S.remind = ''; } if(S.resolved === M.data.month){ S.resolved = ''; } }
   catch(e){ if(disagree) M.note = note; await ask(netTxt(e), 'OK', true); }
   finally{ busy(false); }
 }
