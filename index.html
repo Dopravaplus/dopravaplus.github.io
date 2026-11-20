@@ -570,7 +570,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.75';
+const APP_VER = '4.77';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -602,9 +602,9 @@ function fmtHM(h){ const m = Math.round((Number(h) || 0) * 60), hh = Math.floor(
 /* V3.64: dnešní den (ze serveru, jinak z telefonu) – kvůli kontrole, že den nebo tankování není dopředu */
 function todayIso(){ const n = new Date(), lt = `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`; const st = S.today || (V.data && V.data.today) || ''; return st > lt ? st : lt; }
 function busy(on, t){ $('busy').classList.toggle('hidden', !on); if(t) $('busyText').textContent = t; }
-function msg(id, type, text){ const el = $(id); el.className = 'msg ' + (type || ''); el.textContent = text || ''; }
+function msg(id, type, text){ const el = $(id); delete el.dataset.lv; el.className = 'msg ' + (type || ''); el.textContent = text || ''; }
 /* V4.63: potvrzení na tři řádky – co se stalo (tučně), den a čas, co bude dál */
-function msg3(id, type, a, b, c){ const el = $(id); el.className = 'msg ' + (type || ''); el.innerHTML = [`<b>${esc(a)}</b>`, b ? esc(b) : '', c ? esc(c) : ''].filter(Boolean).join('<br>'); }
+function msg3(id, type, a, b, c){ const el = $(id); delete el.dataset.lv; el.className = 'msg ' + (type || ''); el.innerHTML = [`<b>${esc(a)}</b>`, b ? esc(b) : '', c ? esc(c) : ''].filter(Boolean).join('<br>'); }
 /* V2.0: volání serveru (Apps Script „Docházka do mobilu“) přes internet – stránka běží mimo Google, bez šedého pruhu */
 const API_URL = 'https://script.google.com/macros/s/AKfycbyX7rO09p-2zUdZoR0ISi_ZlgSblYihTW7CFxdqhRdYReiJaQXy-3fDi3_QmaRdM0M/exec';
 async function call(fn, arg){
@@ -928,14 +928,26 @@ function setType(t, quiet){
   $('fHint').textContent = t === 'D' ? 'Dovolenou lze zapsat od 1. dne minulého měsíce do konce tohoto měsíce. Odešle se ke schválení dispečinku – po převzetí se zapíše do docházky.' : 'Docházka se odešle dispečinku ke schválení. Upravit nebo smazat ji můžete, dokud dispečink nemá za ten den zapsanou směnu.';
   if(t === 'D' && !$('fLFrom').value && !S.editing){ const v = $('fDate').value || ''; $('fLFrom').value = v; $('fLTo').value = v; }
   if(!quiet){ clearErrs('formCard'); TRIED.att = false; msg('formMsg', '', ''); }
-  lvDays(); readyAtt();
+  lvDays(); lvNoWork(false); readyAtt();
 }
 function lastOfMonth(iso){ const p = iso.split('-').map(Number); return iso.slice(0, 8) + String(new Date(p[0], p[1], 0).getDate()).padStart(2, '0'); }
 function lvChanged(which){
   const a = $('fLFrom'), b = $('fLTo');
   if(which === 'from' && a.value && (!b.value || b.value < a.value)) b.value = a.value;
   if(which === 'to' && b.value && (!a.value || a.value > b.value)) a.value = b.value;
-  lvDays(); readyAtt();
+  lvDays(); lvNoWork(true); readyAtt();
+}
+/* V4.76: vybraná dovolená jen na svátek / víkend → hláška nahoře (jako ostatní), tlačítko zůstane šedé */
+function lvNoWork(scroll){
+  const a = $('fLFrom').value, b = $('fLTo').value, el = $('formMsg');
+  const none = S.ftype === 'D' && a && b && b >= a && !lvList().length;
+  if(!none){ if(el.dataset.lv){ msg('formMsg', '', ''); $('fLFrom').classList.remove('invalid'); $('fLTo').classList.remove('invalid'); } return; }
+  const wd = new Date(a + 'T12:00').getDay(), d = `${ddmm(a)}${a.slice(0, 4)}`;
+  if(a !== b) msg3('formMsg', 'err', 'Ve vybraných dnech není pracovní den', 'Dovolená se za víkendy a státní svátky nečerpá.', 'Vyberte jiné dny.');
+  else if(wd === 0 || wd === 6) msg3('formMsg', 'err', `${d} je ${wd === 6 ? 'sobota' : 'neděle'}`, 'Dovolená se za víkend nečerpá.', 'Vyberte jiný den.');
+  else msg3('formMsg', 'err', `${d} je státní svátek`, 'Dovolená se za svátek nečerpá.', 'Vyberte jiný den.');
+  el.dataset.lv = '1'; $('fLFrom').classList.add('invalid'); $('fLTo').classList.add('invalid');   // V4.77: celý výběr je špatně → oba rámečky
+  if(scroll) el.scrollIntoView({ behavior:'smooth', block:'center' });
 }
 function easter(y){ const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3),
   h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451),
@@ -1348,7 +1360,7 @@ function clearErrs(card){
 }
 function showErrs(card, errs){
   clearErrs(card);
-  errs.forEach(x => { x.el.classList.add('invalid'); const d = document.createElement('div'); d.className = 'ferr'; d.textContent = x.text; (x.el.parentNode.classList.contains('unit') ? x.el.parentNode : x.el).insertAdjacentElement('afterend', d); });
+  errs.forEach(x => { x.el.classList.add('invalid'); if(!x.text) return; const d = document.createElement('div'); d.className = 'ferr'; d.textContent = x.text; (x.el.parentNode.classList.contains('unit') ? x.el.parentNode : x.el).insertAdjacentElement('afterend', d); });
 }
 function goFirstErr(errs){
   const f = errs[0]; if(!f) return;
@@ -1392,12 +1404,7 @@ function attErrs(){
     else if(a.min && a.value < a.min) add(a, 'Tak starý den už zapsat nelze – obraťte se na dispečink.', true);
     if(!b.value) add(b, 'Vyberte poslední den dovolené.', true);
     else if(b.max && b.value > b.max) add(b, 'Dovolenou lze zapsat nejdéle do konce tohoto měsíce.', true);
-    if(a.value && b.value && b.value >= a.value && !lvList().length){   // V4.75: u jednoho dne říct proč (svátek / víkend)
-      const wd = new Date(a.value + 'T12:00').getDay();
-      add(b, a.value !== b.value ? 'Ve vybraných dnech není žádný pracovní den.'
-           : (wd === 0 || wd === 6) ? `${ddmm(a.value)}${a.value.slice(0, 4)} je víkend – dovolená se za něj nečerpá.`
-           : `${ddmm(a.value)}${a.value.slice(0, 4)} je státní svátek – dovolená se za něj nečerpá.`, false);
-    }
+    if(a.value && b.value && b.value >= a.value && !lvList().length){ add(a, '', false); add(b, '', false); }   // V4.77: oba rámečky; V4.76: důvod je nahoře ve formMsg (lvNoWork), u pole jen červený rámeček
     return errs;
   }
   if(!$('fDate').value) add($('fDate'), 'Vyberte den.', true);
