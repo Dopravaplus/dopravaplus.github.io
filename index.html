@@ -518,7 +518,6 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
     <div class="f" id="wAmtBox"><label for="wAmt" id="wAmtLabel">Zaplaceno</label><div class="unit"><input id="wAmt" type="text" inputmode="decimal" oninput="readyWash()"><span>Kč</span></div><div class="hint" id="wAmtHint" style="margin-top:6px"></div></div>
     <div class="f hidden" id="wRcBox"><label>Fotka účtenky (povinná)</label><div class="photos" id="wRPhotos"></div><div class="hint" style="margin-top:6px">Vyfoťte účtenku hned v myčce. Papírovou účtenku i tak odevzdejte na dispečink.</div></div>
     <div class="f"><label>Fotka vozidla po umytí (povinná)</label><div class="photos" id="wCPhotos"></div><div class="hint" style="margin-top:6px">Jedna fotka celého vozidla, aby bylo vidět, jak je umyté.</div></div>
-    <div class="f"><label for="wPlace" id="wPlaceLabel">Myčka</label><input id="wPlace" type="text" maxlength="120" autocomplete="off" oninput="readyWash()"></div>
     <div class="f"><label for="wNote">Poznámka (nepovinné)</label><textarea id="wNote" maxlength="300" placeholder="např. silně znečištěná skříň"></textarea></div>
     <button class="btn dim" id="wSend" onclick="sendWash()">Odeslat mytí</button>
     <div class="hint hc">Mytí zapíše kancelář do karty vozidla. Dokud se tak nestane, můžete ho smazat.</div>
@@ -586,7 +585,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.85';
+const APP_VER = '4.86';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1828,9 +1827,9 @@ function resetWash(){
   const n = new Date(), lt = `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;
   const today = V.data.today > lt ? V.data.today : lt;
   const d = $('wDate'); d.max = today; d.min = isoShift(today, -(V.data.washBack || 3)); d.value = today;
-  ['wAmt', 'wPlace', 'wNote'].forEach(id => { $(id).value = ''; });
+  ['wAmt', 'wNote'].forEach(id => { $(id).value = ''; });   // V4.86: bez pole Myčka (jedna smluvní myčka, u ostatních je na účtence)
   V.wKinds = {}; renderWashKinds();
-  const pays = V.data.washPays || ['Faktura (smluvní myčka)', 'Soukromá platební karta', 'Hotovost'];
+  const pays = V.data.washPays || ['Faktura (smlouva)', 'Soukromá platební karta', 'Hotovost'];
   $('wPay').innerHTML = '<option value="">— vyberte platbu —</option>' + pays.map(p => `<option>${esc(p)}</option>`).join('');
   V.wRPhotos = []; V.wCPhotos = []; renderPhotos('wRPhotos', 'wRPhotos', 1); renderPhotos('wCPhotos', 'wCPhotos', 1);
   kmHint('w'); washPayHint();
@@ -1843,13 +1842,11 @@ function renderWashKinds(){
 }
 function washKindsSel(){ const ks = (V.data && V.data.washKinds) || []; return ks.filter((k, i) => V.wKinds[i]); }
 function washPayHint(){
-  const pay = $('wPay').value, own = washOwn(), inv = !!pay && !own;
+  const pay = $('wPay').value, own = washOwn();
   $('wRcBox').classList.toggle('hidden', !own);
   $('wAmtBox').classList.toggle('hidden', !pay);
   $('wAmtLabel').textContent = own ? 'Zaplaceno' : 'Částka (nepovinné)';
   $('wAmtHint').textContent = own ? 'Částka z účtenky – podle ní vám kancelář mytí proplatí.' : 'Pokud ji znáte – jinak ji doplní kancelář z faktury.';
-  $('wPlaceLabel').textContent = inv ? 'Myčka (povinné)' : 'Myčka (nepovinné)';
-  $('wPlace').placeholder = inv ? 'smluvní myčka, např. Wash Point Ostrava' : 'např. Shell Hlučínská';
 }
 function washErrs(){
   const errs = [], add = (el, text, focus) => { if(el) errs.push({ el, text, focus }); };
@@ -1865,7 +1862,6 @@ function washErrs(){
   else if($('wAmt').value.trim() && !(a > 0 && a <= 50000)) add($('wAmt'), 'Částka není platné číslo.', true);
   if(own && !V.wRPhotos.length) add($('wRPhotos'), 'Vyfoťte účtenku.', false);
   if(!V.wCPhotos.length) add($('wCPhotos'), 'Vyfoťte vozidlo po umytí.', false);
-  if(pay && !own && $('wPlace').value.trim().length < 2) add($('wPlace'), 'Napište, ve které myčce se mylo.', true);
   return errs;
 }
 function readyWash(){
@@ -1885,7 +1881,7 @@ async function sendWash(){
     || outbox().some(x => x.name === S.name && obKind(x) === 'wash' && x.arg.vehicle === vehicle && x.arg.date === date);
   if(same && !(await ask(`Vozidlo ${vehicle} už má mytí za ${dayLabel(date)} zapsané. Opravdu ho zapsat znovu?`, 'Zapsat znovu', true))) return;
   if((Number(amount) || 0) > 2000 && !(await ask(`Částka ${fmtKc(Number(amount))} je neobvykle vysoká. Je správně?`, 'Je správně', true))){ $('wAmt').focus(); return; }
-  const arg = { uid:uid(), vehicle, date, kinds:washKindsSel(), pay, amount, place:$('wPlace').value.trim(), note:$('wNote').value,
+  const arg = { uid:uid(), vehicle, date, kinds:washKindsSel(), pay, amount, place:'', note:$('wNote').value,
     receipt: washOwn() && V.wRPhotos[0] ? { b64:V.wRPhotos[0] } : null, photo: V.wCPhotos[0] ? { b64:V.wCPhotos[0] } : null };
   $('wSend').disabled = true; busy(true, 'Odesílám mytí a fotky…');
   try{
