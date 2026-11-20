@@ -505,7 +505,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
     <div class="f"><label class="chk" id="yInfLbl"><input type="checkbox" id="yInf" onchange="this.parentNode.classList.toggle('on', this.checked)"><span><div class="ct">Dohuštěno na předepsaný tlak</div><div class="cs">Zaškrtněte, když jste po měření pneumatiky dohustili.</div></span></label></div>
     <div class="f"><label for="yNote">Poznámka (nepovinné)</label><textarea id="yNote" maxlength="300" placeholder="např. pravé zadní kolo ztrácí tlak"></textarea></div>
     <button class="btn dim" id="ySend" onclick="sendTyre()">Odeslat měření</button>
-    <div class="hint hc">Tlak se měří každé 3 týdny – u vozidla vám aplikace připomene, až bude na řadě. Měření zapíše kancelář do karty vozidla; do té doby ho můžete smazat.</div>
+    <div class="hint hc">Tlak se měří každé 3 týdny – u vozidla vám aplikace připomene, až bude na řadě. Měření zapíše dispečink do karty vozidla; do té doby ho můžete smazat.</div>
   </div>
 
   <!-- V4.85: Mytí vozidla -->
@@ -520,7 +520,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
     <div class="f"><label>Fotka vozidla po umytí (povinná)</label><div class="photos" id="wCPhotos"></div><div class="hint" style="margin-top:6px">Jedna fotka celého vozidla, aby bylo vidět, jak je umyté.</div></div>
     <div class="f"><label for="wNote">Poznámka (nepovinné)</label><textarea id="wNote" maxlength="300" placeholder="např. silně znečištěná skříň"></textarea></div>
     <button class="btn dim" id="wSend" onclick="sendWash()">Odeslat mytí</button>
-    <div class="hint hc">Mytí zapíše kancelář do karty vozidla. Dokud se tak nestane, můžete ho smazat.</div>
+    <div class="hint hc">Mytí zapíše dispečink do karty vozidla. Dokud se tak nestane, můžete ho smazat.</div>
   </div>
 
   <!-- V3.0 Moje záznamy vozidel -->
@@ -585,7 +585,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.87';
+const APP_VER = '4.88';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1857,7 +1857,7 @@ function washPayHint(){
   $('wRcBox').classList.toggle('hidden', !own);
   $('wAmtBox').classList.toggle('hidden', !pay);
   $('wAmtLabel').textContent = own ? 'Zaplaceno' : 'Částka (nepovinné)';
-  $('wAmtHint').textContent = own ? 'Částka z účtenky – podle ní vám kancelář mytí proplatí.' : 'Pokud ji znáte – jinak ji doplní kancelář z faktury.';
+  $('wAmtHint').textContent = own ? 'Částka z účtenky – podle ní vám dispečink mytí proplatí.' : 'Pokud ji znáte – jinak ji doplní dispečink z faktury.';
 }
 function washErrs(){
   const errs = [], add = (el, text, focus) => { if(el) errs.push({ el, text, focus }); };
