@@ -585,7 +585,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.89';
+const APP_VER = '4.92';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -707,6 +707,8 @@ document.addEventListener('DOMContentLoaded', unitPad);
   };
   vv.addEventListener('resize', fix); vv.addEventListener('scroll', fix);
   document.addEventListener('focusout', () => setTimeout(fix, 300)); document.addEventListener('focusin', () => setTimeout(fix, 300));
+  /* V4.92: dorovnávání po vysunutí klávesnice (V4.90–4.91) zrušeno – na iPhonu posouvalo stránku nahoru na začátek;
+     položka se posune pod hlavičku už před otevřením klávesnice (focusNote) */
 })();
 
 /* ---------- přihlášení ---------- */
@@ -1524,7 +1526,15 @@ function photoReq(gi, ii){ const g = V.data.groups[gi]; return !!(g.photoReq && 
 function critDefs(){ return Object.keys(V.defects).map(k => { const [gi, ii] = k.split(':').map(Number), g = V.data.groups[gi]; return g.crit && g.crit.indexOf(g.items[ii]) >= 0 ? g.items[ii] : ''; }).filter(Boolean); }
 function hasPanel(gi, ii){ const g = V.data.groups[gi]; return marksOf(g).length > 1 || needNote(V.defects[gi + ':' + ii]); }
 function isOpen(gi, ii){ return !isDone(gi, ii) || !!V.exp[gi + ':' + ii]; }
-function focusNote(gi, ii){ const ta = $('dn_' + gi + '_' + ii); if(ta) ta.focus({ preventScroll:true }); }
+function focusNote(gi, ii){
+  const ta = $('dn_' + gi + '_' + ii); if(!ta) return;
+  // V4.91: položku nejdřív posunout nahoru pod hlavičku – klávesnice pak nepřekryje popis ani tlačítko Fotka
+  const bar = $('topBar'), head = bar ? bar.getBoundingClientRect().height : 0;
+  const row = ta.closest('.onote') && ta.closest('.onote').previousElementSibling || ta;
+  const y = window.scrollY + row.getBoundingClientRect().top - head - 12;
+  if(y > window.scrollY + 4 || y < window.scrollY - 4) window.scrollTo({ top: Math.max(0, y), behavior:'auto' });
+  ta.focus({ preventScroll:true });
+}
 function togDef(gi, ii){
   const k = gi + ':' + ii, g = V.data.groups[gi];
   V.picking = '';
