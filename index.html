@@ -571,7 +571,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.60';
+const APP_VER = '4.61';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -741,7 +741,7 @@ async function login(){
 }
 async function logout(){
   const pend = outbox().filter(x => x.name === S.name).length;   // V3.63: neodeslaná tankování by po odhlášení zůstala viset
-  if(pend && !(await ask(`V telefonu ${pend === 1 ? 'je 1 neodeslané tankování' : 'jsou neodeslaná tankování (' + pend + ')'}. Odešle se, až se znovu přihlásíte a bude signál. Opravdu se odhlásit?`, 'Odhlásit', true))) return;
+  if(pend && !(await ask(`V telefonu ${pend === 1 ? 'je 1 neodeslaný zápis' : 'jsou neodeslané zápisy (' + pend + ')'}. ${pend === 1 ? 'Odešle' : 'Odešlou'} se, až se znovu přihlásíte a bude signál. Opravdu se odhlásit?`, 'Odhlásit', true))) return;
   try{ await call('mLogout', { token:S.token }); }catch(e){}
   store.del('m_token'); S.token = ''; S.entries = []; V.data = null; M.data = null; M.month = '';
   showLogin();
@@ -984,8 +984,9 @@ async function send(){
   const dup = !S.editing && !leave && S.entries.find(x => x.date === date && x.state === 'Ke schválení');
   $('sendBtn').disabled = true; busy(true, 'Odesílám…');
   try{
-    const r = await call('mSubmit', leave ? { token:S.token, type:'Dovolená', dateFrom:lf, dateTo:lt, note:$('fNote').value }
-                                          : { token:S.token, date, from, to, pause:$('fPause').value, note:$('fNote').value });
+    var att = leave ? { uid:uid(), type:'Dovolená', dateFrom:lf, dateTo:lt, note:$('fNote').value }
+                    : { uid:uid(), date, from, to, pause:$('fPause').value, note:$('fNote').value };
+    const r = await call('mSubmit', Object.assign({ token:S.token }, att));
     S.entries = r.entries || []; if('missing' in r) S.missing = r.missing || ''; if('remind' in r) S.remind = r.remind || ''; renderList();
     if(leave){ const n = (r.saved || []).length; msg('formMsg', 'ok', `${S.editing ? 'Zápis upraven' : 'Odesláno'} – dovolená ${lf === lt ? ddmm(lf) : ddmm(lf) + '–' + ddmm(lt)} (${n} ${dayN(n)}). Čeká na schválení dispečinkem.`); }
     else msg('formMsg', 'ok', (dup || S.editing ? 'Zápis upraven' : 'Odesláno') + ` – ${dayLabel(date)}, ${from}–${to}. Čeká na schválení dispečinkem.`);
@@ -994,6 +995,12 @@ async function send(){
     if(back){ S.fromDay = back; M.busy = false; await loadMonth(M.month); window.scrollTo({ top:0, behavior:'smooth' }); }   // V4.30: po odeslání zůstat nahoře u potvrzení; „Zpět“ vrátí na den ve výkazu
     else if(M.data){ M.busy = false; loadMonth(M.month); }   // V4.26: výkaz vždy podle posledních zápisů
   }catch(e){
+    if(e === NET_ERR && att && outboxAdd(att, 'mSubmit')){   // V4.61: bez signálu – uložit v telefonu, odešle se samo
+      const back = S.fromDay; resetForm(); renderList();
+      msg('formMsg', 'wait', `Bez signálu – docházka ${leave ? 'za dovolenou' : 'za ' + dayLabel(date)} je uložená v telefonu a odešle se sama, až bude signál.`);
+      if(back) S.fromDay = back;
+      window.scrollTo({ top:0, behavior:'smooth' }); return;
+    }
     if(/vypršelo/i.test(e)){ store.del('m_token'); showLogin(); msg('loginMsg', 'err', e); }
     else msg('formMsg', 'err', netTxt(e));
   }finally{ $('sendBtn').disabled = false; busy(false); }
@@ -1030,12 +1037,21 @@ function ask(text, okLabel, blue){
 function oniTxt(t){ return String(t || '').replace(/\s*[–-]\s*(podle|dle|z)\s+ONI(\s+syst[eé]mu)?\b/i, ' (ONI systém)'); }
 function renderList(){
   const list = $('list');
+  const pend = outbox().filter(x => x.name === S.name && x.fn === 'mSubmit');   // V4.61: docházka uložená v telefonu (bez signálu)
+  const pendHtml = pend.map(x => { const a = x.arg;
+    return `<div class="item"><div class="h"><span class="d">${esc(a.type ? (a.dateFrom === a.dateTo ? dayLabel(a.dateFrom) : ddmm(a.dateFrom) + '–' + ddmm(a.dateTo)) : dayLabel(a.date))}</span><span class="chip ${x.err ? 'no' : 'wait'}">${x.err ? 'Neodesláno' : 'Čeká na odeslání'}</span></div>
+      ${a.type ? `<div class="t it-lv">Dovolená</div>` : `<div class="t">${esc(a.from)}–${esc(a.to)}${Number(a.pause) ? ' · pauza ' + fmtHM(Number(a.pause)) : ''}</div>`}
+      ${a.note ? `<div class="n">${esc(a.note)}</div>` : ''}
+      <div class="n">${x.err ? '' : 'Uloženo v telefonu – odešle se samo, až bude signál.'}</div>
+      ${x.err ? `<div class="reason">Server ho odmítl: ${esc(x.err)}</div>` : ''}
+      <div class="acts"><button class="del" onclick="outboxDel('${esc(a.uid)}')">Smazat</button></div></div>`; }).join('');
+  if(pendHtml && !S.entries.length){ list.innerHTML = pendHtml; return; }
   if(!S.entries.length){ list.innerHTML = '<div class="empty">Zatím jste nic neodeslali.</div>'; return; }
   /* V3.87: jen čekající zápisy a posledních 14 dní, starší pod tlačítkem */
   const from14 = isoShift(S.today || todayIso(), -14);
   const recent = S.entries.filter(e => e.state === 'Ke schválení' || e.date >= from14), old = S.entries.filter(e => !recent.includes(e));
   const shown = S.showOld ? S.entries : recent;
-  list.innerHTML = (shown.length ? '' : '<div class="empty">Za posledních 14 dní nemáte žádný zápis.</div>') + shown.map(e => {
+  list.innerHTML = pendHtml + (shown.length || pendHtml ? '' : '<div class="empty">Za posledních 14 dní nemáte žádný zápis.</div>') + shown.map(e => {
     const edited = e.state === 'Převzato' && /^\s*upraveno/i.test(e.reason || '');   // V3.74: text ze sl. N, pokud začíná „Upraveno na …“
     const chip = e.state === 'Souhlasí' ? '<span class="chip ok">Souhlasí s docházkou</span>'   // V3.73: automaticky ověřeno hlavní aplikací
       : e.state === 'Převzato' ? '<span class="chip ok">Převzato</span>'
@@ -1512,14 +1528,20 @@ async function sendCheck(){
   if(!(await kmOk(vehicle, km))){ $('cKm').scrollIntoView({ behavior:'smooth', block:'center' }); setTimeout(() => $('cKm').focus({ preventScroll:true }), 350); return; }
   $('cSend').disabled = true; busy(true, (V.cPhotos.length || Object.values(V.dPhotos).some(a => a.length)) ? 'Odesílám kontrolu a fotky…' : 'Odesílám kontrolu…');
   try{
-    V.data = await call('mVehCheck', { token:S.token, uid:uid(), vehicle, km, defects, notes, desc, ok:V.ok, confirm:true,
+    var arg = { uid:uid(), at:new Date().toISOString(), vehicle, km, defects, notes, desc, ok:V.ok, confirm:true,
       photos: V.cPhotos.map(d => ({ b64:d })),
-      defPhotos: keys.flatMap(k => { const [gi, ii] = k.split(':').map(Number), g = V.data.groups[gi]; return (V.dPhotos[k] || []).map(d => ({ label: defLabel(g, g.items[ii], V.defects[k]), b64:d })); }) });
+      defPhotos: keys.flatMap(k => { const [gi, ii] = k.split(':').map(Number), g = V.data.groups[gi]; return (V.dPhotos[k] || []).map(d => ({ label: defLabel(g, g.items[ii], V.defects[k]), b64:d })); }) };
+    V.data = await call('mVehCheck', Object.assign({ token:S.token }, arg));
     store.set('m_veh', vehicle);
     homeOk(`Kontrola ${vehicle} odeslána`);
     resetCheck(); renderVehList(); msg('checkMsg', '', ''); goHome();   // V3.29: zpět na úvod s potvrzením
   }catch(e){
-    if(/vypršelo/i.test(e)){ store.del('m_token'); showLogin(); msg('loginMsg', 'err', e); } else msg('checkMsg', 'err', netTxt(e));
+    if(e === NET_ERR && arg && outboxAdd(arg, 'mVehCheck')){   // V4.61: bez signálu – uložit v telefonu
+      store.set('m_veh', vehicle);
+      msg('homeMsg', 'wait', `Kontrola ${vehicle} je uložená v telefonu – odešle se sama, až bude signál.`);
+      resetCheck(); renderVehList(); msg('checkMsg', '', ''); goHome();
+    }
+    else if(/vypršelo/i.test(e)){ store.del('m_token'); showLogin(); msg('loginMsg', 'err', e); } else msg('checkMsg', 'err', netTxt(e));
   }finally{ $('cSend').disabled = false; busy(false); window.scrollTo({ top:0, behavior:'smooth' }); }
 }
 
@@ -1566,7 +1588,7 @@ async function sendFuel(){
     homeOk(`Tankování ${vehicle} odesláno`);
     resetFuel(); renderVehList(); msg('fuelMsg', '', ''); goHome();
   }catch(e){
-    if(e === NET_ERR && outboxAdd(arg)){   // V3.62: bez signálu – uložit v telefonu a odeslat později
+    if(e === NET_ERR && outboxAdd(arg, 'mVehFuel')){   // V3.62: bez signálu – uložit v telefonu a odeslat později
       store.set('m_pay', pay);
       msg('homeMsg', 'wait', `Tankování ${vehicle} je uložené v telefonu – odešle se samo, až bude signál.`);
       resetFuel(); renderVehList(); msg('fuelMsg', '', ''); goHome();
@@ -1578,10 +1600,21 @@ async function sendFuel(){
 function fmtKc(n){ const v = Math.round((Number(n) || 0) * 100) / 100, i = Math.floor(v), h = Math.round((v - i) * 100); return String(i).replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0') + (h ? ',' + String(h).padStart(2, '0') : '') + '\u00a0Kč'; }   // nezalomitelné mezery
 function outbox(){ try{ return JSON.parse(store.get('m_outbox') || '[]'); }catch(e){ return []; } }
 function outboxSave(list){ try{ localStorage.setItem('m_outbox', JSON.stringify(list)); return true; }catch(e){ return false; } }
-function outboxAdd(arg){ const l = outbox(); l.push({ fn:'mVehFuel', arg, name:S.name, at:new Date().toISOString(), err:'' }); return outboxSave(l); }
+/* V4.61: fronta i pro docházku, kontrolu vozidla a tlak pneumatik (kind: fuel / att / check / tyre) */
+const OB_KIND = { mVehFuel:'fuel', mSubmit:'att', mVehCheck:'check', mVehTyre:'tyre' };
+const OB_NAME = { fuel:'tankování', att:'docházka', check:'kontrola vozidla', tyre:'měření tlaku' };
+function obKind(x){ return x.kind || OB_KIND[x.fn] || 'fuel'; }
+function outboxAdd(arg, fn){
+  fn = fn || 'mVehFuel';
+  let l = outbox();
+  if(fn === 'mSubmit') l = l.filter(x => !(x.name === S.name && x.fn === 'mSubmit' && x.arg.date && x.arg.date === arg.date && !x.arg.type));   // stejný den práce = přepsat
+  l.push({ fn, kind:OB_KIND[fn], arg, name:S.name, at:new Date().toISOString(), err:'' });
+  return outboxSave(l);
+}
 function outboxDel(u){
-  ask('Smazat neodeslané tankování? Z telefonu zmizí a dispečink ho nedostane.', 'Smazat', true).then(ok => {
-    if(!ok) return; outboxSave(outbox().filter(x => x.arg.uid !== u)); renderVehList(); });
+  const it = outbox().find(x => x.arg.uid === u), nm = it ? OB_NAME[obKind(it)] : 'zápis';
+  ask(`Smazat neodeslaný zápis (${nm})? Z telefonu zmizí a dispečink ho nedostane.`, 'Smazat', true).then(ok => {
+    if(!ok) return; outboxSave(outbox().filter(x => x.arg.uid !== u)); renderVehList(); renderList(); });
 }
 async function flushOutbox(){
   if(flushOutbox.busy || !S.token) return;
@@ -1592,7 +1625,8 @@ async function flushOutbox(){
       if(it.name !== S.name) continue;                       // patří jinému řidiči na stejném telefonu
       try{
         const d = await call(it.fn, Object.assign({ token:S.token }, it.arg));
-        V.data = d; sent++;
+        if(it.fn === 'mSubmit'){ S.entries = d.entries || S.entries; if('missing' in d) S.missing = d.missing || ''; } else V.data = d;
+        sent++;
         list = outbox().filter(x => x.arg.uid !== it.arg.uid); outboxSave(list);
       }catch(e){
         if(e === NET_ERR || /vypršelo/i.test(e)) break;      // pořád bez signálu / nutné přihlášení – zkusí se později
@@ -1601,7 +1635,8 @@ async function flushOutbox(){
     }
   }finally{
     flushOutbox.busy = false;
-    if(sent){ renderVehList(); if(S.view === 'home') msg('homeMsg', 'ok', `✓ Uložené tankování odesláno (${sent})`); }
+    if(sent){ if(V.data) renderVehList(); renderList(); if(S.view === 'att' && M.data){ M.busy = false; loadMonth(M.month); }
+      if(S.view === 'home'){ msg('homeMsg', 'ok', `✓ Uložené zápisy odeslány (${sent})`); homeRemind(); } }
   }
 }
 window.addEventListener('online', () => flushOutbox());
@@ -1705,7 +1740,11 @@ async function sendTyre(){
     homeOk(`Tlak pneumatik ${vehicle} odeslán`);
     resetTyre(); renderVehList(); msg('yMsg', '', ''); goHome();
   }catch(e){
-    if(/vypršelo/i.test(e)){ store.del('m_token'); showLogin(); msg('loginMsg', 'err', e); } else msg('yMsg', 'err', netTxt(e));
+    if(e === NET_ERR && outboxAdd(arg, 'mVehTyre')){   // V4.61: bez signálu – uložit v telefonu
+      msg('homeMsg', 'wait', `Tlak pneumatik ${vehicle} je uložený v telefonu – odešle se sám, až bude signál.`);
+      resetTyre(); renderVehList(); msg('yMsg', '', ''); goHome();
+    }
+    else if(/vypršelo/i.test(e)){ store.del('m_token'); showLogin(); msg('loginMsg', 'err', e); } else msg('yMsg', 'err', netTxt(e));
   }finally{ $('ySend').disabled = false; busy(false); window.scrollTo({ top:0, behavior:'smooth' }); }
 }
 async function delTyre(id){
@@ -1718,8 +1757,8 @@ async function delTyre(id){
 function renderVehList(){
   if(V.data) store.set('m_vdata', JSON.stringify(V.data));   // V3.62: data vozidel i pro start bez signálu
   const kind = S.view === 'check' ? 'check' : (S.view === 'tyre' ? 'tyre' : 'fuel');
-  const pend = kind === 'fuel' ? outbox().filter(x => x.name === S.name) : [];   // V3.62: neodeslaná tankování z telefonu
-  const items = pend.map(x => ({ kind:'fuel', out:true, err:x.err, id:x.arg.uid, vehicle:x.arg.vehicle, date:x.arg.date, km:Number(x.arg.km) || 0,
+  const pend = outbox().filter(x => x.name === S.name && obKind(x) === kind);   // V3.62 / V4.61: neodeslané zápisy z telefonu
+  const items = pend.map(x => kind !== 'fuel' ? { kind, out:true, err:x.err, id:x.arg.uid, vehicle:x.arg.vehicle, km:Number(x.arg.km) || 0, at:x.at, defects:(x.arg.defects || []).length, ok:x.arg.ok, date:x.arg.date || '', vals:[x.arg.fl, x.arg.fr, x.arg.rl, x.arg.rr, x.arg.rli, x.arg.rri].map(v => Number(v) || 0) } : ({ kind:'fuel', out:true, err:x.err, id:x.arg.uid, vehicle:x.arg.vehicle, date:x.arg.date, km:Number(x.arg.km) || 0,
       liters:Number(String(x.arg.liters).replace(',', '.')) || 0, pay:x.arg.pay, amount:Number(x.arg.amount) || 0, full:x.arg.full, receipt:!!x.arg.photo, sent:'' }))
     .concat(((V.data && V.data.mine) || []).filter(x => x.kind === kind)).slice(0, 5 + pend.length);   // V3.35: jen posledních 5, sbalené
   $('vehListTitle').textContent = ({ check:'Moje poslední kontroly', fuel:'Moje poslední tankování', tyre:'Moje poslední měření tlaku' }[kind]) + ` (${items.length})`;
@@ -1727,6 +1766,15 @@ function renderVehList(){
   $('vehList').classList.toggle('hidden', !V.listOpen);
   if(!items.length){ $('vehList').innerHTML = '<div class="empty">Za poslední měsíc zatím nic.</div>'; return; }
   $('vehList').innerHTML = items.map(x => {
+    if(x.out && kind !== 'fuel'){   // V4.61: neodeslaná kontrola / měření tlaku
+      const d = new Date(x.at), t = `${d.getDate()}.${d.getMonth() + 1}. ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`;
+      const info = kind === 'check' ? `${fmtKm(x.km)} km${x.defects ? ' · ' + x.defects + ' ' + (x.defects === 1 ? 'závada' : (x.defects < 5 ? 'závady' : 'závad')) : ' · bez závad'}`
+        : `přední ${fmtBar(x.vals[0])} / ${fmtBar(x.vals[1])} · zadní ${fmtBar(x.vals[2])} / ${fmtBar(x.vals[3])}&nbsp;bar · ${fmtKm(x.km)} km`;
+      return `<div class="item"><div class="h"><span class="d">${esc(x.vehicle)} · ${esc(t)}</span><span class="chip ${x.err ? 'no' : 'wait'}">${x.err ? 'Neodesláno' : 'Čeká na odeslání'}</span></div>
+        <div class="t">${info}</div><div class="n">${x.err ? '' : 'Uloženo v telefonu – odešle se samo, až bude signál.'}</div>
+        ${x.err ? `<div class="reason">Server ho odmítl: ${esc(x.err)}</div>` : ''}
+        <div class="acts"><button class="del" onclick="outboxDel('${esc(x.id)}')">Smazat</button></div></div>`;
+    }
     if(kind === 'check'){
       const chip = x.state === 'Bez závad' ? '<span class="chip ok">Bez závad</span>'
         : (x.state === 'Vyřešeno' ? '<span class="chip ok">Vyřešeno</span>' : `<span class="chip ${x.ok === 'NE' ? 'no' : 'wait'}">${esc(x.state || 'Nová závada')}</span>`);
