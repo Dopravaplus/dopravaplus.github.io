@@ -565,13 +565,13 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 
 <div id="upd" class="upd hidden"><div></div></div>
 <div id="busy" class="busy hidden"><div class="bbox"><span class="spn"></span><span id="busyText">Načítám…</span></div></div>
-<div id="ask" class="busy hidden"><div style="width:min(340px,90vw)"><div id="askText" style="margin-bottom:14px;font-weight:700"></div>
+<div id="ask" class="busy hidden"><div style="width:min(340px,90vw)"><div id="askText" style="margin-bottom:14px;font-weight:700;text-align:center"></div>
   <div class="grid2"><button class="btn sec" id="askNo">Zpět</button><button class="btn" id="askOk" style="background:#b42318">OK</button></div></div></div>
 
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.57';
+const APP_VER = '4.60';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -970,6 +970,16 @@ async function send(){
   if(leave){   // V3.82: přepíše čekající zápis práce za stejný den → zeptat se
     const days = lvList(), clash = S.entries.filter(x => days.includes(x.date) && x.state === 'Ke schválení' && x.type !== 'Dovolená' && x.id !== S.editing);
     if(clash.length && !(await ask(`Za ${clash.map(x => ddmm(x.date)).join(', ')} už máte čekající zápis práce. Nahradit ho dovolenou?`, 'Nahradit', true))) return;
+  }
+  if(!leave){   // V4.58: § 88 ZP – po 6 hodinách práce nárok na přestávku aspoň 30 min (nezapočítává se); jen upozornění, ne zákaz
+    const [a1, a2] = from.split(':').map(Number), [b1, b2] = to.split(':').map(Number);
+    let gross = (b1 * 60 + b2) - (a1 * 60 + a2); if(gross <= 0) gross += 24 * 60;
+    const pz = Number($('fPause').value) || 0;
+    if(gross > 360 && pz < 0.5){
+      const r = await ask2(pz ? `Při práci delší než 6 hodin máte nárok na přestávku aspoň 30 minut. Zapsaná pauza je ${Math.round(pz * 60)} minut – je to správně?`
+                              : 'Při práci delší než 6 hodin máte nárok na přestávku aspoň 30 minut. Opravdu jste pracoval(a) bez pauzy?', 'Ano', 'Ne');   // V4.59: odpověď Ano / Ne
+      if(r !== true){ $('fPause').focus(); $('fPause').scrollIntoView({ behavior:'smooth', block:'center' }); return; }
+    }
   }
   const dup = !S.editing && !leave && S.entries.find(x => x.date === date && x.state === 'Ke schválení');
   $('sendBtn').disabled = true; busy(true, 'Odesílám…');
