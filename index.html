@@ -192,6 +192,7 @@ html[data-theme="dark"] .msel{border-color:#7a5a16;color:var(--amber)}
 .msum.msum{display:block}.msum .sr{display:flex;justify-content:space-between;align-items:baseline;gap:12px}.msum .sr b{white-space:nowrap}
 .msum .ss{font-size:13px;line-height:1.4;font-weight:600;color:var(--muted);margin-top:3px}
 .msum .s2{margin-top:9px;padding-top:9px;border-top:1px solid var(--line);font-size:14px}   /* V4.32 souhrn */
+.mk.pr{color:var(--muted);font-weight:600}
 .mleg{font-size:12.5px;color:var(--muted);margin-top:12px;text-align:center;line-height:1.5}.mleg .mk{display:inline}   /* V4.31: vysvětlivka barev */
 .lockn{margin-top:6px;font-size:13.5px;color:var(--muted);font-weight:600}   /* V4.36: krátce */   /* V4.27 */
 .mrow .mrej{font-size:13px;color:var(--red);font-weight:700;margin-top:2px}   /* V4.20: důvod zamítnutí pod údaji dne (jako v Odeslaných zápisech) */   /* V4.17 */
@@ -569,7 +570,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.53';
+const APP_VER = '4.54';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1074,7 +1075,7 @@ async function printMonth(){
 /* V3.70: tisk jako tabulka se sloupci */
 function buildPrint(){
   const d = M.data, c = d.confirm;
-  const pm = m => !m || !m.st ? '' : (m.st === 'ok' ? `<span style="color:#067647">${esc(m.txt || '✓')}</span>` : `<span style="color:${m.st === 'edit' ? '#1849a9' : '#b54708'}">${esc(m.txt || '')}</span>`);
+  const pm = m => !m || !m.st ? '' : (m.st === 'ok' ? `<span style="color:#067647">${esc(m.txt || '✓')}</span>` : `<span style="color:${m.st === 'edit' ? '#1849a9' : (m.st === 'pre' ? '#777' : '#b54708')}">${esc(m.txt || '')}</span>`);
   const br = t => esc(t).replace(/ (\(|– )/g, '<br>$1');   // V4.42: logické zalomení – „upraveno<br>(ONI systém)“
   const brN = t => br(t).replace(/([,;]) +/g, '$1<br>');   // V4.43: poznámka zaměstnance – nový řádek i za čárkou / středníkem
   const dv = x => x.missing && x.rejected ? `<span style="color:#b42318">zamítnuto:<br>${esc(x.rejected)}</span>` : (x.edited ? `<span style="color:#1849a9">${br(x.edited.replace(/^upraveno dispečinkem/, 'upraveno'))}</span>` : '');   // V4.28: Vyjádření dispečinku
@@ -1115,7 +1116,8 @@ function skel(){ const r = (a, b, c) => `<div class="skr"><span><i style="width:
 function dayN(n){ return n === 1 ? 'den' : (n >= 2 && n <= 4 ? 'dny' : 'dní'); }
 /* V3.75: sloupec „Dispečink“ (dříve V docházce) – ✓ / čas z docházky / bez směny */
 function attMark(m){ if(!m || !m.st) return ''; if(m.st === 'ok') return `<span class="mk ok">souhlasí</span>`;   // V4.15
-  if(m.st === 'edit') return `<span class="mk ed">upraveno</span>`;   // V4.24: dispečink čas upravil (Odeslané zápisy: Převzato + text úpravy)
+  if(m.st === 'edit') return `<span class="mk ed">upraveno</span>`;
+  if(m.st === 'pre') return `<span class="mk pr">${esc(m.txt || 'podle docházky')}</span>`;   // V4.54: před spuštěním mobilní docházky (šedě)   // V4.24: dispečink čas upravil (Odeslané zápisy: Převzato + text úpravy)
   return `<span class="mk df">${esc(m.txt || 'jiný čas')}</span>`; }   // V4.16: při rozdílu čas dispečinku
 function crewShort(c){ return String(c || '').replace(/Řidič:\s*/g, 'Ř: ').replace(/Závozník:\s*/g, 'Z: '); }   // V4.35: tisk – Ř: / Z:
 function ddmm(iso){ const p = iso.split('-'); return `${p[2]}.${p[1]}.`; }
@@ -1138,14 +1140,14 @@ function renderMonth(){
     const time = x.missing ? (x.date >= (d.minDate || '') ? `<div class="nzt">${x.rejected ? 'Zamítnuto – upravit směnu' : 'Doplnit směnu'}</div>` : '<span class="nzs">chybí zápis</span>') : `<div class="mt">${esc(x.from)}–${esc(x.to)}</div>`;
     const nt = x.note ? esc(x.note) : '', pd = x.pending ? `<span class="mpend">ke schválení</span>` : '';   // V4.23: „upraveno dispečinkem“ jen v Odeslaných zápisech
     // V4.14: dispečink jen když nesedí (shoda se nevypisuje); u nezapsané směny bez časů – „Doplnit směnu“, klepnutím na řádek
-    const att = !x.missing && x.att && x.att.st ? `<div class="msub">dispečink ${attMark(x.att)}</div>` : '';   // V4.15: i shoda – „souhlasí“
+    const att = !x.missing && x.att && x.att.st ? `<div class="msub">${x.att.st === 'pre' ? '' : 'dispečink '}${attMark(x.att)}</div>` : '';   // V4.15: i shoda – „souhlasí“
     const tap = x.missing && x.date >= (d.minDate || '');   // V4.18: klepnutím na celý den se otevře zápis
     return `<div class="mrow ${x.weekend ? 'wk' : ''} ${x.missing ? 'miss' : ''} ${tap ? 'tap' : ''}" id="md_${x.date}"${tap ? ` role="button" tabindex="0" onclick="openDay('${x.date}')"` : ''}><span class="md">${esc(x.label)}</span><span>${time}${top ? `<div class="mf2">${esc(top)}</div>` : ''}${x.crew ? `<div class="mf">${esc(x.crew)}</div>` : ''}${nt || pd ? `<div class="mn">${nt}${pd}</div>` : ''}${x.missing && x.rejected ? `<div class="mrej">Důvod: ${esc(x.rejected)}</div>` : ''}</span><span class="mh">${tap ? '<span class="mgo">›</span>' : ''}${x.hours ? fmtHM(x.hours).replace(/ /g, '&nbsp;') : ''}${att}</span></div>`;
   }).join('') + `<div class="msum"><div class="sr"><span>Celkem odpracováno</span><b>${fmtHM(d.hours).replace(/ /g, '&nbsp;')}</b></div>`
     + `<div class="ss">Směny: ${d.shifts}${d.leaveDays ? ` · Dovolená: ${d.leaveDays}` : ''}${d.sickDays ? ` · Nemoc: ${d.sickDays}` : ''}</div>`   // V4.41: bez „den/dny“
     + (d.month < String(S.today || '').slice(0, 7) ? `<div class="sr s2"><span>Odpracováno podle dispečinku</span><b>${fmtHM(d.attHours).replace(/ /g, '&nbsp;')}</b></div>` : '')   // V4.32: až po skončení měsíce, bez „mzda“
     + `</div>`
-    + `<div class="mleg"><b>Dispečink:</b> <span class="mk ok">souhlasí</span> = shoda · <span class="mk ed">upraveno</span> = čas upravil dispečink · <span class="mk df">čas</span> = liší se od dispečinku</div>`;   // V4.48: vysvětlivka až pod souhrnem
+    + `<div class="mleg"><b>Dispečink:</b> <span class="mk ok">souhlasí</span> = shoda · <span class="mk ed">upraveno</span> = čas upravil dispečink · <span class="mk df">čas</span> = liší se od dispečinku${d.days.some(x => x.att && x.att.st === 'pre') ? ` · <span class="mk pr">podle docházky</span> = před spuštěním docházky v mobilu` : ''}</div>`;   // V4.48: vysvětlivka až pod souhrnem
   renderConf();
 }
 /* V3.74: klepnutí na nezapsaný den → formulář zápisu pro ten den */
