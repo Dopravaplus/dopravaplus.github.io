@@ -569,7 +569,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.52';
+const APP_VER = '4.53';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1093,16 +1093,22 @@ function buildPrint(){
 window.addEventListener('beforeprint', () => { if(M.data && M.data.available) buildPrint(); });
 function monthLabel(k){ const p = k.split('-').map(Number); return `${MONTHS[p[1] - 1]} ${p[0]}`; }
 async function loadMonth(month){
-  if(M.busy || !S.token) return;
-  M.busy = true;
+  if(!S.token) return;
+  if(M.busy){ if(month) M.next = month; return; }   // V4.53: výběr měsíce během načítání se nezahodí – načte se hned potom
+  M.busy = true; M.next = '';
   /* V3.88: první načtení = šedý náhled výkazu; přepnutí měsíce = okénko uprostřed; obnovení na pozadí bez rušení */
   const sw = !!(M.data && month && month !== M.data.month);
   if(!M.data) $('mBody').innerHTML = skel();
   if(sw) busy(true, 'Načítám výkaz…');
   const done = () => { if(sw) busy(false); };
-  try{ M.data = await call('mMyMonth', { token:S.token, month:month || '' }); M.month = M.data.month; }
-  catch(e){ done(); if(!M.data) $('mBody').innerHTML = `<div class="empty">${esc(e === NET_ERR ? 'Přehled měsíce teď nejde načíst – slabý nebo žádný signál.' : e)}</div>`; M.busy = false; return; }
-  done(); M.busy = false; renderMonth();
+  try{ M.data = await call('mMyMonth', { token:S.token, month:month || '' }); M.month = M.data.month; done(); renderMonth(); }
+  catch(e){
+    done();
+    if(!M.data) $('mBody').innerHTML = `<div class="empty">${esc(e === NET_ERR ? 'Přehled měsíce teď nejde načíst – slabý nebo žádný signál.' : e)}</div>`;
+    else { $('mSel').value = M.data.month; if(sw) $('mHead').innerHTML = `<div class="mmob warn">Výkaz za vybraný měsíc se nepodařilo načíst – ${esc(e === NET_ERR ? 'slabý nebo žádný signál.' : e)}</div>` + $('mHead').innerHTML; }   // V4.53: chyba se neztratí, roletka se vrátí
+  }
+  M.busy = false;
+  if(M.next && (!M.data || M.next !== M.data.month)){ const n = M.next; M.next = ''; loadMonth(n); } else M.next = '';
 }
 function skel(){ const r = (a, b, c) => `<div class="skr"><span><i style="width:${a}%"></i></span><span><i style="width:${b}%"></i><i style="width:${c}%"></i></span><span><i style="width:80%;margin-left:auto"></i></span></div>`;
   return `<div class="sk" aria-label="Načítám výkaz"><i style="width:55%;height:16px;margin:4px 0 8px"></i><i style="width:38%;margin-bottom:12px"></i>${r(90,55,70)}${r(90,45,60)}${r(90,60,40)}${r(90,50,65)}${r(90,40,55)}</div>`; }
