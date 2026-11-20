@@ -295,7 +295,7 @@ body.home{background:linear-gradient(var(--hdr) 0,var(--hdr) 120px,var(--bg) 120
 .yn button.on.n{background:var(--redBg);border-color:#fda29b;color:var(--red)}
 .warnbox{background:var(--redBg);color:var(--red);border-radius:12px;padding:11px 13px;font-weight:700;font-size:14px;margin-top:10px}
 .photos{display:flex;gap:10px;flex-wrap:wrap}
-.dph{display:flex;gap:8px;margin-top:8px}
+.dph{display:flex;gap:8px;margin-top:8px}.dphr{font-size:12.5px;font-weight:700;color:var(--red);margin-top:6px}   /* V4.87 */
 .dph .ph{width:72px;height:72px;border-color:#fda29b;background:#fff;color:var(--red);font-size:11px}
 .ph{width:96px;height:96px;border-radius:12px;border:1.5px dashed #b2bccc;background:#f9fafb;display:flex;align-items:center;justify-content:center;flex-direction:column;font-size:12px;color:var(--muted);font-weight:700;position:relative;overflow:hidden}
 .ph img{width:100%;height:100%;object-fit:cover}
@@ -585,7 +585,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.86';
+const APP_VER = '4.87';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1372,6 +1372,7 @@ function checkErrs(){
     const [gi, ii] = k.split(':').map(Number), m = V.defects[k];
     if(m === '?') add($('mk_' + gi + '_' + ii), 'Vyberte, zda položka chybí, nebo je poškozená.', false);
     else if(needNote(m) && String(V.notes[k] || '').trim().length < 3) add($('dn_' + gi + '_' + ii), m === 'poškozeno' ? 'Popište poškození.' : 'Popište závadu.', true);
+    else if(photoReq(gi, ii) && !(V.dPhotos[k] || []).length) add($('dp_' + gi + '_' + ii), 'Vyfoťte poškození.', false);
   });
   if(!V.ok) add($('cYN'), 'Vyberte ANO nebo NE.', false);
   else if(V.ok === 'NE' && !Object.keys(V.defects).length && $('cDesc').value.trim().length < 3) add($('cDesc'), 'Napište, proč vozidlo není způsobilé k provozu.', true);
@@ -1516,8 +1517,11 @@ function grpState(g, n){
    pod názvem zůstane popis. Ťuknutím se znovu rozbalí; zrušit jde tlačítkem „Zrušit označení“. */
 function isDone(gi, ii){
   const k = gi + ':' + ii, m = V.defects[k];
-  return !!m && m !== '?' && (!needNote(m) || String(V.notes[k] || '').trim().length >= 3);
+  return !!m && m !== '?' && (!needNote(m) || String(V.notes[k] || '').trim().length >= 3) && (!photoReq(gi, ii) || (V.dPhotos[k] || []).length > 0);
 }
+/* V4.87: u poškození karoserie a skel povinná fotka; kritické položky (brzdy, pneumatiky…) – dotaz na způsobilost */
+function photoReq(gi, ii){ const g = V.data.groups[gi]; return !!(g.photoReq && g.photoReq.indexOf(g.items[ii]) >= 0) && needNote(V.defects[gi + ':' + ii]); }
+function critDefs(){ return Object.keys(V.defects).map(k => { const [gi, ii] = k.split(':').map(Number), g = V.data.groups[gi]; return g.crit && g.crit.indexOf(g.items[ii]) >= 0 ? g.items[ii] : ''; }).filter(Boolean); }
 function hasPanel(gi, ii){ const g = V.data.groups[gi]; return marksOf(g).length > 1 || needNote(V.defects[gi + ':' + ii]); }
 function isOpen(gi, ii){ return !isDone(gi, ii) || !!V.exp[gi + ':' + ii]; }
 function focusNote(gi, ii){ const ta = $('dn_' + gi + '_' + ii); if(ta) ta.focus({ preventScroll:true }); }
@@ -1541,7 +1545,8 @@ function defPhotos(gi, ii){
   const k = gi + ':' + ii, arr = V.dPhotos[k] || [];
   let h = arr.map((d, i) => `<div class="ph"><img src="${d}" alt=""><button class="x" onclick="delDefPhoto('${k}',${i})">✕</button></div>`).join('');
   if(arr.length < 2) h += `<label class="ph" onpointerdown="V.picking='${k}'"><span class="pi"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#b42318" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/></svg></span>Fotka<input type="file" accept="image/*" onchange="addDefPhoto(this,'${k}')"></label>`;
-  return `<div class="dph">${h}</div>`;
+  const req = photoReq(gi, ii);
+  return `<div class="dph" id="dp_${gi}_${ii}">${h}</div>${req && !arr.length ? '<div class="dphr">Fotka poškození je povinná.</div>' : ''}`;
 }
 async function addDefPhoto(inp, k){
   const f = inp.files && inp.files[0]; if(!f) return;
@@ -1590,6 +1595,12 @@ async function sendCheck(){
   if(errs.length){
     TRIED.check = true; showErrs('checkCard', errs); goFirstErr(errs);
     return;
+  }
+  const crit = critDefs();   // V4.87: závada ohrožující bezpečnost a přitom „způsobilé – ANO“
+  if(crit.length && V.ok === 'ANO'){
+    const r = await ask2(`Označili jste závadu, která může ohrozit bezpečnost (${crit.join(', ')}). Opravdu je vozidlo způsobilé k provozu?`, 'Ano, je způsobilé', 'Ne, není');
+    if(r === null) return;
+    if(r === false){ setOk('NE'); $('cYN').scrollIntoView({ behavior:'smooth', block:'center' }); return; }
   }
   $('cSend').disabled = true; busy(true, (V.cPhotos.length || Object.values(V.dPhotos).some(a => a.length)) ? 'Odesílám kontrolu a fotky…' : 'Odesílám kontrolu…');
   try{
@@ -1940,8 +1951,12 @@ function renderVehList(){
     if(kind === 'check'){
       const chip = x.state === 'Bez závad' ? '<span class="chip ok">Bez závad</span>'
         : (x.state === 'Vyřešeno' ? '<span class="chip ok">Vyřešeno</span>' : `<span class="chip ${x.ok === 'NE' ? 'no' : 'wait'}">${esc(x.state || 'Nová závada')}</span>`);
+      // V4.87: jak se hlášení řeší – vyřešeno k datu, kolik závad je hotových, poznámka garážmistra
+      const prog = x.state === 'Vyřešeno' ? `Vyřešeno${x.doneAt ? ' ' + esc(x.doneAt) : ''}` : (x.state === 'Řeší se' ? `Řeší se${x.defects ? ` · vyřešeno ${x.fixed || 0} z ${x.defects}` : ''}` : '');
       return `<div class="item"><div class="h"><span class="d">${esc(x.vehicle)}${x.km ? ' · ' + fmtKm(x.km) + ' km' : ''}</span>${chip}</div>
-        <div class="n">Odesláno ${esc(x.sent)}${x.defects ? ' · ' + x.defects + ' ' + (x.defects === 1 ? 'závada' : (x.defects < 5 ? 'závady' : 'závad')) + (x.ok === 'NE' ? ' · nezpůsobilé k provozu' : '') : ''}</div></div>`;
+        <div class="n">Odesláno ${esc(x.sent)}${x.defects ? ' · ' + x.defects + ' ' + (x.defects === 1 ? 'závada' : (x.defects < 5 ? 'závady' : 'závad')) + (x.ok === 'NE' ? ' · nezpůsobilé k provozu' : '') : ''}</div>
+        ${prog ? `<div class="n" style="color:var(--${x.state === 'Vyřešeno' ? 'green' : 'blue'});font-weight:700">${prog}</div>` : ''}
+        ${x.gnote ? `<div class="n">Garážmistr: ${esc(x.gnote)}</div>` : ''}</div>`;
     }
     if(kind === 'tyre'){   // V4.01
       const v = x.vals || [], t = v[4] || v[5];
