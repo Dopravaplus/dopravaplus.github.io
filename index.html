@@ -571,7 +571,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.61';
+const APP_VER = '4.62';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -994,6 +994,7 @@ async function send(){
     resetForm();
     if(back){ S.fromDay = back; M.busy = false; await loadMonth(M.month); window.scrollTo({ top:0, behavior:'smooth' }); }   // V4.30: po odeslání zůstat nahoře u potvrzení; „Zpět“ vrátí na den ve výkazu
     else if(M.data){ M.busy = false; loadMonth(M.month); }   // V4.26: výkaz vždy podle posledních zápisů
+    if(!back) window.scrollTo({ top:0, behavior:'smooth' });   // V4.62: po odeslání vždy nahoru k zelené hlášce (dřív jen po „Doplnit směnu“)
   }catch(e){
     if(e === NET_ERR && att && outboxAdd(att, 'mSubmit')){   // V4.61: bez signálu – uložit v telefonu, odešle se samo
       const back = S.fromDay; resetForm(); renderList();
