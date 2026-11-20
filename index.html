@@ -146,7 +146,7 @@ html[data-theme="dark"] .msel{border-color:#7a5a16;color:var(--amber)}
 .mrow.miss{background:#fef3f2;margin:0 -8px;padding-left:8px;padding-right:8px;border-radius:8px}
 .nz{border:1px solid #fda29b;background:#fff;color:var(--red);border-radius:999px;padding:2px 10px;font-weight:800;font-size:13.5px;font-family:inherit;margin-top:2px}
 .nzs{color:var(--red);font-weight:800}
-.mpend{display:block;color:var(--amber);font-weight:600;white-space:nowrap}   /* V3.96: „ke schválení“ vždy samostatně na jednom řádku */
+.mpend{display:block;color:var(--amber);font-weight:600;white-space:nowrap;font-style:normal}   /* V4.72: stav bez kurzívy (kurzívou jen poznámka zaměstnance) */   /* V3.96: „ke schválení“ vždy samostatně na jednom řádku */
 .msub{font-size:12.5px;color:var(--muted);font-weight:600;margin-top:3px}
 /* V3.66: tisk / PDF – jen přehled měsíce, bez lišty a tlačítek */
 @page{margin:15mm}
@@ -570,7 +570,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.71';
+const APP_VER = '4.72';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
