@@ -534,8 +534,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
     </div>
     <div class="f"><label for="fPause">Pauza</label>
       <select id="fPause">
-        <option value="0">bez pauzy</option><option value="0.25">15 minut</option><option value="0.5">30 minut</option>
-        <option value="0.75">45 minut</option><option value="1">1 hodina</option><option value="1.5">1,5 hodiny</option><option value="2">2 hodiny</option>
+        <option value="0">bez pauzy</option><option value="0.5">30 min</option><option value="1">1 h</option><option value="1.5">1,5 h</option><option value="2">2 h</option>
       </select>
     </div>
     <div class="hrs" id="fHours"></div>
@@ -571,7 +570,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.65';
+const APP_VER = '4.67';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -896,6 +895,15 @@ async function newEntry(){
   window.scrollTo(0, 0);
 }
 /* V4.00: tlačítko Vymazat / Zrušit úpravu – formulář do výchozího stavu a bez zprávy */
+/* V4.66: pauza po půl hodině; starší zápis s 15 / 45 min dostane dočasnou volbu, aby se při úpravě neztratil */
+function setPause(v){
+  const sel = $('fPause'), n = Number(v) || 0;
+  sel.querySelectorAll('option[data-tmp]').forEach(o => o.remove());
+  let o = Array.from(sel.options).find(x => Number(x.value) === n);
+  if(!o){ o = document.createElement('option'); o.value = String(n); o.dataset.tmp = '1'; o.textContent = fmtHM(n);
+    const after = Array.from(sel.options).find(x => Number(x.value) > n); sel.insertBefore(o, after || null); }
+  sel.value = o.value;
+}
 function clearForm(){ resetForm(); msg('formMsg', '', ''); }
 function resetForm(){
   S.editing = null;
@@ -904,7 +912,7 @@ function resetForm(){
   const d = $('fDate');
   d.max = S.today; d.min = S.minDate || isoShift(S.today, -S.daysBack);   // V3.74: i od 1. dne minulého měsíce
   d.value = S.today; d.disabled = false;
-  $('fFrom').value = ''; $('fTo').value = ''; $('fPause').value = '0'; $('fNote').value = '';
+  $('fFrom').value = ''; $('fTo').value = ''; setPause(0); $('fNote').value = '';
   const lvMin = isoShift(S.today.slice(0, 8) + '01', -1).slice(0, 8) + '01', lvMax = lastOfMonth(S.today);   // V3.83: od 1. dne minulého měsíce do konce měsíce
   ['fLFrom', 'fLTo'].forEach(k => { const x = $(k); x.max = lvMax; x.min = lvMin; x.value = ''; x.disabled = false; });
   setType('P', true);
@@ -954,8 +962,7 @@ function editEntry(id){
   $('formTitle').textContent = 'Upravit ' + dayLabel(e.date);
   $('fDate').value = e.date; $('fDate').disabled = true;
   $('fFrom').value = e.from; $('fTo').value = e.to;
-  const opt = Array.from($('fPause').options).find(o => Number(o.value) === Number(e.pause));
-  $('fPause').value = opt ? opt.value : '0';
+  setPause(e.pause);
   $('fNote').value = e.note || '';
   $('fLFrom').value = e.date; $('fLTo').value = e.date; $('fLFrom').disabled = true; $('fLTo').disabled = true;
   setType(e.type === 'Dovolená' ? 'D' : 'P', true);
@@ -1188,7 +1195,7 @@ function openDay(iso){
   resetForm(); $('fDate').value = iso;
   /* V4.25: po zamítnutí předvyplnit původní zápis – zaměstnanec jen opraví, co je potřeba (odešle se jako nový zápis) */
   const rj = (S.entries || []).filter(e => e.date === iso && e.state === 'Zamítnuto' && e.type !== 'Dovolená').sort((a, b) => String(b.sent || '').localeCompare(String(a.sent || '')))[0];
-  if(rj){ if(rj.from) $('fFrom').value = rj.from; if(rj.to) $('fTo').value = rj.to; if($('fPause')) $('fPause').value = String(rj.pause || 0); if(rj.note) $('fNote').value = rj.note; }
+  if(rj){ if(rj.from) $('fFrom').value = rj.from; if(rj.to) $('fTo').value = rj.to; setPause(rj.pause); if(rj.note) $('fNote').value = rj.note; }
   readyAtt();
   setTimeout(() => { $('formCard').scrollIntoView({ behavior:'smooth', block:'start' }); $('fFrom').focus({ preventScroll:true }); }, 80);
   msg('formMsg', 'wait', '');   // V3.97: dva řádky
