@@ -570,7 +570,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.77';
+const APP_VER = '4.78';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -966,7 +966,9 @@ function lvList(){
 }
 function lvDays(){
   const n = lvList().length, a = $('fLFrom').value, b = $('fLTo').value;
-  $('fLDays').textContent = a && b && b >= a && n ? `Dovolená: ${n} ${dayN(n)} (bez víkendů a svátků)` : '';   // V4.75: bez pracovního dne jen červená chyba (ne dvakrát)
+  // V4.78: svátky ve výběru jmenovitě (víkendy se jen nepočítají)
+  const sv = []; if(a && b && b >= a) for(let iso = a, k = 0; iso <= b && k < 40; iso = isoShift(iso, 1), k++){ const wd = new Date(iso + 'T12:00').getDay(); if(wd && wd !== 6 && !isWorkday(iso)) sv.push(ddmm(iso)); }
+  $('fLDays').textContent = a && b && b >= a && n ? `Dovolená: ${n} ${dayN(n)} (bez víkendů a svátků)` + (sv.length ? ` – ${sv.join(', ')} ${sv.length > 1 ? 'jsou státní svátky' : 'je státní svátek'}, nečerpá se.` : '') : '';   // V4.75: bez pracovního dne jen červená chyba (ne dvakrát)
   return n;
 }
 function editEntry(id){
