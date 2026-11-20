@@ -571,7 +571,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.80';
+const APP_VER = '4.83';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1618,7 +1618,7 @@ async function sendFuel(){
   try{
     V.data = await call('mVehFuel', Object.assign({ token:S.token }, arg));
     store.set('m_veh', vehicle); store.set('m_pay', pay);
-    homeOk('Tankování odesláno', vehicle, 'Čeká na zápis do karty vozidla.');
+    homeOk('Tankování odesláno', vehicle, 'Čeká na zpracování.');   // V4.83: stejný text jako štítek v seznamu
     resetFuel(); renderVehList(); msg('fuelMsg', '', ''); goHome();
   }catch(e){
     if(e === NET_ERR && outboxAdd(arg, 'mVehFuel')){   // V3.62: bez signálu – uložit v telefonu a odeslat později
@@ -1669,7 +1669,10 @@ async function flushOutbox(){
   }finally{
     flushOutbox.busy = false;
     if(sent){ if(V.data) renderVehList(); renderList(); if(S.view === 'att' && M.data){ M.busy = false; loadMonth(M.month); }
-      if(S.view === 'home'){ msg3('homeMsg', 'ok', 'Uložené zápisy odeslány', `Počet: ${sent}`, 'Signál je zpět, vše je u dispečinku.'); homeRemind(); } }
+      // V4.81: zelená hláška v okně, kde právě jsem (dřív v Docházce zůstala oranžová „Bez signálu“)
+      const mid = { home:'homeMsg', att:'formMsg', check:'checkMsg', fuel:'fuelMsg', tyre:'yMsg' }[S.view];
+      if(mid && $(mid)){ msg3(mid, 'ok', 'Uložené zápisy odeslány', `Počet: ${sent}`, 'Signál je zpět, vše je u dispečinku.'); if(S.view !== 'home') $(mid).scrollIntoView({ behavior:'smooth', block:'center' }); }
+      if(S.view === 'home') homeRemind(); }
   }
 }
 window.addEventListener('online', () => flushOutbox());
@@ -1770,7 +1773,7 @@ async function sendTyre(){
   $('ySend').disabled = true; busy(true, 'Odesílám měření…');
   try{
     V.data = await call('mVehTyre', Object.assign({ token:S.token }, arg));
-    homeOk('Tlak pneumatik odeslán', vehicle, 'Čeká na zápis do karty vozidla.');
+    homeOk('Tlak pneumatik odeslán', vehicle, 'Čeká na zpracování.');   // V4.83: stejný text jako štítek v seznamu
     resetTyre(); renderVehList(); msg('yMsg', '', ''); goHome();
   }catch(e){
     if(e === NET_ERR && outboxAdd(arg, 'mVehTyre')){   // V4.61: bez signálu – uložit v telefonu
@@ -1816,7 +1819,7 @@ function renderVehList(){
     }
     if(kind === 'tyre'){   // V4.01
       const v = x.vals || [], t = v[4] || v[5];
-      const chip = x.state === 'Nové' ? '<span class="chip wait">Čeká na zápis</span>' : `<span class="chip ok">${esc(x.state)}</span>`;
+      const chip = x.state === 'Nové' ? '<span class="chip wait">Čeká na zpracování</span>' : `<span class="chip ok">${esc(x.state)}</span>`;
       return `<div class="item"><div class="h"><span class="d">${esc(x.vehicle)} · ${esc(dayLabel(x.date))}</span>${chip}</div>
         <div class="t">přední ${fmtBar(v[0])} / ${fmtBar(v[1])} · zadní ${fmtBar(v[2])} / ${fmtBar(v[3])}${t ? ` · vnitřní ${fmtBar(v[4])} / ${fmtBar(v[5])}` : ''}&nbsp;bar</div>
         <div class="n">${fmtKm(x.km)} km${x.inflated === 'ANO' ? ' · dohuštěno' : ''} · odesláno ${esc(x.sent)}</div>
@@ -1829,7 +1832,7 @@ function renderVehList(){
       ${x.err ? `<div class="reason">Server ho odmítl: ${esc(x.err)}</div>` : ''}
       <div class="acts"><button class="del" onclick="outboxDel('${esc(x.id)}')">Smazat</button></div></div>`;
     const chip = x.state === 'Zapsáno' ? '<span class="chip ok">Zapsáno do karty</span>'
-      : (x.state === 'Zamítnuto' ? '<span class="chip no">Zamítnuto</span>' : '<span class="chip wait">Čeká na dispečink</span>');
+      : (x.state === 'Zamítnuto' ? '<span class="chip no">Zamítnuto</span>' : '<span class="chip wait">Čeká na zpracování</span>');   // V4.82: tankování i tlak stejně
     return `<div class="item"><div class="h"><span class="d">${esc(x.vehicle)} · ${esc(dayLabel(x.date))}</span>${chip}</div>
       <div class="t">${String(x.liters).replace('.', ',')} l${x.full === 'NE' ? ' (ne do plna)' : ''} · ${fmtKm(x.km)} km · ${esc(x.pay)}${x.amount ? ' · ' + fmtKc(x.amount) : ''}</div>
       <div class="n">Odesláno ${esc(x.sent)}${x.receipt ? ' · s fotkou účtenky' : ''}</div>
