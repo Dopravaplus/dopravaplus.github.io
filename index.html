@@ -193,6 +193,7 @@ html[data-theme="dark"] .msel{border-color:#7a5a16;color:var(--amber)}
 .msum .ss{font-size:13px;line-height:1.4;font-weight:600;color:var(--muted);margin-top:3px}
 .msum .s2{margin-top:9px;padding-top:9px;border-top:1px solid var(--line);font-size:15px}   /* V4.32 souhrn */
 .mk.pr{color:var(--muted);font-weight:600}
+.cst .crep{margin-top:8px;padding-top:8px;border-top:1px solid rgba(127,127,127,.25);color:var(--green,#067647)}.cst .crep div{color:inherit;font-weight:500}.cst .cwait{margin-top:6px;font-size:13px;font-weight:600;opacity:.85}   /* V4.57 */
 .mleg{font-size:12.5px;color:var(--muted);margin-top:12px;text-align:center;line-height:1.5}.mleg .mk{display:inline}   /* V4.31: vysvětlivka barev */
 .lockn{margin-top:6px;font-size:13.5px;color:var(--muted);font-weight:600}   /* V4.36: krátce */   /* V4.27 */
 .mrow .mrej{font-size:13px;color:var(--red);font-weight:700;margin-top:2px}   /* V4.20: důvod zamítnutí pod údaji dne (jako v Odeslaných zápisech) */   /* V4.17 */
@@ -570,7 +571,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.56';
+const APP_VER = '4.57';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1170,9 +1171,12 @@ function openDay(iso){
 function renderConf(){
   const d = M.data, c = d.confirm, ml = monthLabel(d.month), el = $('mConf');
   let st = '';
-  if(c) st = c.note ? `<div class="cst warn"><b>Odesláno s připomínkou</b> ${esc(c.at)}<div class="cn">${esc(c.note)}</div></div>`
-    + (c.doneAt ? `<div class="cst ok" style="margin-top:8px"><b>Vyřízeno dispečinkem</b> ${esc(c.doneAt)}${c.reply ? `<div class="cn">${esc(c.reply)}</div>` : ''}<div class="cn">Zkontrolujte výkaz a potvrďte ho znovu.</div></div>` : '')   // V4.56: vyřízení připomínky dispečinkem
-    : `<div class="cst ok"><b>Potvrzeno</b> ${esc(c.at)}</div>`;
+  if(c){   // V4.57: všechny připomínky za měsíc pod sebou, u každé odpověď dispečinku nebo „čeká na vyřízení“
+    const ns = c.notes || (c.note ? [c] : []);
+    st = ns.map(n => `<div class="cst warn" style="margin-top:8px"><b>Připomínka</b> ${esc(n.at)}<div class="cn">${esc(n.note)}</div>`
+      + (n.doneAt ? `<div class="crep"><b>Vyřízeno dispečinkem</b> ${esc(n.doneAt)}${n.reply ? `<div>${esc(n.reply)}</div>` : ''}</div>` : `<div class="cwait">čeká na vyřízení dispečinkem</div>`) + `</div>`).join('')
+      + (c.note ? (ns.some(n => n.doneAt) ? `<div class="hint hc" style="margin:0 0 10px">Po vyřízení zkontrolujte výkaz a potvrďte ho znovu.</div>` : '') : `<div class="cst ok" style="margin-top:8px"><b>Potvrzeno</b> ${esc(c.at)}</div>`);
+  }
   if(!d.canConfirm){ const p = (d.confirmFrom || '').split('-').map(Number); el.innerHTML = st + `<div class="hint" style="text-align:center">Výkaz za ${esc(ml)} půjde potvrdit od ${p[2]}.${p[1]}.${p[0]}.</div>`; return; }
   el.innerHTML = st + (M.disagree
     ? `<label for="mNote" style="margin-top:10px">Se kterým dnem nesouhlasíte?</label><textarea id="mNote" maxlength="1000" placeholder="např. 5.10. jsem končil v 19:30, ne v 19:00">${esc(M.note || '')}</textarea>
