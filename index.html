@@ -570,7 +570,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.72';
+const APP_VER = '4.73';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -815,6 +815,7 @@ async function openView(v){
 async function refreshAll(){
   if(refreshAll.busy) return;
   refreshAll.busy = true; $('refBtn').classList.add('spin'); updUi(true);
+  ['formMsg', 'checkMsg', 'fuelMsg', 'yMsg'].forEach(id => { if($(id)) msg(id, '', ''); });   // V4.73: ↻ smaže staré hlášky
   if(S.view === 'home' || S.view === 'att') $('topSub').textContent = 'Aktualizuji data…';
   try{
     checkUpdate();
@@ -1012,6 +1013,7 @@ async function send(){
       window.scrollTo({ top:0, behavior:'smooth' }); return;
     }
     if(/vypršelo/i.test(e)){ store.del('m_token'); showLogin(); msg('loginMsg', 'err', e); }
+    else if(/uzamčen/i.test(e)){ resetForm(); msg3('formMsg', 'err', `Zápis za ${dayLabel(date)} je uzamčen`, 'Dispečink už má za ten den směnu zapsanou.', 'Při chybě volejte dispečink.'); window.scrollTo({ top:0, behavior:'smooth' }); }   // V4.73: zamčený den – formulář se vyprázdní, hláška na tři řádky
     else msg('formMsg', 'err', netTxt(e));
   }finally{ $('sendBtn').disabled = false; busy(false); }
 }
