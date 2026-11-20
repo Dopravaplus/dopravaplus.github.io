@@ -203,6 +203,7 @@ html[data-theme="dark"] .msel{border-color:#7a5a16;color:var(--amber)}
 .item .acts button.del{color:var(--red);border-color:#fda29b}
 .reason{font-size:13px;color:var(--red);margin-top:4px;font-weight:600}
 .empty{color:var(--muted);font-size:14px}
+.lvd{text-align:center;line-height:1.45}.lvd b{font-weight:600}.lvd .lvx{font-size:.9em}   /* V4.79: počet dnů dovolené na střed */
 .hint{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.4}.hint.hc{text-align:center}   /* V4.51: text pod tlačítkem Odeslat na střed */
 .hidden{display:none !important}
 .busy{position:fixed;inset:0;background:rgba(16,24,40,.25);display:flex;align-items:center;justify-content:center;z-index:50}
@@ -524,7 +525,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
         <div class="f"><label for="fLFrom">Od dne</label><input id="fLFrom" type="date" onchange="lvChanged('from')"></div>
         <div class="f"><label for="fLTo">Do dne</label><input id="fLTo" type="date" onchange="lvChanged('to')"></div>
       </div>
-      <div class="hrs" id="fLDays"></div>
+      <div class="hrs lvd" id="fLDays"></div>
     </div>
     <div id="fWork">
     <div class="f"><label for="fDate">Den</label><input id="fDate" type="date" onchange="readyAtt()"></div>
@@ -570,7 +571,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.78';
+const APP_VER = '4.79';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -968,7 +969,9 @@ function lvDays(){
   const n = lvList().length, a = $('fLFrom').value, b = $('fLTo').value;
   // V4.78: svátky ve výběru jmenovitě (víkendy se jen nepočítají)
   const sv = []; if(a && b && b >= a) for(let iso = a, k = 0; iso <= b && k < 40; iso = isoShift(iso, 1), k++){ const wd = new Date(iso + 'T12:00').getDay(); if(wd && wd !== 6 && !isWorkday(iso)) sv.push(ddmm(iso)); }
-  $('fLDays').textContent = a && b && b >= a && n ? `Dovolená: ${n} ${dayN(n)} (bez víkendů a svátků)` + (sv.length ? ` – ${sv.join(', ')} ${sv.length > 1 ? 'jsou státní svátky' : 'je státní svátek'}, nečerpá se.` : '') : '';   // V4.75: bez pracovního dne jen červená chyba (ne dvakrát)
+  // V4.79: dva řádky na střed – počet dnů tučně, svátky pod tím
+  $('fLDays').innerHTML = a && b && b >= a && n ? `<b>Dovolená: ${n} ${dayN(n)}</b> <span class="lvx">(bez víkendů a svátků)</span>`
+    + (sv.length ? `<br><span class="lvx">${esc(sv.join(', '))} ${sv.length > 1 ? 'jsou státní svátky' : 'je státní svátek'} – nečerpá se</span>` : '') : '';   // V4.75: bez pracovního dne jen červená chyba (ne dvakrát)
   return n;
 }
 function editEntry(id){
