@@ -571,7 +571,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.79';
+const APP_VER = '4.80';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1039,7 +1039,11 @@ async function delEntry(id){
   if(!(await ask('Smazat zápis ' + dayLabel(e.date) + '?', 'Smazat'))) return;
   busy(true, 'Mažu…');
   try{ const r = await call('mDelete', { token:S.token, id }); S.entries = r.entries || []; if('missing' in r) S.missing = r.missing || ''; if('remind' in r) S.remind = r.remind || ''; renderList(); if(S.editing === id) resetForm(); msg('formMsg', '', '');   /* V4.71: po smazání nezůstane stará zelená hláška */ if(M.data){ M.busy = false; loadMonth(M.month); } }   // V4.26: po smazání obnovit i Pracovní výkaz
-  catch(err){ msg('formMsg', 'err', err); }
+  catch(err){   // V4.80: hláška na tři řádky a posun nahoru k ní (dřív zůstala mimo obrazovku)
+    if(String(err) === NET_ERR) msg3('formMsg', 'err', 'Zápis nebyl smazán', 'Bez signálu – smazat jde jen s připojením.', 'Zkuste to znovu, až budete mít signál.');
+    else msg3('formMsg', 'err', 'Zápis nebyl smazán', String(err && err.message || err), '');
+    setTimeout(() => $('formMsg').scrollIntoView({ behavior:'smooth', block:'center' }), 50);
+  }
   finally{ busy(false); }
 }
 /* V3.74: dialog se dvěma volbami + Zpět: true = první volba, false = druhá, null = zavřeno */
