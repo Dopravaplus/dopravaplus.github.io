@@ -571,7 +571,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.62';
+const APP_VER = '4.65';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -604,6 +604,8 @@ function fmtHM(h){ const m = Math.round((Number(h) || 0) * 60), hh = Math.floor(
 function todayIso(){ const n = new Date(), lt = `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`; const st = S.today || (V.data && V.data.today) || ''; return st > lt ? st : lt; }
 function busy(on, t){ $('busy').classList.toggle('hidden', !on); if(t) $('busyText').textContent = t; }
 function msg(id, type, text){ const el = $(id); el.className = 'msg ' + (type || ''); el.textContent = text || ''; }
+/* V4.63: potvrzení na tři řádky – co se stalo (tučně), den a čas, co bude dál */
+function msg3(id, type, a, b, c){ const el = $(id); el.className = 'msg ' + (type || ''); el.innerHTML = [`<b>${esc(a)}</b>`, b ? esc(b) : '', c ? esc(c) : ''].filter(Boolean).join('<br>'); }
 /* V2.0: volání serveru (Apps Script „Docházka do mobilu“) přes internet – stránka běží mimo Google, bez šedého pruhu */
 const API_URL = 'https://script.google.com/macros/s/AKfycbyX7rO09p-2zUdZoR0ISi_ZlgSblYihTW7CFxdqhRdYReiJaQXy-3fDi3_QmaRdM0M/exec';
 async function call(fn, arg){
@@ -705,7 +707,7 @@ async function init(){
       busy(false);
       if(e === NET_ERR){   // V3.62: bez signálu nechat přihlášeného – tankování půjde zapsat a odešle se později
         S.name = store.get('m_sname') || ''; const d = new Date(); S.today = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; S.daysBack = S.daysBack || 31;
-        showApp(); msg('homeMsg', 'wait', 'Bez signálu – tankování můžete zapsat, odešle se samo, až bude signál.'); return;
+        showApp(); msg3('homeMsg', 'wait', 'Bez signálu', 'Docházku, kontrolu, tankování i tlak můžete vyplnit.', 'Odešlou se samy, až bude signál.'); return;
       }
       store.del('m_token'); S.token = '';
     }
@@ -784,10 +786,10 @@ function showView(v){
   window.scrollTo(0, 0);
 }
 /* V3.31: potvrzení na úvodu zůstane, dokud řidič neotevře další dlaždici; s časem odeslání */
-function homeOk(t){
+function homeOk(what, line2, line3){   // V4.64: potvrzení na úvodu na tři řádky – co se stalo, vozidlo a čas, co bude dál
   const d = new Date(), hm = String(d.getHours()) + ':' + String(d.getMinutes()).padStart(2, '0');
   const h = d.getHours(), ve = [2, 3, 4, 12, 13, 14, 20, 21, 22, 23].indexOf(h) >= 0;   // „ve 23:45“, „v 7:30“ (čeština)
-  msg('homeMsg', 'ok', '✓ ' + t + (ve ? ' ve ' : ' v ') + hm + ' hod.');   // V3.41: „✓ Kontrola M3 odeslána ve 23:45 hod.“
+  msg3('homeMsg', 'ok', what, line2 + (ve ? ' · ve ' : ' · v ') + hm + ' hod.', line3);
 }
 async function openView(v){
   msg('homeMsg', '', '');
@@ -988,8 +990,8 @@ async function send(){
                     : { uid:uid(), date, from, to, pause:$('fPause').value, note:$('fNote').value };
     const r = await call('mSubmit', Object.assign({ token:S.token }, att));
     S.entries = r.entries || []; if('missing' in r) S.missing = r.missing || ''; if('remind' in r) S.remind = r.remind || ''; renderList();
-    if(leave){ const n = (r.saved || []).length; msg('formMsg', 'ok', `${S.editing ? 'Zápis upraven' : 'Odesláno'} – dovolená ${lf === lt ? ddmm(lf) : ddmm(lf) + '–' + ddmm(lt)} (${n} ${dayN(n)}). Čeká na schválení dispečinkem.`); }
-    else msg('formMsg', 'ok', (dup || S.editing ? 'Zápis upraven' : 'Odesláno') + ` – ${dayLabel(date)}, ${from}–${to}. Čeká na schválení dispečinkem.`);
+    if(leave){ const n = (r.saved || []).length; msg3('formMsg', 'ok', S.editing ? 'Zápis upraven' : 'Odesláno', `Dovolená ${lf === lt ? dayLabel(lf) : ddmm(lf) + '–' + ddmm(lt)} (${n} ${dayN(n)})`, 'Čeká na schválení dispečinkem.'); }
+    else msg3('formMsg', 'ok', dup || S.editing ? 'Zápis upraven' : 'Odesláno', `${dayLabel(date)}, ${from}–${to}`, 'Čeká na schválení dispečinkem.');
     const back = S.fromDay;
     resetForm();
     if(back){ S.fromDay = back; M.busy = false; await loadMonth(M.month); window.scrollTo({ top:0, behavior:'smooth' }); }   // V4.30: po odeslání zůstat nahoře u potvrzení; „Zpět“ vrátí na den ve výkazu
@@ -998,7 +1000,7 @@ async function send(){
   }catch(e){
     if(e === NET_ERR && att && outboxAdd(att, 'mSubmit')){   // V4.61: bez signálu – uložit v telefonu, odešle se samo
       const back = S.fromDay; resetForm(); renderList();
-      msg('formMsg', 'wait', `Bez signálu – docházka ${leave ? 'za dovolenou' : 'za ' + dayLabel(date)} je uložená v telefonu a odešle se sama, až bude signál.`);
+      msg3('formMsg', 'wait', 'Bez signálu – uloženo v telefonu', leave ? 'Dovolená' : `${dayLabel(date)}, ${from}–${to}`, 'Odešle se samo, až bude signál.');
       if(back) S.fromDay = back;
       window.scrollTo({ top:0, behavior:'smooth' }); return;
     }
@@ -1534,12 +1536,12 @@ async function sendCheck(){
       defPhotos: keys.flatMap(k => { const [gi, ii] = k.split(':').map(Number), g = V.data.groups[gi]; return (V.dPhotos[k] || []).map(d => ({ label: defLabel(g, g.items[ii], V.defects[k]), b64:d })); }) };
     V.data = await call('mVehCheck', Object.assign({ token:S.token }, arg));
     store.set('m_veh', vehicle);
-    homeOk(`Kontrola ${vehicle} odeslána`);
+    homeOk('Kontrola vozidla odeslána', vehicle, defects.length || V.ok === 'NE' ? 'Závady předány dispečinku.' : 'Vozidlo bez závad.');
     resetCheck(); renderVehList(); msg('checkMsg', '', ''); goHome();   // V3.29: zpět na úvod s potvrzením
   }catch(e){
     if(e === NET_ERR && arg && outboxAdd(arg, 'mVehCheck')){   // V4.61: bez signálu – uložit v telefonu
       store.set('m_veh', vehicle);
-      msg('homeMsg', 'wait', `Kontrola ${vehicle} je uložená v telefonu – odešle se sama, až bude signál.`);
+      msg3('homeMsg', 'wait', 'Bez signálu – uloženo v telefonu', `Kontrola vozidla ${vehicle}`, 'Odešle se sama, až bude signál.');
       resetCheck(); renderVehList(); msg('checkMsg', '', ''); goHome();
     }
     else if(/vypršelo/i.test(e)){ store.del('m_token'); showLogin(); msg('loginMsg', 'err', e); } else msg('checkMsg', 'err', netTxt(e));
@@ -1586,12 +1588,12 @@ async function sendFuel(){
   try{
     V.data = await call('mVehFuel', Object.assign({ token:S.token }, arg));
     store.set('m_veh', vehicle); store.set('m_pay', pay);
-    homeOk(`Tankování ${vehicle} odesláno`);
+    homeOk('Tankování odesláno', vehicle, 'Čeká na zápis do karty vozidla.');
     resetFuel(); renderVehList(); msg('fuelMsg', '', ''); goHome();
   }catch(e){
     if(e === NET_ERR && outboxAdd(arg, 'mVehFuel')){   // V3.62: bez signálu – uložit v telefonu a odeslat později
       store.set('m_pay', pay);
-      msg('homeMsg', 'wait', `Tankování ${vehicle} je uložené v telefonu – odešle se samo, až bude signál.`);
+      msg3('homeMsg', 'wait', 'Bez signálu – uloženo v telefonu', `Tankování ${vehicle}`, 'Odešle se samo, až bude signál.');
       resetFuel(); renderVehList(); msg('fuelMsg', '', ''); goHome();
     }
     else if(/vypršelo/i.test(e)){ store.del('m_token'); showLogin(); msg('loginMsg', 'err', e); } else msg('fuelMsg', 'err', netTxt(e));
@@ -1637,7 +1639,7 @@ async function flushOutbox(){
   }finally{
     flushOutbox.busy = false;
     if(sent){ if(V.data) renderVehList(); renderList(); if(S.view === 'att' && M.data){ M.busy = false; loadMonth(M.month); }
-      if(S.view === 'home'){ msg('homeMsg', 'ok', `✓ Uložené zápisy odeslány (${sent})`); homeRemind(); } }
+      if(S.view === 'home'){ msg3('homeMsg', 'ok', 'Uložené zápisy odeslány', `Počet: ${sent}`, 'Signál je zpět, vše je u dispečinku.'); homeRemind(); } }
   }
 }
 window.addEventListener('online', () => flushOutbox());
@@ -1738,11 +1740,11 @@ async function sendTyre(){
   $('ySend').disabled = true; busy(true, 'Odesílám měření…');
   try{
     V.data = await call('mVehTyre', Object.assign({ token:S.token }, arg));
-    homeOk(`Tlak pneumatik ${vehicle} odeslán`);
+    homeOk('Tlak pneumatik odeslán', vehicle, 'Čeká na zápis do karty vozidla.');
     resetTyre(); renderVehList(); msg('yMsg', '', ''); goHome();
   }catch(e){
     if(e === NET_ERR && outboxAdd(arg, 'mVehTyre')){   // V4.61: bez signálu – uložit v telefonu
-      msg('homeMsg', 'wait', `Tlak pneumatik ${vehicle} je uložený v telefonu – odešle se sám, až bude signál.`);
+      msg3('homeMsg', 'wait', 'Bez signálu – uloženo v telefonu', `Tlak pneumatik ${vehicle}`, 'Odešle se sám, až bude signál.');
       resetTyre(); renderVehList(); msg('yMsg', '', ''); goHome();
     }
     else if(/vypršelo/i.test(e)){ store.del('m_token'); showLogin(); msg('loginMsg', 'err', e); } else msg('yMsg', 'err', netTxt(e));
