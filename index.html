@@ -570,7 +570,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.74';
+const APP_VER = '4.75';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -954,7 +954,7 @@ function lvList(){
 }
 function lvDays(){
   const n = lvList().length, a = $('fLFrom').value, b = $('fLTo').value;
-  $('fLDays').textContent = a && b && b >= a ? (n ? `Dovolená: ${n} ${dayN(n)} (bez víkendů a svátků)` : 'Ve vybraných dnech není pracovní den.') : '';
+  $('fLDays').textContent = a && b && b >= a && n ? `Dovolená: ${n} ${dayN(n)} (bez víkendů a svátků)` : '';   // V4.75: bez pracovního dne jen červená chyba (ne dvakrát)
   return n;
 }
 function editEntry(id){
@@ -1392,7 +1392,12 @@ function attErrs(){
     else if(a.min && a.value < a.min) add(a, 'Tak starý den už zapsat nelze – obraťte se na dispečink.', true);
     if(!b.value) add(b, 'Vyberte poslední den dovolené.', true);
     else if(b.max && b.value > b.max) add(b, 'Dovolenou lze zapsat nejdéle do konce tohoto měsíce.', true);
-    if(a.value && b.value && b.value >= a.value && !lvList().length) add(b, 'Ve vybraných dnech není žádný pracovní den.', false);
+    if(a.value && b.value && b.value >= a.value && !lvList().length){   // V4.75: u jednoho dne říct proč (svátek / víkend)
+      const wd = new Date(a.value + 'T12:00').getDay();
+      add(b, a.value !== b.value ? 'Ve vybraných dnech není žádný pracovní den.'
+           : (wd === 0 || wd === 6) ? `${ddmm(a.value)}${a.value.slice(0, 4)} je víkend – dovolená se za něj nečerpá.`
+           : `${ddmm(a.value)}${a.value.slice(0, 4)} je státní svátek – dovolená se za něj nečerpá.`, false);
+    }
     return errs;
   }
   if(!$('fDate').value) add($('fDate'), 'Vyberte den.', true);
