@@ -534,7 +534,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
     </div>
     <div class="f"><label for="fPause">Pauza</label>
       <select id="fPause">
-        <option value="0">bez pauzy</option><option value="0.5">30 min</option><option value="1">1 h</option><option value="1.5">1,5 h</option><option value="2">2 h</option>
+        <option value="0">bez pauzy</option><option value="0.5">30 min.</option><option value="1">1 hod.</option><option value="1.5">1,5 hod.</option><option value="2">2 hod.</option>
       </select>
     </div>
     <div class="hrs" id="fHours"></div>
@@ -570,7 +570,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.67';
+const APP_VER = '4.68';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
