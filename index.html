@@ -421,7 +421,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
       <button class="tile" onclick="openView('att')"><span class="ic b"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span><div class="tt">Docházka</div><div class="ts">Zapsat odpracovaný den</div></span><span class="ar">›</span></button>
       <button class="tile" onclick="openView('check')"><span class="ic g"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9z"/><path d="M9 13l2 2 4-4"/></svg></span><span><div class="tt">Kontrola vozidla</div><div class="ts">Před jízdou / při převzetí vozidla</div></span><span class="ar">›</span></button>
       <button class="tile" onclick="openView('fuel')"><span class="ic a"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16"/><path d="M3 21h12"/><path d="M6 8h6"/><path d="M14 10h2a2 2 0 0 1 2 2v5a1.5 1.5 0 0 0 3 0V9l-3-3"/></svg></span><span><div class="tt">Tankování</div><div class="ts">Litry a stav km</div></span><span class="ar">›</span></button>
-      <button class="tile" onclick="openView('tyre')"><span class="ic p"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 17a8.5 8.5 0 1 1 15 0"/><path d="M12 13l3.5-4"/><circle cx="12" cy="13.5" r="1.3"/></svg></span><span><div class="tt">Tlak pneumatik</div><div class="ts">Měření každé 3 týdny</div></span><span class="ar">›</span></button>
+      <button class="tile" onclick="openView('tyre')"><span class="ic p"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 17a8.5 8.5 0 1 1 15 0"/><path d="M12 13l3.5-4"/><circle cx="12" cy="13.5" r="1.3"/></svg></span><span><div class="tt">Tlak pneumatik</div><div class="ts">Pravidelné měření</div></span><span class="ar">›</span></button>
       <button class="tile" onclick="openView('wash')"><span class="ic c"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14l-1.6-5.2A2 2 0 0 0 15.5 10.5h-7a2 2 0 0 0-1.9 1.3z"/><path d="M4 17v2.5h2.5V17M17.5 17v2.5H20V17"/><path d="M8 3.5c0 .9-.8 1.6-.8 2.4a.8.8 0 0 0 1.6 0C8.8 5.1 8 4.4 8 3.5zM12 2.5c0 .9-.8 1.6-.8 2.4a.8.8 0 0 0 1.6 0c0-.8-.8-1.5-.8-2.4zM16 3.5c0 .9-.8 1.6-.8 2.4a.8.8 0 0 0 1.6 0c0-.8-.8-1.5-.8-2.4z"/></svg></span><span><div class="tt">Mytí vozidla</div><div class="ts">Po každém umytí</div></span><span class="ar">›</span></button>
     </div>
     <div class="themebox"><div class="tl">Vzhled</div><div class="ftype"><button type="button" id="thAuto" onclick="setTheme('auto')">Automaticky</button><button type="button" id="thLight" onclick="setTheme('light')">Světlý</button><button type="button" id="thDark" onclick="setTheme('dark')">Tmavý</button></div></div>
@@ -505,7 +505,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
     <div class="f"><label class="chk" id="yInfLbl"><input type="checkbox" id="yInf" onchange="this.parentNode.classList.toggle('on', this.checked)"><span><div class="ct">Dohuštěno na předepsaný tlak</div><div class="cs">Zaškrtněte, když jste po měření pneumatiky dohustili.</div></span></label></div>
     <div class="f"><label for="yNote">Poznámka (nepovinné)</label><textarea id="yNote" maxlength="300" placeholder="např. pravé zadní kolo ztrácí tlak"></textarea></div>
     <button class="btn dim" id="ySend" onclick="sendTyre()">Odeslat měření</button>
-    <div class="hint hc">Tlak se měří každé 3 týdny – u vozidla vám aplikace připomene, až bude na řadě. Měření zapíše dispečink do karty vozidla; do té doby ho můžete smazat.</div>
+    <div class="hint hc"><span id="yEvery">Tlak se měří pravidelně</span> – u vozidla vám aplikace připomene, až bude na řadě. Měření zapíše dispečink do karty vozidla; do té doby ho můžete smazat.</div>
   </div>
 
   <!-- V4.85: Mytí vozidla -->
@@ -585,7 +585,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.88';
+const APP_VER = '4.89';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1740,6 +1740,8 @@ function resetTyre(){
   ['yNote'].concat(TY.map(t => t[0])).forEach(id => { $(id).value = ''; });
   $('yInf').checked = false; $('yInfLbl').classList.remove('on'); $('yTwin').checked = false;
   tyreTwin(); kmHint('y'); tyrePres(); tyreDev();
+  { const n = Number(V.data.tyreDays) || 21, w = n % 7 === 0 ? n / 7 : 0;   // V4.89: interval podle nastavení ve Vozovém parku
+    $('yEvery').textContent = 'Tlak se měří ' + (w === 1 ? 'každý týden' : (w >= 2 && w <= 4 ? `každé ${w} týdny` : `každých ${n} dní`)); }
   TRIED.tyre = false; clearErrs('tyreCard'); readyTyre();
 }
 /* vozidlo vybráno: předepsaný tlak + zdvojená kola podle posledního měření */
