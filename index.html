@@ -570,7 +570,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.70';
+const APP_VER = '4.71';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1019,7 +1019,7 @@ async function delEntry(id){
   const e = S.entries.find(x => x.id === id); if(!e) return;
   if(!(await ask('Smazat zápis ' + dayLabel(e.date) + '?', 'Smazat'))) return;
   busy(true, 'Mažu…');
-  try{ const r = await call('mDelete', { token:S.token, id }); S.entries = r.entries || []; if('missing' in r) S.missing = r.missing || ''; if('remind' in r) S.remind = r.remind || ''; renderList(); if(S.editing === id) resetForm(); if(M.data){ M.busy = false; loadMonth(M.month); } }   // V4.26: po smazání obnovit i Pracovní výkaz
+  try{ const r = await call('mDelete', { token:S.token, id }); S.entries = r.entries || []; if('missing' in r) S.missing = r.missing || ''; if('remind' in r) S.remind = r.remind || ''; renderList(); if(S.editing === id) resetForm(); msg('formMsg', '', '');   /* V4.71: po smazání nezůstane stará zelená hláška */ if(M.data){ M.busy = false; loadMonth(M.month); } }   // V4.26: po smazání obnovit i Pracovní výkaz
   catch(err){ msg('formMsg', 'err', err); }
   finally{ busy(false); }
 }
@@ -1169,7 +1169,7 @@ function renderMonth(){
   $('mHead').innerHTML = ''   // V3.93: měsíc je v roletce, jméno v horní liště – nad výkazem jen souhrn
     + (issues ? `<div class="mmob warn">${issues}`
     + '</div>' : '');   // V4.00: dny k doplnění jen u řádků výkazu (Doplnit směnu ›)
-  if(!d.days.some(x => !x.empty)){ $('mBody').innerHTML = `<div class="empty">V ${esc(monthLabel(d.month))} zatím nemáte žádný zápis ani směnu.</div>`; $('mConf').innerHTML = ''; return; }
+  if(!d.days.some(x => !x.empty)){ $('mBody').innerHTML = `<div class="empty">Za ${esc(monthLabel(d.month))} zatím nemáte žádný zápis ani směnu.</div>`; $('mConf').innerHTML = ''; return; }
   $('mBody').innerHTML = d.days.map(x => {
     if(x.empty) return `<div class="mrow gray"><span class="md">${esc(x.label)}</span><span>${x.date < (S.today || '') ? 'volno' : ''}</span><span></span></div>`;   // V4.52: den bez směny a bez zápisu = volno (dnešek ještě ne)
     if(x.leave){ const ln = esc(x.note || ''), lp = x.pending ? `<span class="mpend">ke schválení</span>` : '';
