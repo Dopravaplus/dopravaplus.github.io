@@ -235,9 +235,17 @@ html[data-theme="dark"] .msel{border-color:#7a5a16;color:var(--amber)}
 .tile .ar{margin-left:auto;color:#98a2b3;font-size:22px}
 .ic.b{background:#1769e0}.ic.g{background:#079455}.ic.a{background:#f79009}.ic.p{background:#7a5af8}.ic.c{background:#0ba5ec}   /* V4.85 mytí */.ic.r{background:#d92d20}   /* V4.93 nehoda */
 /* V4.93 nehoda */
-.acsteps{background:var(--redBg);border:1px solid #fecdca;border-radius:12px;padding:10px 13px;font-size:14px;line-height:1.5;color:#7a271a;margin-bottom:14px}
-.acsteps b{color:var(--red)}
-.acsteps ol{margin:6px 0 0;padding-left:22px}.acsteps li{margin:2px 0}
+.acst{list-style:none;counter-reset:st;margin:0 0 12px;padding:0}
+.acst li{counter-increment:st;position:relative;padding:8px 0 8px 40px;border-bottom:1px solid var(--line)}
+.acst li:last-child{border-bottom:0}
+.acst li::before{content:counter(st);position:absolute;left:0;top:9px;width:26px;height:26px;border-radius:50%;background:var(--redBg);color:var(--red);font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center}
+.acst b{display:block;font-size:15.5px}
+.acst span{display:block;font-size:14px;color:var(--muted);line-height:1.45}
+.acno{background:var(--redBg);border:1px solid #fecdca;border-radius:12px;padding:10px 13px 11px;font-size:14px;line-height:1.5;color:#7a271a;margin-bottom:16px}
+.acno b{color:var(--red)}
+.acno ul{margin:4px 0 0;padding-left:20px}
+.acdh{font-weight:800;font-size:14px;padding:2px 14px 4px}
+html[data-theme="dark"] .acno{background:#3a1512;border-color:#7a2b26;color:#fecdca}
 .acpam{margin-top:8px;font-weight:800;color:var(--red)}
 .acd{border:1px solid var(--line);border-radius:12px;margin-bottom:10px;background:#fff}
 .acd summary{padding:12px 14px;font-weight:800;font-size:15px;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center}
@@ -254,8 +262,14 @@ html[data-theme="dark"] .acd{background:#1b2638;border-color:#263247}
 .acb:active{transform:scale(.97)}
 .acsec{font-size:13px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:4px 0 8px}
 .acins{background:#f9fafb;border:1px solid var(--line);border-radius:12px;padding:10px 13px;font-size:14.5px;line-height:1.55;margin-top:8px}
+.insb{border:1px solid var(--line);border-radius:12px;padding:10px 13px;margin-top:8px;background:#f9fafb}
+.inst{font-size:13px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.insr{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid var(--line);font-size:15px}
+.insr span{color:var(--muted)}.insr b{text-align:right}
+.insa{display:flex;justify-content:space-between;align-items:center;margin-top:9px;padding:10px 13px;border-radius:10px;background:var(--blue);color:#fff;text-decoration:none;font-weight:800;font-size:15px}
+.insa small{font-size:14px;font-weight:700;opacity:.9}
+html[data-theme="dark"] .insb{background:#1b2638;border-color:#263247}
 .acins a{font-weight:800;color:var(--blue);white-space:nowrap}
-html[data-theme="dark"] .acsteps{background:#3a1512;border-color:#7a2b26;color:#fecdca}
 html[data-theme="dark"] .acins{background:#1b2638;border-color:#263247}
 .chk.wk.on{background:#eff4ff;border-color:#84adff}.chk.wk.on .ct{color:var(--blue)}.chk.wk.on input:checked{background-color:var(--blue);border-color:var(--blue)}
 html[data-theme="dark"] .chk.wk.on{background:#14254a;border-color:#2f5fb3}
@@ -550,43 +564,73 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
   <!-- V4.93: Nehoda -->
   <div id="accCard" class="card hidden">
     <div id="aMsg" class="msg"></div>
-    <div class="acsteps"><b>Rychlý postup při nehodě</b><ol>
-      <li>Zastavte, zapněte výstražná světla, vestu, trojúhelník – zabezpečte místo.</li>
-      <li>Je někdo zraněný? Poskytněte první pomoc, volejte <b>155</b> / <b>112</b>.</li>
-      <li>Zjistěte, zda je povinné volat <b>policii 158</b> (viz níže).</li>
-      <li>Nejste si jistí? Volejte majitele, pana <b>Nováčka</b>.</li>
-      <li>Vždy informujte firmu – i drobnou škodu.</li>
-      <li>Vše důkladně nafoťte.</li>
-      <li>Zjistěte údaje druhého účastníka (a svědků).</li>
-      <li>Když nehodu neřeší policie, sepište a podepište Záznam o dopravní nehodě.</li>
-      <li>Nic nepodepisujte, s čím nesouhlasíte. Žádné dohody o náhradě škody.</li>
-      <li>Nepijte alkohol a neopouštějte místo nehody.</li>
-    </ol><div class="acpam">Pokud si nejste jistí, neimprovizujte a zavolejte.</div></div>
     <div class="acsec">Tísňová volání</div>
     <div class="acgrid">
       <a class="acb" href="tel:155">Záchranka<small>155</small></a><a class="acb" href="tel:158">Policie<small>158</small></a>
       <a class="acb" href="tel:150">Hasiči<small>150</small></a><a class="acb" href="tel:112">Tísňová linka<small>112</small></a>
     </div>
     <div id="aFirm"></div>
-    <details class="acd"><summary>Kdy je povinné volat policii 158</summary><ul>
-      <li>zranění nebo usmrcení osoby,</li>
-      <li>škoda zřejmě nad <b>200 000 Kč</b> na kterémkoli z vozidel včetně převáženého nákladu (nesčítá se – posuzuje se každé vozidlo zvlášť),</li>
-      <li>škoda na majetku třetí osoby,</li>
-      <li>poškozená svodidla, dopravní značka, veřejné osvětlení a jiné součásti silnice,</li>
+    <div class="acsec">Postup při nehodě</div>
+    <ol class="acst">
+      <li><b>Zabezpečte místo</b><span>Zastavte, výstražná světla, reflexní vesta, trojúhelník.</span></li>
+      <li><b>Je někdo zraněný?</b><span>Poskytněte první pomoc a volejte 155 nebo 112.</span></li>
+      <li><b>Je nutná policie?</b><span>Zjistěte, zda je povinné volat 158 – viz Podrobnosti níže.</span></li>
+      <li><b>Nejste si jistí?</b><span>Volejte majitele firmy Ing. Kotulek Aleš nebo manažera firmy Mangolt Radek.</span></li>
+      <li><b>Informujte firmu</b><span>Vždy, i drobnou škodu – zavolejte dispečink.</span></li>
+      <li><b>Vše nafoťte</b><span>Raději víc fotek než méně.</span></li>
+      <li><b>Zjistěte údaje</b><span>Druhého účastníka a případných svědků.</span></li>
+      <li><b>Záznam o nehodě</b><span>Když nehodu neřeší policie, sepište a podepište ho s druhým účastníkem.</span></li>
+    </ol>
+    <div class="acno"><b>Nikdy</b><ul>
+      <li>nepodepisujte nic, s čím nesouhlasíte nebo čemu nerozumíte,</li>
+      <li>nedohadujte náhradu škody ani jiné závazky za firmu,</li>
+      <li>nepijte alkohol, dokud není nehoda vyřešena,</li>
+      <li>neopouštějte místo nehody.</li></ul>
+      <div class="acpam">Pokud si nejste jistí, neimprovizujte a zavolejte.</div></div>
+    <div class="acsec">Podrobnosti</div>
+    <details class="acd"><summary>Kdy volat policii 158</summary>
+      <div class="acdh">Povinně vždy, když:</div><ul>
+      <li>je někdo zraněný nebo usmrcený,</li>
+      <li>škoda zřejmě přesahuje <b>200 000 Kč</b> na kterémkoli vozidle včetně nákladu (nesčítá se, každé vozidlo zvlášť),</li>
+      <li>je poškozený majetek třetí osoby,</li>
+      <li>jsou poškozená svodidla, značky, osvětlení nebo jiné části silnice,</li>
       <li>provoz nejde bez velkého úsilí obnovit.</li></ul>
-      <p><b>Policii volejte také, když</b> druhý účastník odmítá sdělit totožnost nebo odjel, máte podezření na alkohol či drogy, poškodíte zaparkované vozidlo a majitel není na místě (lísteček za stěračem nestačí), druhého účastníka nejde zjistit nebo je situace sporná.</p>
-      <p>Když je policie povinná, nečekejte na pokyny a volejte hned. Musíte-li vozidla před příjezdem policie přesunout, nejdřív nafoťte jejich postavení a stopy.</p></details>
-    <details class="acd"><summary>Co vyfotit a jaké údaje zjistit</summary>
-      <p><b>Fotky:</b> celkovou situaci a místo, postavení vozidel, naše vozidlo ze všech stran, detail poškození, druhé vozidlo a jeho poškození, jeho SPZ, poškozený cizí majetek, dopravní značení a stopy na vozovce. Raději 20 fotek navíc než jedna důležitá chybí.</p>
-      <p><b>Druhý účastník:</b> jméno řidiče, telefon, SPZ, údaje o vozidle a provozovateli, údaje z povinného ručení (zelená karta). Svědci: jméno a telefon.</p>
-      <p><b>Záznam o dopravní nehodě</b> (když se nevolá policie): místo a čas, účastníci, vozidla, příčina, průběh a následky. Podepište ho, jen když s obsahem souhlasíte.</p></details>
+      <div class="acdh">Volejte také, když:</div><ul>
+      <li>druhý účastník odmítá sdělit totožnost nebo z místa odjel,</li>
+      <li>máte podezření na alkohol nebo drogy u druhého řidiče,</li>
+      <li>poškodíte zaparkované vozidlo a majitel není na místě (lísteček za stěračem nestačí),</li>
+      <li>druhého účastníka nejde zjistit nebo je situace sporná.</li></ul>
+      <p>Když je policie povinná, nečekejte na pokyny a volejte hned. Musíte-li vozidla přesunout dřív, než policie přijede, nejdřív nafoťte jejich postavení a stopy.</p></details>
+    <details class="acd"><summary>Co vyfotit</summary><ul>
+      <li>celkovou situaci a místo nehody,</li>
+      <li>postavení vozidel,</li>
+      <li>naše vozidlo ze všech stran a detail poškození,</li>
+      <li>druhé vozidlo, jeho poškození a SPZ,</li>
+      <li>poškozený cizí majetek,</li>
+      <li>dopravní značení a stopy na vozovce.</li></ul>
+      <p>Raději 20 fotek navíc než jedna důležitá chybí.</p></details>
+    <details class="acd"><summary>Údaje druhého účastníka a Záznam o nehodě</summary>
+      <div class="acdh">Zjistěte:</div><ul>
+      <li>jméno řidiče a telefon,</li>
+      <li>SPZ a údaje o vozidle,</li>
+      <li>provozovatele vozidla,</li>
+      <li>pojišťovnu a číslo pojistky (zelená karta),</li>
+      <li>svědky – jméno a telefon.</li></ul>
+      <div class="acdh">Záznam o dopravní nehodě</div>
+      <p>Sepisuje se, když nehodu neřeší policie: místo a čas, účastníci, vozidla, příčina, průběh a následky. Podepište ho, jen když s obsahem souhlasíte.</p></details>
     <details class="acd"><summary>Co se hlásí firmě</summary>
-      <p>Každá škoda, bez ohledu na výši a na to, kdo ji zavinil: couvání, náraz do sloupku, vrat nebo rampy, parkování, pneumatika, disk, zrcátko, sklo, srážka se zvěří, poškození neznámou osobou, vandalismus. O tom, zda je škoda „moc malá“, řidič nerozhoduje – hlásí se vše.</p></details>
+      <p>Každá škoda – bez ohledu na výši a na to, kdo ji zavinil:</p><ul>
+      <li>couvání, parkování, náraz do sloupku, vrat nebo rampy,</li>
+      <li>pneumatika, disk, zrcátko, sklo,</li>
+      <li>srážka se zvěří,</li>
+      <li>poškození neznámou osobou nebo vandalismus,</li>
+      <li>poškození zaparkovaného vozidla.</li></ul>
+      <p>O tom, zda je škoda „moc malá“, řidič nerozhoduje – hlásí se vše.</p></details>
     <div class="acsec">Vozidlo a pojištění</div>
     <div class="f"><select id="aVeh" onchange="accIns();readyAcc()"></select><div id="aIns"></div></div>
     <div class="acsec" style="margin-top:18px">Nahlásit nehodu</div>
     <div class="f"><label for="aDesc">Co se stalo a kde</label><textarea id="aDesc" maxlength="1500" placeholder="např. při couvání u Sconta Ostrava odřený levý bok skříně" oninput="readyAcc()"></textarea></div>
-    <div class="f"><label>Fotky (aspoň 1, max. 10)</label><div class="photos" id="aPhotos"></div><div class="hint" style="margin-top:6px">Místo a postavení vozidel, poškození, SPZ druhého vozidla, vyplněný Záznam o nehodě, zelená karta druhého účastníka. Další fotky pošlete dispečinku.</div></div>
+    <div class="f"><label>Fotky (aspoň 1, max. 10)</label><div class="photos" id="aPhotos"></div><div class="hint hc" style="margin-top:6px">Místo a postavení vozidel, poškození, SPZ druhého vozidla, vyplněný Záznam o nehodě, zelená karta druhého účastníka. Další fotky pošlete dispečinku.</div></div>
     <div class="f"><label style="text-align:center">Byla přivolána policie?</label>
       <div class="yn" id="aPol"><button type="button" id="aPY" class="y" onclick="setPolice('ANO')">ANO</button><button type="button" id="aPN" class="n" onclick="setPolice('NE')">NE</button></div></div>
     <div class="f"><label style="text-align:center">Může vozidlo jet dál?</label>
@@ -658,7 +702,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.95';
+const APP_VER = '5.00';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1925,16 +1969,18 @@ function resetAcc(){
 }
 function accFirm(){   // firemní kontakty z nastavení ve Vozovém parku – vlastní pobočka první
   const cs = (V.data && V.data.contacts) || [];
-  $('aFirm').innerHTML = cs.length ? `<div class="acsec">Firma</div><div class="acgrid">${cs.map(c => `<a class="acb firm" href="tel:${esc(c.phone)}">${esc(c.name)}<small>${esc(c.phone.replace(/^\+420/, '').replace(/(\d{3})(?=\d)/g, '$1 '))}</small></a>`).join('')}</div>` : '';
+  $('aFirm').innerHTML = cs.length ? `<div class="acsec">Firma</div><div class="acgrid">${cs.map(c => `<a class="acb firm" href="tel:${esc(c.phone)}">${esc(c.role || c.name)}${c.role && c.name ? `<small>${esc(c.name)}</small>` : ''}<small>${esc(c.phone.replace(/^\+420/, '').replace(/(\d{3})(?=\d)/g, '$1 '))}</small></a>`).join('')}</div>` : '<div class="acsec">Firma</div><div class="acins" style="margin:0 0 16px">Firemní čísla zatím nejsou nastavená – doplní je správce ve Vozovém parku (Uživatelé → Nastavení upozornění → Kontakty pro nehodu). Zatím volejte dispečink ze seznamu v telefonu.</div>';
 }
 function accIns(){
   const code = $('aVeh').value, el = $('aIns');
   if(!code){ el.innerHTML = '<div class="hint">Vyberte vozidlo – ukáže se jeho pojištění.</div>'; return; }
   const i = ((V.data && V.data.insurance) || {})[code];
   if(!i || !i.pov || !i.pov.company){ el.innerHTML = '<div class="acins">Pojištění vozidla není v Přehledu vozidel uvedené – zavolejte dispečink.</div>'; return; }
-  const tel = ph => ph ? ` · asistence <a href="tel:${esc(ph.replace(/[^\d+]/g, ''))}">${esc(ph)}</a>` : '';
-  el.innerHTML = `<div class="acins"><b>Povinné ručení:</b> ${esc(i.pov.company)}${i.pov.policy ? `, č. pojistky <b>${esc(i.pov.policy)}</b>` : ''}${tel(i.pov.phone)}`
-    + (i.hav ? `<br><b>Havarijní pojištění:</b> ${esc(i.hav.company)}${i.hav.policy ? `, č. pojistky <b>${esc(i.hav.policy)}</b>` : ''}${tel(i.hav.phone)}` : '') + '</div>';
+  const box = (t, x) => `<div class="insb"><div class="inst">${t}</div>
+    <div class="insr"><span>Pojišťovna</span><b>${esc(x.company)}</b></div>
+    ${x.policy ? `<div class="insr"><span>Číslo pojistky</span><b>${esc(x.policy)}</b></div>` : ''}
+    ${x.phone ? `<a class="insa" href="tel:${esc(x.phone.replace(/[^\d+]/g, ''))}">Volat asistenci<small>${esc(x.phone)}</small></a>` : ''}</div>`;
+  el.innerHTML = box('Povinné ručení', i.pov) + (i.hav ? box('Havarijní pojištění', i.hav) : '');
 }
 function setPolice(v){ V.police = v; $('aPY').classList.toggle('on', v === 'ANO'); $('aPN').classList.toggle('on', v === 'NE'); readyAcc(); }
 /* V4.95: poloha z GPS – zjišťuje se při otevření, do hlášení jde odkaz na mapu (nepovinné, bez polohy se odešle i tak) */
