@@ -702,7 +702,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '5.01';
+const APP_VER = '5.02';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1969,7 +1969,16 @@ function resetAcc(){
 }
 function accFirm(){   // firemní kontakty z nastavení ve Vozovém parku – vlastní pobočka první
   const cs = (V.data && V.data.contacts) || [];
-  $('aFirm').innerHTML = cs.length ? `<div class="acsec">Firma</div><div class="acgrid">${cs.map(c => `<a class="acb firm" href="tel:${esc(c.phone)}">${esc(c.role || c.name)}${c.role && c.name ? `<small>${esc(c.name)}</small>` : ''}<small>${esc(/^\+420\d{9}$/.test(c.phone) ? c.phone.replace(/^\+420(\d{3})(\d{3})(\d{3})$/, '+420 $1 $2 $3') : c.phone)}</small></a>`).join('')}</div>` : '<div class="acsec">Firma</div><div class="acins" style="margin:0 0 16px">Firemní čísla zatím nejsou nastavená – doplní je správce ve Vozovém parku (Uživatelé → Nastavení upozornění → Kontakty pro nehodu). Zatím volejte dispečink ze seznamu v telefonu.</div>';
+  $('aFirm').innerHTML = cs.length ? `<div class="acsec">Firma</div><div class="acgrid">${cs.map(c => `<a class="acb firm" href="tel:${esc(c.phone)}">${esc(c.role || c.name)}${c.role && c.name ? `<small>${esc(c.name)}</small>` : ''}<small>${esc(telFmt(c.phone))}</small></a>`).join('')}</div>` : '<div class="acsec">Firma</div><div class="acins" style="margin:0 0 16px">Firemní čísla zatím nejsou nastavená – doplní je správce ve Vozovém parku (Uživatelé → Nastavení upozornění → Kontakty pro nehodu). Zatím volejte dispečink ze seznamu v telefonu.</div>';
+}
+/* V5.02: telefon jako +420 957 105 105 (9 číslic = české číslo) */
+function telFmt(x){
+  let d = String(x || '').replace(/[^\d+]/g, '');
+  if(/^00/.test(d)) d = '+' + d.slice(2);
+  if(/^\d{9}$/.test(d)) d = '+420' + d;
+  if(/^420\d{9}$/.test(d)) d = '+' + d;
+  const m = d.match(/^\+(\d{3})(\d{3})(\d{3})(\d{3})$/);
+  return m ? `+${m[1]} ${m[2]} ${m[3]} ${m[4]}` : String(x || '').trim();
 }
 function accIns(){
   const code = $('aVeh').value, el = $('aIns');
@@ -1979,7 +1988,7 @@ function accIns(){
   const box = (t, x) => `<div class="insb"><div class="inst">${t}</div>
     <div class="insr"><span>Pojišťovna</span><b>${esc(x.company)}</b></div>
     ${x.policy ? `<div class="insr"><span>Číslo pojistky</span><b>${esc(x.policy)}</b></div>` : ''}
-    ${x.phone ? `<a class="insa" href="tel:${esc(x.phone.replace(/[^\d+]/g, ''))}">Volat asistenci<small>${esc(x.phone)}</small></a>` : ''}</div>`;
+    ${x.phone ? `<a class="insa" href="tel:${esc(x.phone.replace(/[^\d+]/g, ''))}">Volat asistenci<small>${esc(telFmt(x.phone))}</small></a>` : ''}</div>`;
   el.innerHTML = box('Povinné ručení', i.pov) + (i.hav ? box('Havarijní pojištění', i.hav) : '');
 }
 function setPolice(v){ V.police = v; $('aPY').classList.toggle('on', v === 'ANO'); $('aPN').classList.toggle('on', v === 'NE'); readyAcc(); }
