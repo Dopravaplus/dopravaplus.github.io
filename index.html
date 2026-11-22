@@ -705,7 +705,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '5.06';
+const APP_VER = '5.07';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1195,6 +1195,13 @@ function ask2(text, aLabel, bLabel){
     $('askOk').onclick = () => done(true); no.onclick = () => done(false);
   });
 }
+/* V5.07: když je otevřené dotazovací okno, stránka pod ním se nedá rolovat (i na iPhonu) */
+(function(){
+  const box = $('ask'); if(!box) return;
+  box.addEventListener('touchmove', e => { if(!e.target.closest('textarea')) e.preventDefault(); }, { passive:false });
+  new MutationObserver(() => { const open = !box.classList.contains('hidden'); document.documentElement.style.overflow = open ? 'hidden' : ''; document.body.style.overflow = open ? 'hidden' : ''; })
+    .observe(box, { attributes:true, attributeFilter:['class'] });
+})();
 /* V5.05–5.06: u tísňových čísel (155, 158, 150, 112) se před voláním zeptá – firma a asistence volají hned (aplikace z plochy na iPhonu volá hned, bez dotazu systému).
    Volá se přímo v klepnutí na „Volat“, aby to telefon nezablokoval. */
 function callAsk(href, who){
