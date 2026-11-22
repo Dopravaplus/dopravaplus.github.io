@@ -233,7 +233,30 @@ html[data-theme="dark"] .msel{border-color:#7a5a16;color:var(--amber)}
 .tile .tt{font-size:17px;font-weight:800}
 .tile .ts{font-size:13px;color:var(--muted);margin-top:2px}
 .tile .ar{margin-left:auto;color:#98a2b3;font-size:22px}
-.ic.b{background:#1769e0}.ic.g{background:#079455}.ic.a{background:#f79009}.ic.p{background:#7a5af8}.ic.c{background:#0ba5ec}   /* V4.85 mytí */
+.ic.b{background:#1769e0}.ic.g{background:#079455}.ic.a{background:#f79009}.ic.p{background:#7a5af8}.ic.c{background:#0ba5ec}   /* V4.85 mytí */.ic.r{background:#d92d20}   /* V4.93 nehoda */
+/* V4.93 nehoda */
+.acsteps{background:var(--redBg);border:1px solid #fecdca;border-radius:12px;padding:10px 13px;font-size:14px;line-height:1.5;color:#7a271a;margin-bottom:14px}
+.acsteps b{color:var(--red)}
+.acsteps ol{margin:6px 0 0;padding-left:22px}.acsteps li{margin:2px 0}
+.acpam{margin-top:8px;font-weight:800;color:var(--red)}
+.acd{border:1px solid var(--line);border-radius:12px;margin-bottom:10px;background:#fff}
+.acd summary{padding:12px 14px;font-weight:800;font-size:15px;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center}
+.acd summary::-webkit-details-marker{display:none}
+.acd summary::after{content:'›';font-size:22px;color:var(--muted);transition:transform .15s}
+.acd[open] summary::after{transform:rotate(90deg)}
+.acd ul,.acd p{margin:0;padding:0 14px 10px 14px;font-size:14.5px;line-height:1.5}
+.acd ul{padding-left:32px}
+html[data-theme="dark"] .acd{background:#1b2638;border-color:#263247}
+.acgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.acb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:64px;text-align:center;padding:8px 6px;line-height:1.2;border-radius:14px;text-decoration:none;font-weight:800;font-size:16px;color:#fff;background:#d92d20;box-shadow:0 1px 3px rgba(16,24,40,.15)}
+.acb small{font-size:13px;font-weight:700;opacity:.9}
+.acb.firm{background:var(--blue)}
+.acb:active{transform:scale(.97)}
+.acsec{font-size:13px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:4px 0 8px}
+.acins{background:#f9fafb;border:1px solid var(--line);border-radius:12px;padding:10px 13px;font-size:14.5px;line-height:1.55;margin-top:8px}
+.acins a{font-weight:800;color:var(--blue);white-space:nowrap}
+html[data-theme="dark"] .acsteps{background:#3a1512;border-color:#7a2b26;color:#fecdca}
+html[data-theme="dark"] .acins{background:#1b2638;border-color:#263247}
 .chk.wk.on{background:#eff4ff;border-color:#84adff}.chk.wk.on .ct{color:var(--blue)}.chk.wk.on input:checked{background-color:var(--blue);border-color:var(--blue)}
 html[data-theme="dark"] .chk.wk.on{background:#14254a;border-color:#2f5fb3}
 .wkinds .chk{margin-bottom:8px}
@@ -423,6 +446,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
       <button class="tile" onclick="openView('fuel')"><span class="ic a"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16"/><path d="M3 21h12"/><path d="M6 8h6"/><path d="M14 10h2a2 2 0 0 1 2 2v5a1.5 1.5 0 0 0 3 0V9l-3-3"/></svg></span><span><div class="tt">Tankování</div><div class="ts">Litry a stav km</div></span><span class="ar">›</span></button>
       <button class="tile" onclick="openView('tyre')"><span class="ic p"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 17a8.5 8.5 0 1 1 15 0"/><path d="M12 13l3.5-4"/><circle cx="12" cy="13.5" r="1.3"/></svg></span><span><div class="tt">Tlak pneumatik</div><div class="ts">Pravidelné měření</div></span><span class="ar">›</span></button>
       <button class="tile" onclick="openView('wash')"><span class="ic c"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14l-1.6-5.2A2 2 0 0 0 15.5 10.5h-7a2 2 0 0 0-1.9 1.3z"/><path d="M4 17v2.5h2.5V17M17.5 17v2.5H20V17"/><path d="M8 3.5c0 .9-.8 1.6-.8 2.4a.8.8 0 0 0 1.6 0C8.8 5.1 8 4.4 8 3.5zM12 2.5c0 .9-.8 1.6-.8 2.4a.8.8 0 0 0 1.6 0c0-.8-.8-1.5-.8-2.4zM16 3.5c0 .9-.8 1.6-.8 2.4a.8.8 0 0 0 1.6 0c0-.8-.8-1.5-.8-2.4z"/></svg></span><span><div class="tt">Mytí vozidla</div><div class="ts">Po každém umytí</div></span><span class="ar">›</span></button>
+      <button class="tile" onclick="openView('acc')"><span class="ic r"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.3" r=".6" fill="#fff"/></svg></span><span><div class="tt">Nehoda</div><div class="ts">Důležitá čísla a nahlášení</div></span><span class="ar">›</span></button>
     </div>
     <div class="themebox"><div class="tl">Vzhled</div><div class="ftype"><button type="button" id="thAuto" onclick="setTheme('auto')">Automaticky</button><button type="button" id="thLight" onclick="setTheme('light')">Světlý</button><button type="button" id="thDark" onclick="setTheme('dark')">Tmavý</button></div></div>
   </div>
@@ -523,6 +547,55 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
     <div class="hint hc">Mytí zapíše dispečink do karty vozidla. Dokud se tak nestane, můžete ho smazat.</div>
   </div>
 
+  <!-- V4.93: Nehoda -->
+  <div id="accCard" class="card hidden">
+    <div id="aMsg" class="msg"></div>
+    <div class="acsteps"><b>Rychlý postup při nehodě</b><ol>
+      <li>Zastavte, zapněte výstražná světla, vestu, trojúhelník – zabezpečte místo.</li>
+      <li>Je někdo zraněný? Poskytněte první pomoc, volejte <b>155</b> / <b>112</b>.</li>
+      <li>Zjistěte, zda je povinné volat <b>policii 158</b> (viz níže).</li>
+      <li>Nejste si jistí? Volejte majitele, pana <b>Nováčka</b>.</li>
+      <li>Vždy informujte firmu – i drobnou škodu.</li>
+      <li>Vše důkladně nafoťte.</li>
+      <li>Zjistěte údaje druhého účastníka (a svědků).</li>
+      <li>Když nehodu neřeší policie, sepište a podepište Záznam o dopravní nehodě.</li>
+      <li>Nic nepodepisujte, s čím nesouhlasíte. Žádné dohody o náhradě škody.</li>
+      <li>Nepijte alkohol a neopouštějte místo nehody.</li>
+    </ol><div class="acpam">Pokud si nejste jistí, neimprovizujte a zavolejte.</div></div>
+    <div class="acsec">Tísňová volání</div>
+    <div class="acgrid">
+      <a class="acb" href="tel:155">Záchranka<small>155</small></a><a class="acb" href="tel:158">Policie<small>158</small></a>
+      <a class="acb" href="tel:150">Hasiči<small>150</small></a><a class="acb" href="tel:112">Tísňová linka<small>112</small></a>
+    </div>
+    <div id="aFirm"></div>
+    <details class="acd"><summary>Kdy je povinné volat policii 158</summary><ul>
+      <li>zranění nebo usmrcení osoby,</li>
+      <li>škoda zřejmě nad <b>200 000 Kč</b> na kterémkoli z vozidel včetně převáženého nákladu (nesčítá se – posuzuje se každé vozidlo zvlášť),</li>
+      <li>škoda na majetku třetí osoby,</li>
+      <li>poškozená svodidla, dopravní značka, veřejné osvětlení a jiné součásti silnice,</li>
+      <li>provoz nejde bez velkého úsilí obnovit.</li></ul>
+      <p><b>Policii volejte také, když</b> druhý účastník odmítá sdělit totožnost nebo odjel, máte podezření na alkohol či drogy, poškodíte zaparkované vozidlo a majitel není na místě (lísteček za stěračem nestačí), druhého účastníka nejde zjistit nebo je situace sporná.</p>
+      <p>Když je policie povinná, nečekejte na pokyny a volejte hned. Musíte-li vozidla před příjezdem policie přesunout, nejdřív nafoťte jejich postavení a stopy.</p></details>
+    <details class="acd"><summary>Co vyfotit a jaké údaje zjistit</summary>
+      <p><b>Fotky:</b> celkovou situaci a místo, postavení vozidel, naše vozidlo ze všech stran, detail poškození, druhé vozidlo a jeho poškození, jeho SPZ, poškozený cizí majetek, dopravní značení a stopy na vozovce. Raději 20 fotek navíc než jedna důležitá chybí.</p>
+      <p><b>Druhý účastník:</b> jméno řidiče, telefon, SPZ, údaje o vozidle a provozovateli, údaje z povinného ručení (zelená karta). Svědci: jméno a telefon.</p>
+      <p><b>Záznam o dopravní nehodě</b> (když se nevolá policie): místo a čas, účastníci, vozidla, příčina, průběh a následky. Podepište ho, jen když s obsahem souhlasíte.</p></details>
+    <details class="acd"><summary>Co se hlásí firmě</summary>
+      <p>Každá škoda, bez ohledu na výši a na to, kdo ji zavinil: couvání, náraz do sloupku, vrat nebo rampy, parkování, pneumatika, disk, zrcátko, sklo, srážka se zvěří, poškození neznámou osobou, vandalismus. O tom, zda je škoda „moc malá“, řidič nerozhoduje – hlásí se vše.</p></details>
+    <div class="acsec">Vozidlo a pojištění</div>
+    <div class="f"><select id="aVeh" onchange="accIns();readyAcc()"></select><div id="aIns"></div></div>
+    <div class="acsec" style="margin-top:18px">Nahlásit nehodu</div>
+    <div class="f"><label for="aDesc">Co se stalo a kde</label><textarea id="aDesc" maxlength="1500" placeholder="např. při couvání u Sconta Ostrava odřený levý bok skříně" oninput="readyAcc()"></textarea></div>
+    <div class="f"><label>Fotky (aspoň 1, max. 10)</label><div class="photos" id="aPhotos"></div><div class="hint" style="margin-top:6px">Místo a postavení vozidel, poškození, SPZ druhého vozidla, vyplněný Záznam o nehodě, zelená karta druhého účastníka. Další fotky pošlete dispečinku.</div></div>
+    <div class="f"><label style="text-align:center">Byla přivolána policie?</label>
+      <div class="yn" id="aPol"><button type="button" id="aPY" class="y" onclick="setPolice('ANO')">ANO</button><button type="button" id="aPN" class="n" onclick="setPolice('NE')">NE</button></div></div>
+    <div class="f"><label style="text-align:center">Může vozidlo jet dál?</label>
+      <div class="yn" id="aYN"><button type="button" id="aY" class="y" onclick="setDrive('ANO')">ANO</button><button type="button" id="aN" class="n" onclick="setDrive('NE')">NE</button></div></div>
+    <div class="hint hc" id="aGeo" style="margin-bottom:10px"></div>
+    <button class="btn dim" id="aSend" onclick="sendAcc()">Odeslat dispečinku</button>
+    <div class="hint hc">Dispečink a garážmistr dostanou hned e-mail s fotkami.</div>
+  </div>
+
   <!-- V3.0 Moje záznamy vozidel -->
   <div id="vehListCard" class="card hidden">
     <button type="button" class="listtog" id="vehListTitle" onclick="V.listOpen=!V.listOpen;renderVehList()">Moje záznamy</button>
@@ -585,7 +658,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '4.92';
+const APP_VER = '4.95';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -598,7 +671,7 @@ async function checkUpdate(){
 checkUpdate();
 document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible'){ checkUpdate(); flushOutbox(); if(VEH_VIEWS.indexOf(S.view) >= 0) refreshVeh(); } });
 const S = { token:'', name:'', today:'', daysBack:31, editing:null, entries:[], view:'' };
-const V = { data:null, defects:{}, notes:{}, open:{}, exp:{}, dPhotos:{}, ok:'', cPhotos:[], tPhotos:[], wRPhotos:[], wCPhotos:[], wKinds:{} };
+const V = { data:null, defects:{}, notes:{}, open:{}, exp:{}, dPhotos:{}, ok:'', cPhotos:[], tPhotos:[], wRPhotos:[], wCPhotos:[], wKinds:{}, aPhotos:[], drive:'', police:'', geo:null };
 const store = {
   get(k){ try{ return localStorage.getItem(k) || ''; }catch(e){ return ''; } },
   set(k, v){ try{ localStorage.setItem(k, v); }catch(e){} },
@@ -784,9 +857,9 @@ function homeRemind(){
   el.innerHTML = parts.join(''); el.classList.toggle('hidden', !parts.length);
 }
 /* V3.0: obrazovky – úvod (dlaždice), docházka, kontrola vozidla, tankování */
-const VIEWS = { home:['homeCard'], att:['formCard','listCard','monthCard'], check:['checkCard','vehListCard'], fuel:['fuelCard','vehListCard'], tyre:['tyreCard','vehListCard'], wash:['washCard','vehListCard'] };
-const VIEWS_ALL = ['homeCard','formCard','listCard','monthCard','checkCard','fuelCard','tyreCard','washCard','vehListCard'];
-const TITLES = { home:'Dopravaplus', att:'Docházka', check:'Kontrola vozidla', fuel:'Tankování', tyre:'Tlak pneumatik', wash:'Mytí vozidla' };
+const VIEWS = { home:['homeCard'], att:['formCard','listCard','monthCard'], check:['checkCard','vehListCard'], fuel:['fuelCard','vehListCard'], tyre:['tyreCard','vehListCard'], wash:['washCard','vehListCard'], acc:['accCard'] };
+const VIEWS_ALL = ['homeCard','formCard','listCard','monthCard','checkCard','fuelCard','tyreCard','washCard','accCard','vehListCard'];
+const TITLES = { home:'Dopravaplus', att:'Docházka', check:'Kontrola vozidla', fuel:'Tankování', tyre:'Tlak pneumatik', wash:'Mytí vozidla', acc:'Nehoda' };
 function showView(v){
   S.view = v;
   document.body.classList.toggle('home', v === 'home');
@@ -794,7 +867,7 @@ function showView(v){
   $('logoutBtn').classList.toggle('hidden', v !== 'home');
   $('backBtn').classList.toggle('hidden', v === 'home');
   $('refBtn').classList.remove('hidden');
-  $('newBtn').classList.toggle('hidden', ['att','check','fuel','tyre','wash'].indexOf(v) < 0);   // V4.07: křížek = nový zápis
+  $('newBtn').classList.toggle('hidden', ['att','check','fuel','tyre','wash','acc'].indexOf(v) < 0);   // V4.07: křížek = nový zápis
   $('topTitle').textContent = TITLES[v];
   $('topSub').textContent = S.name;
   if(v === 'home') homeRemind();
@@ -817,7 +890,7 @@ async function openView(v){
   if(!V.data){
     busy(true, 'Načítám vozidla…');
     try{ V.data = await call('mVehInit', { token:S.token }); }
-    catch(e){ busy(false); if(/vypršelo/i.test(e)){ store.del('m_token'); showLogin(); msg('loginMsg', 'err', e); return; } msg({ check:'checkMsg', fuel:'fuelMsg', tyre:'yMsg', wash:'wMsg' }[v], 'err', e); return; }
+    catch(e){ busy(false); if(/vypršelo/i.test(e)){ store.del('m_token'); showLogin(); msg('loginMsg', 'err', e); return; } msg({ check:'checkMsg', fuel:'fuelMsg', tyre:'yMsg', wash:'wMsg', acc:'aMsg' }[v], 'err', e); return; }
     busy(false);
     resetVeh(v);
     renderVehList();
@@ -832,7 +905,7 @@ async function openView(v){
 async function refreshAll(){
   if(refreshAll.busy) return;
   refreshAll.busy = true; $('refBtn').classList.add('spin'); updUi(true);
-  ['formMsg', 'checkMsg', 'fuelMsg', 'yMsg', 'wMsg'].forEach(id => { if($(id)) msg(id, '', ''); });   // V4.73: ↻ smaže staré hlášky
+  ['formMsg', 'checkMsg', 'fuelMsg', 'yMsg', 'wMsg', 'aMsg'].forEach(id => { if($(id)) msg(id, '', ''); });   // V4.73: ↻ smaže staré hlášky
   if(S.view === 'home' || S.view === 'att') $('topSub').textContent = 'Aktualizuji data…';
   try{
     checkUpdate();
@@ -842,8 +915,8 @@ async function refreshAll(){
     refreshAll.busy = false; $('refBtn').classList.remove('spin'); updUi(false); $('topSub').textContent = S.name;
   }
 }
-function resetVeh(v){ if(v === 'check') resetCheck(); else if(v === 'tyre') resetTyre(); else if(v === 'wash') resetWash(); else resetFuel(); }
-const VEH_VIEWS = ['check', 'fuel', 'tyre', 'wash'];   // V4.85
+function resetVeh(v){ if(v === 'check') resetCheck(); else if(v === 'tyre') resetTyre(); else if(v === 'wash') resetWash(); else if(v === 'acc') resetAcc(); else resetFuel(); }
+const VEH_VIEWS = ['check', 'fuel', 'tyre', 'wash', 'acc'];   // V4.85, V4.93
 function updUi(on){
   $('upd').classList.toggle('hidden', !on);
   if(VEH_VIEWS.indexOf(S.view) >= 0) $('topSub').textContent = on ? 'Aktualizuji data…' : S.name;
@@ -858,6 +931,7 @@ async function refreshVeh(){
     if(S.view === 'fuel'){ const sel = $('tVeh').value; vehOptions('tVeh'); $('tVeh').value = sel; kmHint('t'); }
     if(S.view === 'tyre'){ const sel = $('yVeh').value; vehOptions('yVeh'); $('yVeh').value = sel; kmHint('y'); tyrePres(); tyreDev(); }
     if(S.view === 'wash'){ const sel = $('wVeh').value; vehOptions('wVeh'); $('wVeh').value = sel; kmHint('w'); }
+    if(S.view === 'acc'){ const sel = $('aVeh').value; vehOptions('aVeh'); $('aVeh').value = sel; accFirm(); accIns(); }
     renderVehList();
   }catch(e){}
   finally{ refreshVeh.busy = false; updUi(false); }
@@ -897,7 +971,7 @@ async function loadEntries(){
   renderList();
 }
 /* V4.07: křížek v hlavičce – vymaže formulář a začne nový zápis (u rozepsaného se zeptá) */
-const FORM_CARD = { att:'formCard', check:'checkCard', fuel:'fuelCard', tyre:'tyreCard', wash:'washCard' };
+const FORM_CARD = { att:'formCard', check:'checkCard', fuel:'fuelCard', tyre:'tyreCard', wash:'washCard', acc:'accCard' };
 function formDirty(id){
   const c = $(id); if(!c) return false;
   return [...c.querySelectorAll('input,textarea')].some(e => {
@@ -911,7 +985,7 @@ async function newEntry(){
   const v = S.view, id = FORM_CARD[v]; if(!id) return;
   if(formDirty(id) && !(await ask2('Vymazat rozepsané údaje a začít nový zápis?', 'Vymazat', 'Ponechat'))) return;
   if(v === 'att'){ clearForm(); S.fromDay = ''; }
-  else { resetVeh(v); msg({ check:'checkMsg', fuel:'fuelMsg', tyre:'yMsg', wash:'wMsg' }[v], '', ''); }
+  else { resetVeh(v); msg({ check:'checkMsg', fuel:'fuelMsg', tyre:'yMsg', wash:'wMsg', acc:'aMsg' }[v], '', ''); }
   window.scrollTo(0, 0);
 }
 /* V4.00: tlačítko Vymazat / Zrušit úpravu – formulář do výchozího stavu a bez zprávy */
@@ -1328,13 +1402,13 @@ function renderPhotos(key, boxId, max){
   let h = arr.map((d, i) => `<div class="ph"><img src="${d}" alt=""><button class="x" onclick="delPhoto('${key}','${boxId}',${max},${i})">✕</button></div>`).join('');
   if(arr.length < max) h += `<label class="ph"><span class="pi"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#667085" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/></svg></span>Přidat fotku<input type="file" accept="image/*" onchange="addPhoto(this,'${key}','${boxId}',${max})"></label>`;
   $(boxId).innerHTML = h;
-  if(key === 'tPhotos') readyFuel(); else if(key === 'wRPhotos' || key === 'wCPhotos') readyWash(); else ready();
+  if(key === 'tPhotos') readyFuel(); else if(key === 'wRPhotos' || key === 'wCPhotos') readyWash(); else if(key === 'aPhotos') readyAcc(); else ready();
 }
 async function addPhoto(inp, key, boxId, max){
   const f = inp.files && inp.files[0]; if(!f) return;
   busy(true, 'Zpracovávám fotku…');
   try{ const d = await shrink(f); if(V[key].length < max) V[key].push(d); }
-  catch(e){ msg(key === 'cPhotos' ? 'checkMsg' : (key[0] === 'w' ? 'wMsg' : 'fuelMsg'), 'err', e); }
+  catch(e){ msg(key === 'cPhotos' ? 'checkMsg' : (key[0] === 'w' ? 'wMsg' : (key[0] === 'a' ? 'aMsg' : 'fuelMsg')), 'err', e); }
   finally{ busy(false); renderPhotos(key, boxId, max); }
 }
 function delPhoto(key, boxId, max, i){ V[key].splice(i, 1); renderPhotos(key, boxId, max); }
@@ -1395,7 +1469,7 @@ function goFirstErr(errs){
   f.el.scrollIntoView({ behavior:'smooth', block:'center' });
   if(f.focus) setTimeout(() => { try{ f.el.focus({ preventScroll:true }); }catch(e){} }, 350);
 }
-const TRIED = { check:false, fuel:false, att:false, tyre:false, wash:false };
+const TRIED = { check:false, fuel:false, att:false, tyre:false, wash:false, acc:false };
 function ready(){
   const btn = $('cSend'); if(!btn || !V.data) return;
   const errs = checkErrs();
@@ -1687,7 +1761,7 @@ function fmtKc(n){ const v = Math.round((Number(n) || 0) * 100) / 100, i = Math.
 function outbox(){ try{ return JSON.parse(store.get('m_outbox') || '[]'); }catch(e){ return []; } }
 function outboxSave(list){ try{ localStorage.setItem('m_outbox', JSON.stringify(list)); return true; }catch(e){ return false; } }
 /* V4.61: fronta i pro docházku, kontrolu vozidla a tlak pneumatik (kind: fuel / att / check / tyre) */
-const OB_KIND = { mVehFuel:'fuel', mSubmit:'att', mVehCheck:'check', mVehTyre:'tyre', mVehWash:'wash' };
+const OB_KIND = { mVehFuel:'fuel', mSubmit:'att', mVehCheck:'check', mVehTyre:'tyre', mVehWash:'wash', mVehAccident:'check' };   // nehoda = záznam v Kontrolách
 const OB_NAME = { fuel:'tankování', att:'docházka', check:'kontrola vozidla', tyre:'měření tlaku', wash:'mytí' };
 function obKind(x){ return x.kind || OB_KIND[x.fn] || 'fuel'; }
 function outboxAdd(arg, fn){
@@ -1723,7 +1797,7 @@ async function flushOutbox(){
     flushOutbox.busy = false;
     if(sent){ if(V.data) renderVehList(); renderList(); if(S.view === 'att' && M.data){ M.busy = false; loadMonth(M.month); }
       // V4.81: zelená hláška v okně, kde právě jsem (dřív v Docházce zůstala oranžová „Bez signálu“)
-      const mid = { home:'homeMsg', att:'formMsg', check:'checkMsg', fuel:'fuelMsg', tyre:'yMsg', wash:'wMsg' }[S.view];
+      const mid = { home:'homeMsg', att:'formMsg', check:'checkMsg', fuel:'fuelMsg', tyre:'yMsg', wash:'wMsg', acc:'aMsg' }[S.view];
       if(mid && $(mid)){ msg3(mid, 'ok', 'Uložené zápisy odeslány', `Počet: ${sent}`, 'Signál je zpět, vše je u dispečinku.'); if(S.view !== 'home') $(mid).scrollIntoView({ behavior:'smooth', block:'center' }); }
       if(S.view === 'home') homeRemind(); }
   }
@@ -1843,6 +1917,72 @@ async function delTyre(id){
   catch(e){ msg('yMsg', 'err', e); }
   finally{ busy(false); }
 }
+/* ================= V4.93 NEHODA ================= */
+function resetAcc(){
+  vehOptions('aVeh'); $('aDesc').value = ''; V.aPhotos = []; V.drive = '';
+  renderPhotos('aPhotos', 'aPhotos', 10); setDrive(''); setPolice(''); V.geo = null; accFirm(); accIns(); accGeo();
+  TRIED.acc = false; clearErrs('accCard'); readyAcc();
+}
+function accFirm(){   // firemní kontakty z nastavení ve Vozovém parku – vlastní pobočka první
+  const cs = (V.data && V.data.contacts) || [];
+  $('aFirm').innerHTML = cs.length ? `<div class="acsec">Firma</div><div class="acgrid">${cs.map(c => `<a class="acb firm" href="tel:${esc(c.phone)}">${esc(c.name)}<small>${esc(c.phone.replace(/^\+420/, '').replace(/(\d{3})(?=\d)/g, '$1 '))}</small></a>`).join('')}</div>` : '';
+}
+function accIns(){
+  const code = $('aVeh').value, el = $('aIns');
+  if(!code){ el.innerHTML = '<div class="hint">Vyberte vozidlo – ukáže se jeho pojištění.</div>'; return; }
+  const i = ((V.data && V.data.insurance) || {})[code];
+  if(!i || !i.pov || !i.pov.company){ el.innerHTML = '<div class="acins">Pojištění vozidla není v Přehledu vozidel uvedené – zavolejte dispečink.</div>'; return; }
+  const tel = ph => ph ? ` · asistence <a href="tel:${esc(ph.replace(/[^\d+]/g, ''))}">${esc(ph)}</a>` : '';
+  el.innerHTML = `<div class="acins"><b>Povinné ručení:</b> ${esc(i.pov.company)}${i.pov.policy ? `, č. pojistky <b>${esc(i.pov.policy)}</b>` : ''}${tel(i.pov.phone)}`
+    + (i.hav ? `<br><b>Havarijní pojištění:</b> ${esc(i.hav.company)}${i.hav.policy ? `, č. pojistky <b>${esc(i.hav.policy)}</b>` : ''}${tel(i.hav.phone)}` : '') + '</div>';
+}
+function setPolice(v){ V.police = v; $('aPY').classList.toggle('on', v === 'ANO'); $('aPN').classList.toggle('on', v === 'NE'); readyAcc(); }
+/* V4.95: poloha z GPS – zjišťuje se při otevření, do hlášení jde odkaz na mapu (nepovinné, bez polohy se odešle i tak) */
+function accGeo(){
+  const el = $('aGeo'); if(!el) return;
+  if(!navigator.geolocation){ el.textContent = 'Poloha: telefon ji neumí zjistit – napište místo do popisu.'; return; }
+  el.textContent = 'Poloha: zjišťuji…';
+  navigator.geolocation.getCurrentPosition(p => {
+    V.geo = { lat:p.coords.latitude, lng:p.coords.longitude, acc:Math.round(p.coords.accuracy || 0) };
+    el.innerHTML = `📍 Poloha zjištěna${V.geo.acc ? ` (přesnost ±${V.geo.acc} m)` : ''} – odešle se s hlášením.`;
+  }, () => { V.geo = null; el.innerHTML = 'Poloha nezjištěna – napište místo do popisu. <a href="#" onclick="accGeo();return false">Zkusit znovu</a>'; },
+  { enableHighAccuracy:true, timeout:20000, maximumAge:120000 });
+}
+function setDrive(v){ V.drive = v; $('aY').classList.toggle('on', v === 'ANO'); $('aN').classList.toggle('on', v === 'NE'); readyAcc(); }
+function accErrs(){
+  const errs = [], add = (el, text, focus) => { if(el) errs.push({ el, text, focus }); };
+  if(!$('aVeh').value) add($('aVeh'), 'Vyberte vozidlo.', true);
+  if($('aDesc').value.trim().length < 5) add($('aDesc'), 'Popište krátce, co se stalo a kde.', true);
+  if(!V.aPhotos.length) add($('aPhotos'), 'Přidejte aspoň jednu fotku.', false);
+  if(!V.police) add($('aPol'), 'Vyberte ANO nebo NE.', false);
+  if(!V.drive) add($('aYN'), 'Vyberte ANO nebo NE.', false);
+  return errs;
+}
+function readyAcc(){
+  const btn = $('aSend'); if(!btn || !V.data) return;
+  const errs = accErrs(); btn.classList.toggle('dim', errs.length > 0);
+  if(TRIED.acc) showErrs('accCard', errs);
+}
+async function sendAcc(){
+  msg('aMsg', '', '');
+  const errs = accErrs();
+  if(errs.length){ TRIED.acc = true; showErrs('accCard', errs); goFirstErr(errs); return; }
+  const vehicle = $('aVeh').value;
+  const arg = { uid:uid(), at:new Date().toISOString(), vehicle, desc:$('aDesc').value.trim(), drive:V.drive, police:V.police, lat:V.geo && V.geo.lat, lng:V.geo && V.geo.lng, acc:V.geo && V.geo.acc, photos:V.aPhotos.map(d => ({ b64:d })) };
+  $('aSend').disabled = true; busy(true, 'Odesílám nehodu a fotky…');
+  try{
+    V.data = await call('mVehAccident', Object.assign({ token:S.token }, arg));
+    homeOk('Nehoda nahlášena', vehicle, V.drive === 'NE' ? 'Vozidlo nemůže jet – dispečink je informován.' : 'Dispečink je informován.');
+    resetAcc(); msg('aMsg', '', ''); goHome();
+  }catch(e){
+    if(e === NET_ERR && outboxAdd(arg, 'mVehAccident')){
+      msg3('homeMsg', 'wait', 'Bez signálu – uloženo v telefonu', `Nehoda ${vehicle}`, 'Odešle se sama, až bude signál. Dispečink zatím informujte telefonem.');
+      resetAcc(); msg('aMsg', '', ''); goHome();
+    }
+    else if(/vypršelo/i.test(e)){ store.del('m_token'); showLogin(); msg('loginMsg', 'err', e); } else msg('aMsg', 'err', netTxt(e));
+  }finally{ $('aSend').disabled = false; busy(false); window.scrollTo({ top:0, behavior:'smooth' }); }
+}
+
 /* ================= V4.85 MYTÍ VOZIDLA ================= */
 function washOwn(){ return /hotov|soukrom/i.test($('wPay').value || ''); }   // platil ze svého → účtenka a částka povinné (proplácí se)
 function resetWash(){
