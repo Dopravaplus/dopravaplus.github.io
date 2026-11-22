@@ -705,7 +705,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '5.04';
+const APP_VER = '5.06';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1195,6 +1195,24 @@ function ask2(text, aLabel, bLabel){
     $('askOk').onclick = () => done(true); no.onclick = () => done(false);
   });
 }
+/* V5.05–5.06: u tísňových čísel (155, 158, 150, 112) se před voláním zeptá – firma a asistence volají hned (aplikace z plochy na iPhonu volá hned, bez dotazu systému).
+   Volá se přímo v klepnutí na „Volat“, aby to telefon nezablokoval. */
+function callAsk(href, who){
+  const box = $('ask'), ok = $('askOk'), no = $('askNo'), old = no.textContent, num = href.replace(/^tel:/, '');
+  $('askText').textContent = `Volat ${who} – ${telFmt(num)}?`;
+  ok.textContent = 'Volat'; ok.style.background = '#079455'; no.textContent = 'Zrušit';
+  box.classList.remove('hidden');
+  const close = () => { box.classList.add('hidden'); no.textContent = old; ok.onclick = null; no.onclick = null; };
+  ok.onclick = () => { close(); window.location.href = href; };
+  no.onclick = close;
+}
+document.addEventListener('click', e => {
+  const a = e.target.closest && e.target.closest('#accCard a.acb[href^="tel:"]:not(.firm)'); if(!a) return;
+  e.preventDefault();
+  const sm = a.querySelectorAll('small'), t = a.cloneNode(true); t.querySelectorAll('small').forEach(x => x.remove());
+  const who = ((t.textContent.trim() || 'číslo') + (sm.length > 1 ? ' ' + sm[0].textContent.trim() : '')).replace(/^Volat\s+/i, '');   // firma: funkce + jméno
+  callAsk(a.getAttribute('href'), who);
+});
 /* potvrzení v aplikaci (bez dialogu prohlížeče) */
 function ask(text, okLabel, blue){
   return new Promise(res => {
