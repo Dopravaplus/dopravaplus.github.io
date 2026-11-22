@@ -705,7 +705,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '5.10';
+const APP_VER = '5.11';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -2035,7 +2035,7 @@ function setDrive(v){ V.drive = v; $('aY').classList.toggle('on', v === 'ANO'); 
 function accErrs(){
   const errs = [], add = (el, text, focus) => { if(el) errs.push({ el, text, focus }); };
   if(!$('aVeh').value) add($('aVeh'), 'Vyberte vozidlo.', true);
-  if($('aDesc').value.trim().length < 5) add($('aDesc'), 'Popište krátce, co se stalo a kde.', true);
+  if($('aDesc').value.trim().length < 5) add($('aDesc'), 'Napište aspoň pár slov – co se stalo a kde (nejméně 5 znaků).', true);
   if(!V.aPhotos.length) add($('aPhotos'), 'Přidejte aspoň jednu fotku.', false);
   if(!V.police) add($('aPol'), 'Vyberte ANO nebo NE.', false);
   if(!V.drive) add($('aYN'), 'Vyberte ANO nebo NE.', false);
