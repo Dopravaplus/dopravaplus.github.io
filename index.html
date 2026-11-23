@@ -373,6 +373,7 @@ html[data-theme="dark"] .chk.on input:checked{border-color:var(--amber)}
 .vterms .vt small{display:block;color:var(--muted);font-size:13px}
 .vterms .vt em{font-style:normal;font-size:12px;font-weight:800;padding:3px 8px;border-radius:999px;white-space:nowrap;background:var(--amberBg);color:var(--amber)}
 .vterms .vt.b em{background:var(--redBg);color:var(--red)}
+.vtok{margin:8px 0 0;font-size:13.5px;font-weight:700;color:var(--green);text-align:center}
 
 /* ===== V3.89: TMAVÝ VZHLED (html[data-theme=dark]) ===== */
 html[data-theme="dark"]{color-scheme:dark;--hdr:#13305e;--blue:#3b7ff0;--blue2:#2f6ad0;--bg:#0b1220;--card:#151e2e;--text:#e6ebf2;--muted:#98a2b3;--line:#263247;
@@ -529,7 +530,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
     <!-- V3.51: jen výjimka – nedotankováno do plna (kvůli správnému výpočtu spotřeby) · V3.58: nový popis -->
     <div class="f"><label class="chk" id="tPartLbl"><input type="checkbox" id="tPart" onchange="this.parentNode.classList.toggle('on', this.checked)"><span><div class="ct">Nedotankováno do plna</div><div class="cs">Zaškrtněte, jen když jste natankovali pouze část pohonných hmot.</div></span></label></div>
     <div class="f"><label for="tPay">Platba</label><select id="tPay" onchange="payHint();readyFuel()"></select></div>
-    <div class="f hidden" id="tAmtBox"><label for="tAmt">Zaplaceno</label><div class="unit"><input id="tAmt" type="text" inputmode="decimal" oninput="readyFuel()"><span>Kč</span></div><div class="hint" style="margin-top:6px">Částka z účtenky – podle ní vám dispečink tankování proplatí.</div></div>
+    <div class="f hidden" id="tAmtBox"><label for="tAmt">Zaplaceno</label><div class="unit"><input id="tAmt" class="kcIn" type="text" inputmode="decimal" autocomplete="off" oninput="readyFuel()"><span>Kč</span></div><div class="hint" style="margin-top:6px">Částka z účtenky – podle ní vám dispečink tankování proplatí.</div></div>
     <div class="f"><label id="tPhLabel">Fotka účtenky</label><div class="photos" id="tPhotos"></div><div class="hint" id="tPhHint" style="margin-top:6px"></div></div>
     <div class="f"><label for="tNote">Poznámka (nepovinné)</label><textarea id="tNote" maxlength="300"></textarea></div>
     <button class="btn dim" id="tSend" onclick="sendFuel()">Odeslat tankování</button>
@@ -571,7 +572,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
     <div class="f"><label for="wDate">Datum mytí</label><input id="wDate" type="date" onchange="readyWash()"></div>
     <div class="f"><label>Druh mytí <span style="font-weight:500;color:var(--muted)">(můžete vybrat víc)</span></label><div class="wkinds" id="wKinds"></div></div>
     <div class="f"><label for="wPay">Platba</label><select id="wPay" onchange="washPayHint();readyWash()"></select></div>
-    <div class="f" id="wAmtBox"><label for="wAmt" id="wAmtLabel">Zaplaceno</label><div class="unit"><input id="wAmt" type="text" inputmode="decimal" oninput="readyWash()"><span>Kč</span></div><div class="hint" id="wAmtHint" style="margin-top:6px"></div></div>
+    <div class="f" id="wAmtBox"><label for="wAmt" id="wAmtLabel">Zaplaceno</label><div class="unit"><input id="wAmt" class="kcIn" type="text" inputmode="decimal" autocomplete="off" oninput="readyWash()"><span>Kč</span></div><div class="hint" id="wAmtHint" style="margin-top:6px"></div></div>
     <div class="f hidden" id="wRcBox"><label>Fotka účtenky (povinná)</label><div class="photos" id="wRPhotos"></div><div class="hint" style="margin-top:6px">Vyfoťte účtenku hned v myčce. Papírovou účtenku i tak odevzdejte na dispečink.</div></div>
     <div class="f"><label>Fotka vozidla po umytí (povinná)</label><div class="photos" id="wCPhotos"></div><div class="hint" style="margin-top:6px">Jedna fotka celého vozidla, aby bylo vidět, jak je umyté.</div></div>
     <div class="f"><label for="wNote">Poznámka (nepovinné)</label><textarea id="wNote" maxlength="300" placeholder="např. silně znečištěná skříň"></textarea></div>
@@ -722,7 +723,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '5.21';
+const APP_VER = '5.23';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -821,6 +822,21 @@ document.addEventListener('input', e => {
   if(f === el.value) return;
   el.value = f;
   let c = 0, k = 0; while(k < f.length && c < digitsBefore){ if(/\d/.test(f[k])) c++; k++; }
+  try{ el.setSelectionRange(k, k); }catch(_){}
+}, true);
+/* V5.22: částka v Kč ve tvaru 1 250 nebo 1 250,50 – mezery se doplní při psaní, odesílá se číslo */
+document.addEventListener('input', e => {
+  const el = e.target; if(!el.classList || !el.classList.contains('kcIn')) return;
+  const pos = el.selectionStart == null ? el.value.length : el.selectionStart;
+  const keepBefore = el.value.slice(0, pos).replace(/[^\d,.]/g, '').length;
+  let v = el.value.replace(/\./g, ',').replace(/[^\d,]/g, '');
+  const i = v.indexOf(',');
+  let a = i < 0 ? v : v.slice(0, i), b = i < 0 ? null : v.slice(i + 1).replace(/,/g, '').slice(0, 2);
+  a = a.replace(/^0+(?=\d)/, '').slice(0, 6);
+  const f = kmFmt(a) + (b === null ? '' : ',' + b);
+  if(f === el.value) return;
+  el.value = f;
+  let c = 0, k = 0; while(k < f.length && c < keepBefore){ if(/[\d,]/.test(f[k])) c++; k++; }
   try{ el.setSelectionRange(k, k); }catch(_){}
 }, true);
 /* V4.10: mezera mezi číslem a jednotkou podle délky jednotky (km / bar / Kč) */
@@ -1467,7 +1483,7 @@ function vehOf(code){ return ((V.data && V.data.vehicles) || []).find(v => v.cod
 function termBox(p){
   const el = $(p + 'Terms'); if(!el) return;
   const list = (V.data && V.data.terms && V.data.terms[$(p + 'Veh').value]) || [];
-  if(!list.length){ el.innerHTML = ''; return; }
+  if(!list.length){ el.innerHTML = $(p + 'Veh').value ? '<div class="vtok">Žádná upozornění k vozidlu</div>' : ''; return; }   // V5.22
   // V5.17: každé upozornění jako řádek – co, podrobnost, stav (Po termínu / Pozor); nejdřív to, co je po termínu
   const rows = list.slice().sort((a, b) => (b.lvl === 'bad') - (a.lvl === 'bad')).map(x => { const t = termSplit(x.txt);
     return `<div class="vt ${x.lvl === 'bad' ? 'b' : ''}"><i></i><span><b>${esc(t[0])}</b>${t[1] ? `<small>${esc(t[1])}</small>` : ''}</span><em>${x.lvl === 'bad' ? 'Po termínu' : 'Pozor'}</em></div>`; }).join('');
