@@ -525,7 +525,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
       <div class="f"><label for="tL">Natankováno</label><div class="unit"><input id="tL" type="text" inputmode="decimal" oninput="readyFuel()"><span>l</span></div></div>
     </div>
     <div class="kmhint" id="tKmHint" style="margin:-6px 0 12px"></div>
-    <div class="f"><label for="tAd">AdBlue (nepovinné)</label><div class="unit"><input id="tAd" type="text" inputmode="decimal" autocomplete="off" placeholder="jen když jste tankovali" oninput="readyFuel()"><span>l</span></div></div>   <!-- V5.16 -->
+    <div class="f"><label for="tAd">AdBlue (nepovinné)</label><div class="unit"><input id="tAd" type="text" inputmode="decimal" autocomplete="off" oninput="readyFuel()"><span>l</span></div></div>   <!-- V5.16, V5.18 bez textu v poli -->
     <!-- V3.51: jen výjimka – nedotankováno do plna (kvůli správnému výpočtu spotřeby) · V3.58: nový popis -->
     <div class="f"><label class="chk" id="tPartLbl"><input type="checkbox" id="tPart" onchange="this.parentNode.classList.toggle('on', this.checked)"><span><div class="ct">Nedotankováno do plna</div><div class="cs">Zaškrtněte, jen když jste natankovali pouze část pohonných hmot.</div></span></label></div>
     <div class="f"><label for="tPay">Platba</label><select id="tPay" onchange="payHint();readyFuel()"></select></div>
@@ -722,7 +722,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '5.17';
+const APP_VER = '5.18';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
