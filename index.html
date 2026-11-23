@@ -444,9 +444,14 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
   <div id="loginCard" class="card">
     <h2>Přihlášení</h2>
     <div id="loginMsg" class="msg"></div>
-    <div class="f"><label for="lName">Jméno</label><select id="lName"><option value="">Načítám…</option></select></div>
-    <div class="f"><label for="lPin">PIN</label><input id="lPin" type="password" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="••••"></div>
-    <button class="btn" id="loginBtn" onclick="login()">Přihlásit</button>
+    <!-- V5.13: formulář s uživatelem a heslem, aby iPhone / Android uložil PIN pod jménem zaměstnance -->
+    <form id="loginForm" action="#" autocomplete="on" onsubmit="event.preventDefault();login()">
+    <div class="f"><label for="lName">Jméno</label><select id="lName" onchange="$('lUser').value=this.value"><option value="">Načítám…</option></select></div>
+    <input id="lUser" name="username" type="text" autocomplete="username" tabindex="-1" aria-hidden="true" oninput="pickUser(this.value)" onchange="pickUser(this.value)"
+      style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+    <div class="f"><label for="lPin">PIN</label><input id="lPin" name="password" type="password" inputmode="numeric" autocomplete="current-password" maxlength="8" placeholder="••••"></div>
+    <button class="btn" id="loginBtn" type="submit">Přihlásit</button>
+    </form>
     <div class="hint">PIN vám přidělí dispečink. Když ho zapomenete, požádejte o nový.</div>
     <div class="hint" style="text-align:right;opacity:.6;margin-top:6px">verze <span class="appVer"></span></div>
   </div>
@@ -705,7 +710,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '5.12';
+const APP_VER = '5.13';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -860,10 +865,19 @@ async function showLogin(){
     const names = await call('mNames');
     const last = store.get('m_name');
     $('lName').innerHTML = '<option value="">— vyberte své jméno —</option>' + names.map(n => `<option ${n === last ? 'selected' : ''}>${esc(n)}</option>`).join('');
+    $('lUser').value = $('lName').value;
   }catch(e){ msg('loginMsg', 'err', e); }
   finally{ busy(false); }
 }
+/* V5.13: uložené heslo z telefonu vyplní skryté pole uživatele – vybere se stejné jméno v seznamu */
+function pickUser(v){
+  const n = String(v || '').trim().toLowerCase(); if(!n) return;
+  const o = Array.from($('lName').options).find(x => x.value && x.value.trim().toLowerCase() === n);
+  if(o) $('lName').value = o.value;
+}
 async function login(){
+  if($('loginBtn').disabled) return;
+  pickUser($('lUser').value);
   const name = $('lName').value, pin = $('lPin').value.trim();
   if(!name || !pin){ msg('loginMsg', 'err', 'Vyberte jméno a zadejte PIN.'); return; }
   $('loginBtn').disabled = true; busy(true, 'Přihlašuji…');
@@ -884,7 +898,7 @@ async function logout(){
   store.del('m_token'); S.token = ''; S.entries = []; V.data = null; M.data = null; M.month = '';
   showLogin();
 }
-document.addEventListener('keydown', e => { if(e.key === 'Enter' && document.activeElement === $('lPin')) login(); });
+// V5.13: Enter v PIN odešle formulář sám (loginForm)
 
 /* ---------- zápisy ---------- */
 function showApp(){
