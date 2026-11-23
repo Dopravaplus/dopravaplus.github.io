@@ -740,7 +740,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '5.35';
+const APP_VER = '5.37';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -769,6 +769,19 @@ function dayShort(iso){
   return `${['ne','po','út','st','čt','pá','so'][d.getDay()]} ${p[2]}. ${p[1]}.${y}`;
 }
 function shortDate(t){ const m = String(t || '').match(/(\d{1,2})\.\s*(\d{1,2})\.\s*(\d{4})/); if(!m) return String(t || ''); return `${+m[1]}. ${+m[2]}.` + (+m[3] !== new Date().getFullYear() ? ' ' + m[3] : ''); }
+/* V5.37: jedna kontrola vozidla v seznamu – stejně jako tankování a tlak */
+function checkItem(x, chip, extra){
+  const d = x.sentIso ? new Date(x.sentIso) : (x.at ? new Date(x.at) : null);
+  const iso = d ? `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}` : '';
+  const tm = d ? `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}` : '';
+  const n = Number(x.defects) || 0, nz = x.ok === 'NE', done = x.state === 'Vyřešeno';
+  const cells = [`<div><span class="l">Závady</span><span class="v"${n && !done ? ' style="color:var(--amber)"' : ''}>${n || 'žádné'}</span></div>`];
+  if(n && !x.out) cells.push(`<div><span class="l">Vyřešeno</span><span class="v">${done ? n : (x.fixed || 0)} z ${n}</span></div>`);
+  cells.push(`<div><span class="l">Provoz</span><span class="v"${nz && !done ? ' style="color:var(--red)"' : ''}>${nz ? 'nezpůsobilé' : 'způsobilé'}</span></div>`);
+  return `<div class="item rec"><div class="h"><span class="d">${esc(x.vehicle)}${iso ? ' · ' + esc(dayShort(iso)) : ''}${tm ? ' · ' + tm : ''}</span>${chip}</div>
+    <div class="fg${cells.length === 2 ? ' two' : ''}">${cells.join('')}</div>
+    ${x.gnote ? `<div class="n">Garážmistr: ${esc(x.gnote)}</div>` : ''}${extra || ''}</div>`;
+}
 /* V5.31: jedno měření tlaku v seznamu – Přední / Zadní, hodnoty barevně podle odchylky od předepsaného tlaku */
 function tyreItem(x, chip, extra){
   const v = x.vals || [], tw = v[4] || v[5], pr = ((V.data && V.data.press) || {})[x.vehicle] || null;
@@ -789,7 +802,7 @@ function fuelItem(x, chip, extra){
   const tm = (String(x.sent || '').match(/(\d{1,2}:\d{2})/) || [])[1] || '';
   const num = v => String(v).replace('.', ',');
   const full = x.full === 'NE' ? '<span class="s ne">nedotankováno</span>' : '';   // V5.29: jen výjimka, stejně jako zaškrtávátko ve formuláři
-  let pay = esc(x.pay || '') + (x.amount ? ' · ' + fmtKc(x.amount) : '') + (x.receipt ? ' · s účtenkou' : '');
+  let pay = esc(x.pay || '') + (x.amount ? ' · <span style="white-space:nowrap">' + fmtKc(x.amount) + '</span>' : '');   // V5.36 bez „s účtenkou“, částka se nezalomí
   let right = '';
   if(!x.out && x.amount && x.state !== 'Zamítnuto') right = x.paid ? `<b style="color:var(--green)">Proplaceno ${esc(shortDate(x.paid))}</b>` : `<b style="color:var(--amber);font-weight:600">Čeká na proplacení</b>`;
   return `<div class="item rec"><div class="h"><span class="d">${esc(x.vehicle)} · ${esc(dayShort(x.date))}${tm ? ' · ' + tm : ''}</span>${chip}</div>
@@ -2311,6 +2324,9 @@ function renderVehList(){
     if(x.out && kind === 'tyre') return tyreItem(x, `<span class="chip ${x.err ? 'no' : 'wait'}">${x.err ? 'Neodesláno' : 'Čeká na odeslání'}</span>`,   // V5.31
       (x.err ? `<div class="reason">Server ho odmítl: ${esc(x.err)}</div>` : '<div class="n">Uloženo v telefonu – odešle se samo, až bude signál.</div>')
       + `<div class="acts"><button class="del" onclick="outboxDel('${esc(x.id)}')">Smazat</button></div>`);
+    if(x.out && kind === 'check') return checkItem(x, `<span class="chip ${x.err ? 'no' : 'wait'}">${x.err ? 'Neodesláno' : 'Čeká na odeslání'}</span>`,   // V5.37
+      (x.err ? `<div class="reason">Server ho odmítl: ${esc(x.err)}</div>` : '<div class="n">Uloženo v telefonu – odešle se samo, až bude signál.</div>')
+      + `<div class="acts"><button class="del" onclick="outboxDel('${esc(x.id)}')">Smazat</button></div>`);
     if(x.out && kind !== 'fuel'){   // V4.61: neodeslaná kontrola / měření tlaku
       const d = new Date(x.at), t = `${d.getDate()}.${d.getMonth() + 1}. ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`;
       const info = kind === 'check' ? `${x.km ? fmtKm(x.km) + ' km · ' : ''}${x.defects ? x.defects + ' ' + (x.defects === 1 ? 'závada' : (x.defects < 5 ? 'závady' : 'závad')) : 'bez závad'}`
@@ -2320,15 +2336,10 @@ function renderVehList(){
         ${x.err ? `<div class="reason">Server ho odmítl: ${esc(x.err)}</div>` : ''}
         <div class="acts"><button class="del" onclick="outboxDel('${esc(x.id)}')">Smazat</button></div></div>`;
     }
-    if(kind === 'check'){
+    if(kind === 'check'){   // V5.37 přehledně jako tankování a tlak
       const chip = x.state === 'Bez závad' ? '<span class="chip ok">Bez závad</span>'
-        : (x.state === 'Vyřešeno' ? '<span class="chip ok">Vyřešeno</span>' : `<span class="chip ${x.ok === 'NE' ? 'no' : 'wait'}">${esc(x.state || 'Nová závada')}</span>`);
-      // V4.87: jak se hlášení řeší – vyřešeno k datu, kolik závad je hotových, poznámka garážmistra
-      const prog = x.state === 'Vyřešeno' ? `Vyřešeno${x.doneAt ? ' ' + esc(x.doneAt) : ''}` : (x.state === 'Řeší se' ? `Řeší se${x.defects ? ` · vyřešeno ${x.fixed || 0} z ${x.defects}` : ''}` : '');
-      return `<div class="item"><div class="h"><span class="d">${esc(x.vehicle)}${x.km ? ' · ' + fmtKm(x.km) + ' km' : ''}</span>${chip}</div>
-        <div class="n">Odesláno ${esc(x.sent)}${x.defects ? ' · ' + x.defects + ' ' + (x.defects === 1 ? 'závada' : (x.defects < 5 ? 'závady' : 'závad')) + (x.ok === 'NE' ? ' · nezpůsobilé k provozu' : '') : ''}</div>
-        ${prog ? `<div class="n" style="color:var(--${x.state === 'Vyřešeno' ? 'green' : 'blue'});font-weight:700">${prog}</div>` : ''}
-        ${x.gnote ? `<div class="n">Garážmistr: ${esc(x.gnote)}</div>` : ''}</div>`;
+        : (x.state === 'Vyřešeno' ? `<span class="chip ok">Vyřešeno${x.doneAt ? ' ' + esc(shortDate(x.doneAt)) : ''}</span>` : (x.state === 'Řeší se' ? '<span class="chip ed">Řeší se</span>' : `<span class="chip ${x.ok === 'NE' ? 'no' : 'wait'}">${esc(x.state || 'Nová závada')}</span>`));
+      return checkItem(x, chip, '');
     }
     if(kind === 'tyre'){   // V4.01 · V5.31 přehledně jako tankování
       const chip = x.state === 'Nové' ? '<span class="chip wait">Čeká na zápis</span>' : `<span class="chip ok">${esc(String(x.state).replace(/ do karty$/, ''))}</span>`;
