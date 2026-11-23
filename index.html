@@ -361,11 +361,18 @@ html[data-theme="dark"] .chk input,html[data-theme="dark"] .conf input,html[data
 html[data-theme="dark"] .conf input:checked,html[data-theme="dark"] .ytwin input:checked,html[data-theme="dark"] .chk input:checked{border-color:var(--blue)}
 html[data-theme="dark"] .chk.on input:checked{border-color:var(--amber)}
 .chk input:focus,.conf input:focus,.ytwin input:focus{box-shadow:none}
-.vterms{margin:8px 0 0;border-radius:10px;background:var(--amberBg);border:1px solid #fedf89;padding:8px 11px;font-size:13px;line-height:1.45}
-.vterms.bad{background:var(--redBg);border-color:#fecdca}
-.vterms .vh{font-weight:800;color:#344054;margin-bottom:2px}
-.vterms div.w{color:var(--amber);font-weight:700}
-.vterms div.b{color:var(--red);font-weight:700}
+.vterms{margin:8px 0 0;border-radius:12px;background:var(--card);border:1px solid var(--line);border-left:4px solid #f79009;padding:8px 12px;font-size:14px;line-height:1.4}   /* V5.17 */
+.vterms.bad{border-left-color:#d92d20}
+.vterms .vh{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:2px 0 4px}
+.vterms .vt{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line)}
+.vterms .vh + .vt{border-top:0}
+.vterms .vt i{flex:0 0 9px;height:9px;border-radius:50%;background:#f79009}
+.vterms .vt.b i{background:#d92d20}
+.vterms .vt span{flex:1;min-width:0}
+.vterms .vt b{display:block;font-weight:700;color:var(--text)}
+.vterms .vt small{display:block;color:var(--muted);font-size:13px}
+.vterms .vt em{font-style:normal;font-size:12px;font-weight:800;padding:3px 8px;border-radius:999px;white-space:nowrap;background:var(--amberBg);color:var(--amber)}
+.vterms .vt.b em{background:var(--redBg);color:var(--red)}
 
 /* ===== V3.89: TMAVÝ VZHLED (html[data-theme=dark]) ===== */
 html[data-theme="dark"]{color-scheme:dark;--hdr:#13305e;--blue:#3b7ff0;--blue2:#2f6ad0;--bg:#0b1220;--card:#151e2e;--text:#e6ebf2;--muted:#98a2b3;--line:#263247;
@@ -421,8 +428,9 @@ html[data-theme="dark"] .onote .rm{color:#98a2b3}
 html[data-theme="dark"] .onote textarea{border-color:#7a2b26}
 html[data-theme="dark"] .ph{background:#0f1726;border-color:#3a475e}
 html[data-theme="dark"] .dph .ph{background:#1b2638;border-color:#7a2b26}
-html[data-theme="dark"] .vterms{border-color:#7a5a16}
-html[data-theme="dark"] .vterms.bad{border-color:#7a2b26}
+html[data-theme="dark"] .vterms{border-color:#263247;border-left-color:#f79009}
+html[data-theme="dark"] .vterms.bad{border-left-color:#f04438}
+html[data-theme="dark"] .vterms .vt em{background:#3a2a0c;color:#fdb022}html[data-theme="dark"] .vterms .vt.b em{background:#3a1512;color:#f97066}
 html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:#5b6678}
 /* volba vzhledu na úvodu */
 .themebox{margin-top:18px;text-align:center}
@@ -714,7 +722,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '5.16';
+const APP_VER = '5.17';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1460,7 +1468,22 @@ function termBox(p){
   const el = $(p + 'Terms'); if(!el) return;
   const list = (V.data && V.data.terms && V.data.terms[$(p + 'Veh').value]) || [];
   if(!list.length){ el.innerHTML = ''; return; }
-  el.innerHTML = `<div class="vterms ${list.some(x => x.lvl === 'bad') ? 'bad' : ''}"><div class="vh">Upozornění k vozidlu</div>${list.map(x => `<div class="${x.lvl === 'bad' ? 'b' : 'w'}">${esc(x.txt)}</div>`).join('')}</div>`;
+  // V5.17: každé upozornění jako řádek – co, podrobnost, stav (Po termínu / Pozor); nejdřív to, co je po termínu
+  const rows = list.slice().sort((a, b) => (b.lvl === 'bad') - (a.lvl === 'bad')).map(x => { const t = termSplit(x.txt);
+    return `<div class="vt ${x.lvl === 'bad' ? 'b' : ''}"><i></i><span><b>${esc(t[0])}</b>${t[1] ? `<small>${esc(t[1])}</small>` : ''}</span><em>${x.lvl === 'bad' ? 'Po termínu' : 'Pozor'}</em></div>`; }).join('');
+  el.innerHTML = `<div class="vterms ${list.some(x => x.lvl === 'bad') ? 'bad' : ''}"><div class="vh">Upozornění k vozidlu</div>${rows}</div>`;
+}
+/* „Výměna oleje za 1 295 km“ → [„Výměna oleje“, „za 1 295 km“] apod. */
+function termSplit(t){
+  t = String(t || '').trim(); let m;
+  if((m = t.match(/^Výměna oleje přetažena o (.+)$/i))) return ['Výměna oleje', 'přetažena o ' + m[1]];
+  if((m = t.match(/^Výměna oleje za (.+)$/i))) return ['Výměna oleje', 'za ' + m[1]];
+  if((m = t.match(/^Tlak pneumatik změřit\s*[–-]\s*mělo být do (.+)$/i))) return ['Tlak pneumatik', 'změřit – termín byl ' + m[1]];
+  if((m = t.match(/^Tlak pneumatik\s*[–-]?\s*(.+)$/i))) return ['Tlak pneumatik', m[1]];
+  if((m = t.match(/^Vozidlo nebylo myto (\d+) dní\s*\(naposledy (.+)\)$/i))) return ['Mytí', m[1] + ' dní bez mytí · naposledy ' + m[2]];
+  if((m = t.match(/^Vozidlo nebylo myto (.+)$/i))) return ['Mytí', 'nebylo myto ' + m[1]];
+  if((m = t.match(/^(STK|Pojištění|Dálniční známka|Tachograf|Hasicí přístroj|Lékárnička|[^–]+?)\s+(propadl\S*|platí do|vyprší|končí)\s*(.*)$/i))) return [m[1], (m[2] + ' ' + m[3]).trim()];
+  const i = t.indexOf(' – '); return i > 0 ? [t.slice(0, i), t.slice(i + 3)] : [t, ''];
 }
 function kmHint(p){
   termBox(p);
