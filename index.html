@@ -247,7 +247,7 @@ html[data-theme="dark"] .msel{border-color:#7a5a16;color:var(--amber)}
 .acno ul{margin:4px 0 0;padding-left:20px}
 .acdh{font-weight:800;font-size:14px;padding:2px 14px 4px}
 html[data-theme="dark"] .acno{background:#3a1512;border-color:#7a2b26;color:#fecdca}
-.acpam{margin-top:8px;font-weight:800;color:var(--red)}
+.acpam{margin-top:8px;font-weight:800;color:var(--red);text-align:center}
 .acd{border:1px solid var(--line);border-radius:12px;margin-bottom:10px;background:#fff}
 .acd summary{padding:12px 14px;font-weight:800;font-size:15px;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center}
 .acd summary::-webkit-details-marker{display:none}
@@ -617,7 +617,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
       <li>SPZ a VIN vozidla, provozovatele vozidla,</li>
       <li>pojišťovnu a číslo pojistky povinného ručení (zelená karta),</li>
       <li>svědky – jméno a telefon.</li></ul>
-      <p>Stejné údaje jste na požádání povinni sdělit i vy. Odmítnout je je přestupek.</p>
+      <p>Stejné údaje jste na požádání povinni sdělit i vy – odmítnutí je přestupek.</p>
       <div class="acdh">Záznam o dopravní nehodě</div>
       <p>Sepisuje se, když nehodu neřeší policie: místo a čas, účastníci, vozidla, příčina, průběh a následky. Fotky mohou nahradit nákres nehody. Podepište ho, jen když s obsahem souhlasíte.</p><p>Pak pojízdná vozidla odstraňte z vozovky, aby nebránila provozu – předtím vše nafoťte.</p></details>
     <details class="acd"><summary>Co se hlásí firmě</summary>
@@ -705,7 +705,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '5.11';
+const APP_VER = '5.12';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
