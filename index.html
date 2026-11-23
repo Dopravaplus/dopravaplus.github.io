@@ -84,6 +84,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#84adff;box-sh
 .hrs b{color:var(--text)}
 .msg{border-radius:12px;padding:11px 13px;font-size:14px;font-weight:600;margin-bottom:12px;display:none}
 .msg.ok{display:block;background:var(--greenBg);color:var(--green)}
+.top.note{background:#067647;transition:background .3s;cursor:pointer}   /* V5.26 potvrzení v hlavičce */
 .msg.wait{display:block;background:var(--amberBg);color:var(--amber)}
 .hlink{display:block;width:100%;text-align:left;border:0;background:none;color:inherit;font:inherit;font-weight:700;padding:3px 0}
 .msg.err{display:block;background:var(--redBg);color:var(--red)}
@@ -199,6 +200,17 @@ html[data-theme="dark"] .msel{border-color:#7a5a16;color:var(--amber)}
 .mrow .mrej{font-size:13px;color:var(--red);font-weight:700;margin-top:2px}   /* V4.20: důvod zamítnutí pod údaji dne (jako v Odeslaných zápisech) */   /* V4.17 */
 .msum{display:flex;justify-content:space-between;margin:10px -13px 0;padding:11px 13px;background:#f2f6fc;border-radius:10px;font-weight:800;font-size:15px}
 .item .acts{display:flex;gap:8px;margin-top:8px}
+.fg{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.9fr) minmax(0,1.55fr);gap:6px;margin:9px 0 7px}   /* V5.27 tankování – hodnoty ve sloupcích */
+.fg>div{background:#f2f5fa;border-radius:9px;padding:6px 9px;min-width:0}
+.fg .l{display:block;font-size:11.5px;color:var(--muted)}
+.fg .v{display:block;font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fg.two{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}   /* V5.28 bez AdBlue jen Nafta + Tachometr */
+.fg .s{display:block;font-size:11.5px;color:var(--muted);white-space:nowrap}
+.fg .v,.fg .s{text-align:right}   /* V5.30 hodnoty vpravo, popisek vlevo */
+.fg .s.ne{color:var(--amber);font-weight:700;font-size:11px}
+.fp{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13px;color:var(--muted)}
+.fp b{white-space:nowrap}
+html[data-theme="dark"] .fg>div{background:#1b2638}
 .item .acts button{flex:1;border-radius:10px;padding:9px;font-size:14px;font-weight:700;border:1px solid #d0d5dd;background:#fff;color:#344054}
 .item .acts button.del{color:var(--red);border-color:#fda29b}
 .reason{font-size:13px;color:var(--red);margin-top:4px;font-weight:600}
@@ -723,7 +735,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '5.23';
+const APP_VER = '5.30';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -745,6 +757,25 @@ const store = {
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const WD = ['neděle','pondělí','úterý','středa','čtvrtek','pátek','sobota'];
+/* V5.27: krátký den pro seznamy – „po 23. 11.“ (rok jen když není letošní) */
+function dayShort(iso){
+  const p = String(iso || '').split('-').map(Number); if(!p[2]) return String(iso || '');
+  const d = new Date(p[0], p[1]-1, p[2], 12), y = p[0] !== new Date().getFullYear() ? ' ' + p[0] : '';
+  return `${['ne','po','út','st','čt','pá','so'][d.getDay()]} ${p[2]}. ${p[1]}.${y}`;
+}
+function shortDate(t){ const m = String(t || '').match(/(\d{1,2})\.\s*(\d{1,2})\.\s*(\d{4})/); if(!m) return String(t || ''); return `${+m[1]}. ${+m[2]}.` + (+m[3] !== new Date().getFullYear() ? ' ' + m[3] : ''); }
+/* V5.27: jedno tankování v seznamu – nadpis, tři hodnoty, řádek platby */
+function fuelItem(x, chip, extra){
+  const tm = (String(x.sent || '').match(/(\d{1,2}:\d{2})/) || [])[1] || '';
+  const num = v => String(v).replace('.', ',');
+  const full = x.full === 'NE' ? '<span class="s ne">nedotankováno</span>' : '';   // V5.29: jen výjimka, stejně jako zaškrtávátko ve formuláři
+  let pay = esc(x.pay || '') + (x.amount ? ' · ' + fmtKc(x.amount) : '') + (x.receipt ? ' · s účtenkou' : '');
+  let right = '';
+  if(!x.out && x.amount && x.state !== 'Zamítnuto') right = x.paid ? `<b style="color:var(--green)">Proplaceno ${esc(shortDate(x.paid))}</b>` : `<b style="color:var(--amber);font-weight:600">Čeká na proplacení</b>`;
+  return `<div class="item"><div class="h"><span class="d">${esc(x.vehicle)} · ${esc(dayShort(x.date))}${tm ? ' · ' + tm : ''}</span>${chip}</div>
+    <div class="fg${x.adblue ? '' : ' two'}"><div><span class="l">Nafta</span><span class="v">${num(x.liters)} l</span>${full}</div>${x.adblue ? `<div><span class="l">AdBlue</span><span class="v">${num(x.adblue)} l</span></div>` : ''}<div><span class="l">Tachometr</span><span class="v">${fmtKm(x.km)} km</span></div></div>
+    <div class="fp"><span>${pay}</span>${right}</div>${extra || ''}</div>`;
+}
 function dayLabel(iso){
   const p = iso.split('-').map(Number); const d = new Date(p[0], p[1]-1, p[2], 12);
   return `${WD[d.getDay()]} ${String(p[2]).padStart(2,'0')}.${String(p[1]).padStart(2,'0')}.${p[0]}`;
@@ -757,7 +788,29 @@ function todayIso(){ const n = new Date(), lt = `${n.getFullYear()}-${String(n.g
 function busy(on, t){ $('busy').classList.toggle('hidden', !on); if(t) $('busyText').textContent = t; }
 function msg(id, type, text){ const el = $(id); delete el.dataset.lv; delete el.dataset.fut; el.className = 'msg ' + (type || ''); el.textContent = text || ''; }
 /* V4.63: potvrzení na tři řádky – co se stalo (tučně), den a čas, co bude dál */
-function msg3(id, type, a, b, c){ const el = $(id); delete el.dataset.lv; delete el.dataset.fut; el.className = 'msg ' + (type || ''); el.innerHTML = [`<b>${esc(a)}</b>`, b ? esc(b) : '', c ? esc(c) : ''].filter(Boolean).join('<br>'); }
+function msg3(id, type, a, b, c){   // V5.27: potvrzení na úvodu zase v boxu nad dlaždicemi (zelená hlavička zrušena)
+  const el = $(id); delete el.dataset.lv; delete el.dataset.fut; el.className = 'msg ' + (type || ''); el.innerHTML = [`<b>${esc(a)}</b>`, b ? esc(b) : '', c ? esc(c) : ''].filter(Boolean).join('<br>'); }
+/* V5.26: potvrzení na úvodu v hlavičce – hlavička na 5 s zezelená a místo názvu ukáže co se odeslalo; nic nepřekrývá ani neposouvá */
+let TOAST_T = 0, TOAST_KEEP = null;
+function toast(a, b, c){ setTimeout(() => toastShow(a, b, c), 60); }   // až po přechodu na úvod (goHome)
+function toastShow(a, b, c){
+  const bar = $('topBar'), t = $('topTitle'), sub = $('topSub'); if(!bar || S.view !== 'home') return;
+  if(!TOAST_KEEP) TOAST_KEEP = { t: t.textContent, s: sub.textContent };
+  // krátce, aby se vešlo vedle tlačítek: „Tankování odesláno“ + „M3 · v 19:53 hod.“ → „Odesláno“ / „Tankování M3 · 19:53“
+  const m = String(a).match(/^(.*?)\s+(odesláno|odeslána|odeslán|odeslány|nahlášena|nahlášeno|upraven[aoy]?|uložen[aoy]?|smazán[aoy]?|potvrzen[aoy]?)$/i);
+  const when = String(b || '').replace(/ · v[e]? (\d{1,2}:\d{2}) hod\.$/, ' · $1');
+  t.textContent = m ? m[2].charAt(0).toUpperCase() + m[2].slice(1) : a;
+  sub.textContent = m ? (m[1] + ' ' + when).trim() : when;
+  bar.classList.add('note');
+  clearTimeout(TOAST_T); TOAST_T = setTimeout(toastEnd, 5000);
+  bar.onclick = toastEnd;
+}
+function toastEnd(){
+  clearTimeout(TOAST_T); const bar = $('topBar'); if(!bar || !TOAST_KEEP) return;
+  bar.classList.remove('note'); bar.onclick = null;
+  if(S.view === 'home'){ $('topTitle').textContent = TOAST_KEEP.t; $('topSub').textContent = TOAST_KEEP.s; }
+  TOAST_KEEP = null;
+}
 /* V2.0: volání serveru (Apps Script „Docházka do mobilu“) přes internet – stránka běží mimo Google, bez šedého pruhu */
 const API_URL = 'https://script.google.com/macros/s/AKfycbyX7rO09p-2zUdZoR0ISi_ZlgSblYihTW7CFxdqhRdYReiJaQXy-3fDi3_QmaRdM0M/exec';
 async function call(fn, arg){
@@ -950,6 +1003,7 @@ const VIEWS = { home:['homeCard'], att:['formCard','listCard','monthCard'], chec
 const VIEWS_ALL = ['homeCard','formCard','listCard','monthCard','checkCard','fuelCard','tyreCard','washCard','accCard','vehListCard'];
 const TITLES = { home:'Dopravaplus', att:'Docházka', check:'Kontrola vozidla', fuel:'Tankování', tyre:'Tlak pneumatik', wash:'Mytí vozidla', acc:'Nehoda' };
 function showView(v){
+  if(TOAST_KEEP){ clearTimeout(TOAST_T); $('topBar').classList.remove('note'); $('topBar').onclick = null; TOAST_KEEP = null; }   // V5.26: potvrzení v hlavičce končí změnou obrazovky
   S.view = v;
   document.body.classList.toggle('home', v === 'home');
   VIEWS_ALL.forEach(id => $(id).classList.toggle('hidden', VIEWS[v].indexOf(id) < 0));
@@ -2262,19 +2316,14 @@ function renderVehList(){
         ${x.note ? `<div class="n">${esc(x.note)}</div>` : ''}
         ${x.state === 'Nové' ? `<div class="acts"><button class="del" onclick="delTyre('${esc(x.id)}')">Smazat</button></div>` : ''}</div>`;
     }
-    if(x.out) return `<div class="item"><div class="h"><span class="d">${esc(x.vehicle)} · ${esc(dayLabel(x.date))}</span><span class="chip ${x.err ? 'no' : 'wait'}">${x.err ? 'Neodesláno' : 'Čeká na odeslání'}</span></div>
-      <div class="t">${String(x.liters).replace('.', ',')} l${x.full === 'NE' ? ' (ne do plna)' : ''}${x.adblue ? ' + AdBlue ' + String(x.adblue).replace('.', ',') + ' l' : ''} · ${fmtKm(x.km)} km · ${esc(x.pay)}${x.amount ? ' · ' + fmtKc(x.amount) : ''}</div>
-      <div class="n">${x.err ? '' : 'Uloženo v telefonu – odešle se samo, až bude signál.'}</div>
-      ${x.err ? `<div class="reason">Server ho odmítl: ${esc(x.err)}</div>` : ''}
-      <div class="acts"><button class="del" onclick="outboxDel('${esc(x.id)}')">Smazat</button></div></div>`;
-    const chip = x.state === 'Zapsáno' ? '<span class="chip ok">Zapsáno do karty</span>'
-      : (x.state === 'Zamítnuto' ? '<span class="chip no">Zamítnuto</span>' : '<span class="chip wait">Čeká na zpracování</span>');   // V4.82: tankování i tlak stejně
-    return `<div class="item"><div class="h"><span class="d">${esc(x.vehicle)} · ${esc(dayLabel(x.date))}</span>${chip}</div>
-      <div class="t">${String(x.liters).replace('.', ',')} l${x.full === 'NE' ? ' (ne do plna)' : ''}${x.adblue ? ' + AdBlue ' + String(x.adblue).replace('.', ',') + ' l' : ''} · ${fmtKm(x.km)} km · ${esc(x.pay)}${x.amount ? ' · ' + fmtKc(x.amount) : ''}</div>
-      <div class="n">Odesláno ${esc(x.sent)}${x.receipt ? ' · s fotkou účtenky' : ''}</div>
-      ${x.amount && x.state !== 'Zamítnuto' ? `<div class="n" style="color:${x.paid ? 'var(--green)' : 'var(--muted)'};font-weight:${x.paid ? 700 : 400}">${x.paid ? 'Proplaceno ' + esc(x.paid) : 'Čeká na proplacení'}</div>` : ''}
-      ${x.state === 'Zamítnuto' && x.reason ? `<div class="reason">Důvod: ${esc(x.reason)}</div>` : ''}
-      ${x.state === 'Ke schválení' ? `<div class="acts"><button class="del" onclick="delFuel('${esc(x.id)}')">Smazat</button></div>` : ''}</div>`;
+    if(x.out) return fuelItem(x, `<span class="chip ${x.err ? 'no' : 'wait'}">${x.err ? 'Neodesláno' : 'Čeká na odeslání'}</span>`,   // V5.27: přehlednější výpis
+      (x.err ? `<div class="reason">Server ho odmítl: ${esc(x.err)}</div>` : '<div class="n">Uloženo v telefonu – odešle se samo, až bude signál.</div>')
+      + `<div class="acts"><button class="del" onclick="outboxDel('${esc(x.id)}')">Smazat</button></div>`);
+    const chip = x.state === 'Zapsáno' ? '<span class="chip ok">Zapsáno</span>'
+      : (x.state === 'Zamítnuto' ? '<span class="chip no">Zamítnuto</span>' : '<span class="chip wait">Čeká na zápis</span>');
+    return fuelItem(x, chip,
+      (x.state === 'Zamítnuto' && x.reason ? `<div class="reason">Důvod: ${esc(x.reason)}</div>` : '')
+      + (x.state === 'Ke schválení' ? `<div class="acts"><button class="del" onclick="delFuel('${esc(x.id)}')">Smazat</button></div>` : ''));
   }).join('');
 }
 
