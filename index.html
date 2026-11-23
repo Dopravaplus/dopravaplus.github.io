@@ -374,6 +374,9 @@ html[data-theme="dark"] label,html[data-theme="dark"] .chk .ct,html[data-theme="
 html[data-theme="dark"] input,html[data-theme="dark"] textarea{background:#0f1726;border-color:#33415a}
 html[data-theme="dark"] select{background:#0f1726 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%23aab3c2' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 16px center;border-color:#33415a}
 html[data-theme="dark"] input:focus,html[data-theme="dark"] select:focus,html[data-theme="dark"] textarea:focus{border-color:#4a8cf0;box-shadow:0 0 0 3px rgba(74,140,240,.25)}
+/* V5.15: pole vyplněné / vyplnitelné z uložených hesel – místo žluté barvy iPhonu jemně modré v barvách aplikace */
+input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0 1000px #eef4ff inset !important;-webkit-text-fill-color:var(--text) !important;caret-color:var(--text);border-color:#9bbcf5 !important;transition:background-color 99999s}
+html[data-theme="dark"] input:-webkit-autofill,html[data-theme="dark"] input:-webkit-autofill:hover,html[data-theme="dark"] input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0 1000px #13223a inset !important;-webkit-text-fill-color:#e6ebf2 !important;border-color:#3b7ff0 !important}
 html[data-theme="dark"] .chk,html[data-theme="dark"] .secbox,html[data-theme="dark"] .tile,html[data-theme="dark"] .busy div{background:var(--card);border-color:#33415a}
 html[data-theme="dark"] .chk.on{background:var(--amberBg);border-color:#7a5a16}
 html[data-theme="dark"] .btn.dim{background:#22324e;color:#7f93b5}
@@ -710,7 +713,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '5.14';
+const APP_VER = '5.15';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
