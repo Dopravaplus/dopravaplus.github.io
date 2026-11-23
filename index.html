@@ -722,7 +722,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '5.18';
+const APP_VER = '5.19';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1489,7 +1489,8 @@ function kmHint(p){
   termBox(p);
   const v = vehOf($(p + 'Veh').value), el = $(p + 'KmHint');
   if(!el) return;   // V4.85: km jen u tankování – jinde jen upozornění k vozidlu
-  if(!v || !v.lastKm){ el.textContent = ''; el.className = 'kmhint'; return; }
+  if(!v){ el.textContent = ''; el.className = 'kmhint'; return; }
+  if(!v.lastKm){ el.className = 'kmhint'; el.textContent = 'Poslední stav km zatím není známý – zadejte stav z tachometru.'; return; }   // V5.19
   const km = Number(kmVal(p + 'Km')) || 0;
   if(km && km < v.lastKm){ el.className = 'kmhint w'; el.textContent = `Pozor: nižší než poslední stav (${fmtKm(v.lastKm)} km)`; }
   else if(km && km - v.lastKm > KM_JUMP){ el.className = 'kmhint w'; el.textContent = `Pozor: neobvykle vysoký nárůst (+${fmtKm(km - v.lastKm)} km)`; }
