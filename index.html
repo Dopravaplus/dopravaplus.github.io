@@ -359,8 +359,8 @@ body.home{background:linear-gradient(var(--hdr) 0,var(--hdr) 120px,var(--bg) 120
 .kmhint.w{color:var(--amber);font-weight:700}
 .ypres{background:#eef3fc;border:1px solid #d3e0f7;color:#1d3a6b;border-radius:12px;padding:10px 13px;font-size:14px;line-height:1.4;margin:0 0 14px}   /* V4.01 tlak pneumatik */
 .ypres b{font-weight:800}.ypres .nw{white-space:nowrap}
-.ylab{font-weight:800;font-size:15px;margin:0 0 3px}
-.ycold{font-size:13px;color:var(--muted);margin:0 0 10px;line-height:1.4}.ylab span{font-weight:600;color:var(--muted);font-size:13px}
+.ylab{font-weight:400;font-size:15px;margin:0 0 3px;text-align:center}   /* V5.32 na střed, bez tučného */
+.ycold{font-size:13px;color:var(--muted);margin:0 0 10px;line-height:1.4;text-align:center}.ylab span{font-weight:400;color:var(--muted);font-size:13px}
 .axle{border:1px solid var(--line);border-radius:12px;padding:10px 12px 2px;margin-bottom:12px}
 .axh{font-size:12.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px}
 .ydev{font-size:12.5px;font-weight:700;margin-top:4px;min-height:0}
@@ -558,7 +558,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
     <div class="f"><label for="yDate">Datum měření</label><input id="yDate" type="date" onchange="readyTyre()"></div>   <!-- V4.85: bez stavu tachometru -->
     <div class="ypres" id="yPres"></div>
     <div class="ylab">Naměřený tlak <span>(za studena, před dohuštěním)</span></div>
-    <div class="ycold">Měřte před jízdou nebo po nejméně 2 hodinách stání – teplá pneumatika ukazuje vyšší tlak.</div>   <!-- V5.31 -->
+    <div class="ycold">Měřte před jízdou nebo nejméně po 2 hodinách stání – teplá pneumatika ukazuje vyšší tlak.</div>   <!-- V5.31 -->
     <div class="axle"><div class="axh">Přední kola</div>
       <div class="grid2">
         <div class="f"><label for="yFL">Levé</label><div class="unit"><input id="yFL" type="text" inputmode="decimal" oninput="tyreDev();readyTyre()"><span>bar</span></div><div class="ydev" id="yFLd"></div></div>
@@ -738,7 +738,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '5.31';
+const APP_VER = '5.32';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
