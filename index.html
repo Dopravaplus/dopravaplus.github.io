@@ -205,6 +205,8 @@ html[data-theme="dark"] .msel{border-color:#7a5a16;color:var(--amber)}
 .fg .l{display:block;font-size:11.5px;color:var(--muted)}
 .fg .v{display:block;font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fg.two{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.item.rec,.item.rec:first-of-type{border:1px solid var(--line);border-radius:14px;padding:12px 12px 11px;margin-top:10px}   /* V5.35 každý záznam v rámečku */
+.item.rec .fg{margin-bottom:6px}
 .fg .tw{color:var(--amber)}.fg .tb{color:var(--red)}   /* V5.31 tlak mimo předpis */   /* V5.28 bez AdBlue jen Nafta + Tachometr */
 .fg .s{display:block;font-size:11.5px;color:var(--muted);white-space:nowrap}
 .fg .v,.fg .s{text-align:right}   /* V5.30 hodnoty vpravo, popisek vlevo */
@@ -738,7 +740,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '5.34';
+const APP_VER = '5.35';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -772,10 +774,11 @@ function tyreItem(x, chip, extra){
   const v = x.vals || [], tw = v[4] || v[5], pr = ((V.data && V.data.press) || {})[x.vehicle] || null;
   const tm = (String(x.sent || '').match(/(\d{1,2}:\d{2})/) || [])[1] || (x.at ? (d => `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`)(new Date(x.at)) : '');
   const one = (n, ax) => { const rg = presRange(pr, ax); let c = '';
-    if(rg && n){ const d = n < rg[0] ? rg[0] - n : (n > rg[1] ? n - rg[1] : 0); c = d >= 0.6 ? ' class="tb"' : (d >= 0.25 ? ' class="tw"' : ''); }
+    if(rg && n){ const d = Math.round((n < rg[0] ? rg[0] - n : (n > rg[1] ? n - rg[1] : 0)) * 100) / 100;   // V5.35 zaokrouhlit (3,8 − 3,2 = 0,6 → červeně)
+      c = d >= 0.6 ? ' class="tb"' : (d >= 0.25 ? ' class="tw"' : ''); }
     return `<span${c}>${n ? fmtBar(n) : '–'}</span>`; };
   const pair = (a, b, ax) => `${one(a, ax)} · ${one(b, ax)}`;
-  return `<div class="item"><div class="h"><span class="d">${esc(x.vehicle)} · ${esc(dayShort(x.date))}${tm ? ' · ' + tm : ''}</span>${chip}</div>
+  return `<div class="item rec"><div class="h"><span class="d">${esc(x.vehicle)} · ${esc(dayShort(x.date))}${tm ? ' · ' + tm : ''}</span>${chip}</div>
     <div class="fg two ty"><div><span class="l">Přední L · P</span><span class="v">${pair(v[0], v[1], 'f')} bar</span></div>
       <div><span class="l">Zadní L · P${tw ? ' (vnější)' : ''}</span><span class="v">${pair(v[2], v[3], 'r')} bar</span>${tw ? `<span class="l" style="margin-top:4px">vnitřní</span><span class="v">${pair(v[4], v[5], 'r')} bar</span>` : ''}</div></div>
     ${x.inflated === 'ANO' ? '<div class="fp"><span>Dohuštěno na předepsaný tlak</span></div>' : ''}
@@ -789,7 +792,7 @@ function fuelItem(x, chip, extra){
   let pay = esc(x.pay || '') + (x.amount ? ' · ' + fmtKc(x.amount) : '') + (x.receipt ? ' · s účtenkou' : '');
   let right = '';
   if(!x.out && x.amount && x.state !== 'Zamítnuto') right = x.paid ? `<b style="color:var(--green)">Proplaceno ${esc(shortDate(x.paid))}</b>` : `<b style="color:var(--amber);font-weight:600">Čeká na proplacení</b>`;
-  return `<div class="item"><div class="h"><span class="d">${esc(x.vehicle)} · ${esc(dayShort(x.date))}${tm ? ' · ' + tm : ''}</span>${chip}</div>
+  return `<div class="item rec"><div class="h"><span class="d">${esc(x.vehicle)} · ${esc(dayShort(x.date))}${tm ? ' · ' + tm : ''}</span>${chip}</div>
     <div class="fg${x.adblue ? '' : ' two'}"><div><span class="l">Nafta</span><span class="v">${num(x.liters)} l</span>${full}</div>${x.adblue ? `<div><span class="l">AdBlue</span><span class="v">${num(x.adblue)} l</span></div>` : ''}<div><span class="l">Tachometr</span><span class="v">${fmtKm(x.km)} km</span></div></div>
     <div class="fp"><span>${pay}</span>${right}</div>${extra || ''}</div>`;
 }
@@ -2328,7 +2331,7 @@ function renderVehList(){
         ${x.gnote ? `<div class="n">Garážmistr: ${esc(x.gnote)}</div>` : ''}</div>`;
     }
     if(kind === 'tyre'){   // V4.01 · V5.31 přehledně jako tankování
-      const chip = x.state === 'Nové' ? '<span class="chip wait">Čeká na zápis</span>' : `<span class="chip ok">${esc(x.state)}</span>`;
+      const chip = x.state === 'Nové' ? '<span class="chip wait">Čeká na zápis</span>' : `<span class="chip ok">${esc(String(x.state).replace(/ do karty$/, ''))}</span>`;
       return tyreItem(x, chip, x.state === 'Nové' ? `<div class="acts"><button class="del" onclick="delTyre('${esc(x.id)}')">Smazat</button></div>` : '');
     }
     if(x.out) return fuelItem(x, `<span class="chip ${x.err ? 'no' : 'wait'}">${x.err ? 'Neodesláno' : 'Čeká na odeslání'}</span>`,   // V5.27: přehlednější výpis
