@@ -742,7 +742,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '5.46';
+const APP_VER = '5.47';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -767,10 +767,10 @@ const WD = ['neděle','pondělí','úterý','středa','čtvrtek','pátek','sobot
 /* V5.27: krátký den pro seznamy – „po 23. 11.“ (rok jen když není letošní) */
 function dayShort(iso){
   const p = String(iso || '').split('-').map(Number); if(!p[2]) return String(iso || '');
-  const d = new Date(p[0], p[1]-1, p[2], 12), y = p[0] !== new Date().getFullYear() ? ' ' + p[0] : '';
+  const d = new Date(p[0], p[1]-1, p[2], 12), y = p[0] !== new Date().getFullYear() ? String(p[0]) : '';   // V5.47 rok bez mezery (31.12.2025)
   return `${['ne','po','út','st','čt','pá','so'][d.getDay()]} ${p[2]}.${p[1]}.${y}`;   // V5.41 datum bez mezer (23.11.)
 }
-function shortDate(t){ const m = String(t || '').match(/(\d{1,2})\.\s*(\d{1,2})\.\s*(\d{4})/); if(!m) return String(t || ''); return `${+m[1]}.${+m[2]}.` + (+m[3] !== new Date().getFullYear() ? ' ' + m[3] : ''); }
+function shortDate(t){ const m = String(t || '').match(/(\d{1,2})\.\s*(\d{1,2})\.\s*(\d{4})/); if(!m) return String(t || ''); return `${+m[1]}.${+m[2]}.` + (+m[3] !== new Date().getFullYear() ? m[3] : ''); }
 /* V5.38: jedno mytí v seznamu – stejně jako tankování, tlak a kontrola */
 function washItem(x, chip, extra){
   const tm = (String(x.sent || '').match(/(\d{1,2}:\d{2})/) || [])[1] || '';
@@ -1384,7 +1384,8 @@ function attItem(head, chip, x, extra){
     : `<div class="fg att"><div><span class="l">Směna</span><span class="v">${esc(x.from)}–${esc(x.to)}</span></div><div><span class="l">Pauza</span><span class="v">${pauseTxt(x.pause)}</span></div>${x.hours != null ? `<div><span class="l">Odpracováno</span><span class="v">${fmtHM(x.hours)}</span></div>` : '<div></div>'}</div>`;
   return `<div class="item rec"><div class="h"><span class="d">${head}</span>${chip}</div>${cells}${extra || ''}</div>`;
 }
-function oniTxt(t){ return String(t || '').replace(/\s*[–-]\s*(podle|dle|z)\s+ONI(\s+syst[eé]mu)?\b/i, ' (ONI systém)'); }
+function oniTxt(t){ return String(t || '').replace(/pauza\s+0[,.]5\s*h(od)?\.?/gi, 'pauza 30 min')   // V5.47 pauza 30 min místo 0,5 h
+    .replace(/\s*[–-]\s*(podle|dle|z)\s+ONI(\s+syst[eé]mu)?\b/i, ' (ONI systém)'); }
 function renderList(){
   const list = $('list');
   const pend = outbox().filter(x => x.name === S.name && x.fn === 'mSubmit');   // V4.61: docházka uložená v telefonu (bez signálu)
