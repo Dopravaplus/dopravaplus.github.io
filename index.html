@@ -742,7 +742,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '5.47';
+const APP_VER = '5.48';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1505,17 +1505,18 @@ function renderMonth(){
     + (issues ? `<div class="mmob warn">${issues}`
     + '</div>' : '');   // V4.00: dny k doplnění jen u řádků výkazu (Doplnit směnu ›)
   if(!d.days.some(x => !x.empty)){ $('mBody').innerHTML = `<div class="empty">Za ${esc(monthLabel(d.month))} zatím nemáte žádný zápis ani směnu.</div>`; $('mConf').innerHTML = ''; return; }
+  const lab = t => esc(String(t || '').replace(/^(\d{1,2}\.\d{1,2}\.)\s+(\S+)$/, '$2 $1'));   // V5.48: den v týdnu dopředu (po 16.11.)
   $('mBody').innerHTML = d.days.map(x => {
-    if(x.empty) return `<div class="mrow gray"><span class="md">${esc(x.label)}</span><span>${x.date < (S.today || '') ? 'volno' : ''}</span><span></span></div>`;   // V4.52: den bez směny a bez zápisu = volno (dnešek ještě ne)
+    if(x.empty) return `<div class="mrow gray"><span class="md">${lab(x.label)}</span><span>${x.date < (S.today || '') ? 'volno' : ''}</span><span></span></div>`;   // V4.52: den bez směny a bez zápisu = volno (dnešek ještě ne)
     if(x.leave){ const ln = esc(x.note || ''), lp = x.pending ? `<span class="mpend">ke schválení</span>` : '';
-      return `<div class="mrow"><span class="md">${esc(x.label)}</span><span><b class="mlv ${x.activity === 'Nemoc' ? 'sick' : ''}">${esc(x.activity)}</b>${ln || lp ? `<div class="mn">${ln}${lp}</div>` : ''}</span><span class="mh">${x.att && x.att.st && x.att.st !== 'ok' ? `<div class="msub">dispečink ${attMark(x.att)}</div>` : ''}</span></div>`; }
+      return `<div class="mrow"><span class="md">${lab(x.label)}</span><span><b class="mlv ${x.activity === 'Nemoc' ? 'sick' : ''}">${esc(x.activity)}</b>${ln || lp ? `<div class="mn">${ln}${lp}</div>` : ''}</span><span class="mh">${x.att && x.att.st && x.att.st !== 'ok' ? `<div class="msub">${attMark(x.att)}</div>` : ''}</span></div>`; }
     const top = [x.activity, x.vehicle].filter(Boolean).join(' · ');
     const time = x.missing ? (x.date >= (d.minDate || '') ? `<div class="nzt">${x.rejected ? 'Zamítnuto – upravit směnu' : 'Doplnit směnu'}</div>` : '<span class="nzs">chybí zápis</span>') : `<div class="mt">${esc(x.from)}–${esc(x.to)}</div>`;
     const nt = x.note ? esc(x.note) : '', pd = x.pending ? `<span class="mpend">ke schválení</span>` : '';   // V4.23: „upraveno dispečinkem“ jen v Odeslaných zápisech
     // V4.14: dispečink jen když nesedí (shoda se nevypisuje); u nezapsané směny bez časů – „Doplnit směnu“, klepnutím na řádek
-    const att = !x.missing && x.att && x.att.st ? `<div class="msub">${x.att.st === 'pre' ? '' : 'dispečink '}${attMark(x.att)}</div>` : '';   // V4.15: i shoda – „souhlasí“
+    const att = !x.missing && x.att && x.att.st ? `<div class="msub">${attMark(x.att)}</div>` : '';   // V4.15: i shoda – „souhlasí“
     const tap = x.missing && x.date >= (d.minDate || '');   // V4.18: klepnutím na celý den se otevře zápis
-    return `<div class="mrow ${x.weekend ? 'wk' : ''} ${x.missing ? 'miss' : ''} ${tap ? 'tap' : ''}" id="md_${x.date}"${tap ? ` role="button" tabindex="0" onclick="openDay('${x.date}')"` : ''}><span class="md">${esc(x.label)}</span><span>${time}${top ? `<div class="mf2">${esc(top)}</div>` : ''}${x.crew ? `<div class="mf">${esc(x.crew)}</div>` : ''}${nt || pd ? `<div class="mn">${nt}${pd}</div>` : ''}${x.missing && x.rejected ? `<div class="mrej">Důvod: ${esc(x.rejected)}</div>` : ''}</span><span class="mh">${tap ? '<span class="mgo">›</span>' : ''}${x.hours ? fmtHM(x.hours).replace(/ /g, '&nbsp;') : ''}${att}</span></div>`;
+    return `<div class="mrow ${x.weekend ? 'wk' : ''} ${x.missing ? 'miss' : ''} ${tap ? 'tap' : ''}" id="md_${x.date}"${tap ? ` role="button" tabindex="0" onclick="openDay('${x.date}')"` : ''}><span class="md">${lab(x.label)}</span><span>${time}${top ? `<div class="mf2">${esc(top)}</div>` : ''}${x.crew ? `<div class="mf">${esc(x.crew)}</div>` : ''}${nt || pd ? `<div class="mn">${nt}${pd}</div>` : ''}${x.missing && x.rejected ? `<div class="mrej">Důvod: ${esc(x.rejected)}</div>` : ''}</span><span class="mh">${tap ? '<span class="mgo">›</span>' : ''}${x.hours ? fmtHM(x.hours).replace(/ /g, '&nbsp;') : ''}${att}</span></div>`;
   }).join('') + `<div class="msum"><div class="sr"><span>Celkem odpracováno</span><b>${fmtHM(d.hours).replace(/ /g, '&nbsp;')}</b></div>`
     + `<div class="ss">Směny: ${d.shifts}${d.leaveDays ? ` · Dovolená: ${d.leaveDays}` : ''}${d.sickDays ? ` · Nemoc: ${d.sickDays}` : ''}</div>`   // V4.41: bez „den/dny“
     + (d.month < String(S.today || '').slice(0, 7) ? `<div class="sr s2"><span>Odpracováno podle dispečinku</span><b>${fmtHM(d.attHours).replace(/ /g, '&nbsp;')}</b></div>` : '')   // V4.32: až po skončení měsíce, bez „mzda“
