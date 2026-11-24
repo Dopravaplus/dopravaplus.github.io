@@ -218,7 +218,7 @@ html[data-theme="dark"] .fg>div{background:#1b2638}
 .item .acts button.del{color:var(--red);border-color:#fda29b}
 .reason{font-size:13px;color:var(--red);margin-top:4px;font-weight:600}
 .empty{color:var(--muted);font-size:14px}
-.lvd{text-align:center;line-height:1.45}.lvd b{font-weight:600}.lvd .lvx{font-size:.9em}   /* V4.79: počet dnů dovolené na střed */
+.lvd{text-align:center;line-height:1.45}.lvd b{font-weight:400}.lvd .lvx{font-size:.9em}   /* V4.79: počet dnů dovolené na střed */
 .hint{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.4}.hint.hc{text-align:center}   /* V4.51: text pod tlačítkem Odeslat na střed */
 .hidden{display:none !important}
 .busy{position:fixed;inset:0;background:rgba(16,24,40,.25);display:flex;align-items:center;justify-content:center;z-index:50}
@@ -514,7 +514,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
     <!-- V3.19: závěr kontroly ve dvou oddílech se stejným vzhledem jako skupiny -->
     <div id="cDefBox" class="grp sec"><div class="gh">Popis a fotografie</div><div class="gs mut" id="cDefSub">nepovinné</div>
       <div class="secbox">
-        <div class="f"><label for="cDesc" id="cDescLabel">Doplňující popis</label><textarea id="cDesc" maxlength="1500" placeholder="cokoli dalšího pro garážmistra" oninput="ready()"></textarea></div>
+        <div class="f"><label for="cDesc" id="cDescLabel">Doplňující popis</label><textarea id="cDesc" maxlength="1500" oninput="ready()"></textarea></div>
         <div class="f" style="margin-bottom:0"><label>Další fotografie (max. 4)</label><div class="photos" id="cPhotos"></div></div>
       </div>
     </div>
@@ -667,7 +667,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
     <div class="acsec">Vozidlo a pojištění</div>
     <div class="f"><select id="aVeh" onchange="accIns();readyAcc()"></select><div id="aIns"></div></div>
     <div class="acsec" style="margin-top:18px">Nahlásit nehodu</div>
-    <div class="f"><label for="aDesc">Co se stalo a kde</label><textarea id="aDesc" maxlength="1500" placeholder="např. při couvání u Sconta Ostrava odřený levý bok skříně" oninput="readyAcc()"></textarea></div>
+    <div class="f"><label for="aDesc">Co se stalo a kde</label><textarea id="aDesc" maxlength="1500" oninput="readyAcc()"></textarea></div>
     <div class="f"><label>Fotky (aspoň 1, max. 10)</label><div class="photos" id="aPhotos"></div><div class="hint hc" style="margin-top:6px">Místo a postavení vozidel, poškození, SPZ druhého vozidla, vyplněný Záznam o nehodě, zelená karta druhého účastníka. Další fotky pošlete dispečinku.</div></div>
     <div class="f"><label style="text-align:center">Byla přivolána policie?</label>
       <div class="yn" id="aPol"><button type="button" id="aPY" class="y" onclick="setPolice('ANO')">ANO</button><button type="button" id="aPN" class="n" onclick="setPolice('NE')">NE</button></div></div>
@@ -709,7 +709,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
     </div>
     <div class="hrs" id="fHours"></div>
     </div>
-    <div class="f"><label for="fNote">Poznámka (nepovinné)</label><textarea id="fNote" maxlength="300" placeholder="např. čekání na vykládku, oprava vozidla…"></textarea></div>
+    <div class="f"><label for="fNote">Poznámka (nepovinné)</label><textarea id="fNote" maxlength="300"></textarea></div>
     <div class="fbtns one"><button type="button" class="btn sec hidden" id="cancelEditBtn" onclick="clearForm()">Zrušit úpravu</button><button class="btn dim" id="sendBtn" onclick="send()">Odeslat dispečinku</button></div>
     <div class="hint hc" id="fHint">Docházka se odešle dispečinku ke schválení. Upravit nebo smazat ji můžete, dokud dispečink nemá za ten den zapsanou směnu.</div>
   </div>
@@ -740,7 +740,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '5.41';
+const APP_VER = '5.42';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1205,7 +1205,6 @@ function setType(t, quiet){
   S.ftype = t;
   $('fTypeP').classList.toggle('on', t === 'P'); $('fTypeD').classList.toggle('on', t === 'D');
   $('fWork').classList.toggle('hidden', t !== 'P'); $('fLeave').classList.toggle('hidden', t !== 'D');
-  $('fNote').placeholder = t === 'D' ? 'nepovinné' : 'např. čekání na vykládku, oprava vozidla…';
   $('fHint').textContent = t === 'D' ? 'Dovolenou lze zapsat od 1. dne minulého měsíce do konce tohoto měsíce. Odešle se ke schválení dispečinku – po převzetí se zapíše do docházky.' : 'Docházka se odešle dispečinku ke schválení. Upravit nebo smazat ji můžete, dokud dispečink nemá za ten den zapsanou směnu.';
   if(t === 'D' && !$('fLFrom').value && !S.editing){ const v = $('fDate').value || ''; $('fLFrom').value = v; $('fLTo').value = v; }
   if(!quiet){ clearErrs('formCard'); TRIED.att = false; msg('formMsg', '', ''); }
@@ -1543,7 +1542,7 @@ function renderConf(){
   }
   if(!d.canConfirm){ const p = (d.confirmFrom || '').split('-').map(Number); el.innerHTML = st + `<div class="hint" style="text-align:center">Výkaz za ${esc(ml)} půjde potvrdit od ${p[2]}.${p[1]}.${p[0]}.</div>`; return; }
   el.innerHTML = st + (M.disagree
-    ? `<label for="mNote" style="margin-top:10px">Se kterým dnem nesouhlasíte?</label><textarea id="mNote" maxlength="1000" placeholder="např. 5.10. jsem končil v 19:30, ne v 19:00">${esc(M.note || '')}</textarea>
+    ? `<label for="mNote" style="margin-top:10px">Se kterým dnem nesouhlasíte?</label><textarea id="mNote" maxlength="1000">${esc(M.note || '')}</textarea>
        <div class="mbtns"><button type="button" class="btn sec" onclick="M.disagree=false;renderConf()">Zpět</button><button type="button" class="btn" onclick="sendConf(true)">Odeslat</button></div>`
     : `<button type="button" class="btn ok" onclick="sendConf(false)">${c ? 'Potvrdit znovu' : 'Potvrzuji'} výkaz za ${esc(ml)}</button>
        <button type="button" class="btn sec" style="margin-top:8px" onclick="M.disagree=true;renderConf();setTimeout(()=>$('mNote').focus(),50)">Nesouhlasím s některým dnem</button>`);
