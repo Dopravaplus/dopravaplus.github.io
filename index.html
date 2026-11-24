@@ -592,7 +592,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
     <div class="f" id="wAmtBox"><label for="wAmt" id="wAmtLabel">Zaplaceno</label><div class="unit"><input id="wAmt" class="kcIn" type="text" inputmode="decimal" autocomplete="off" oninput="readyWash()"><span>Kč</span></div><div class="hint" id="wAmtHint" style="margin-top:6px"></div></div>
     <div class="f hidden" id="wRcBox"><label>Fotka účtenky (povinná)</label><div class="photos" id="wRPhotos"></div><div class="hint" style="margin-top:6px">Vyfoťte účtenku hned v myčce. Papírovou účtenku i tak odevzdejte na dispečink.</div></div>
     <div class="f"><label>Fotka vozidla po umytí (povinná)</label><div class="photos" id="wCPhotos"></div><div class="hint" style="margin-top:6px">Jedna fotka celého vozidla, aby bylo vidět, jak je umyté.</div></div>
-    <div class="f"><label for="wNote">Poznámka (nepovinné)</label><textarea id="wNote" maxlength="300" placeholder="např. silně znečištěná skříň"></textarea></div>
+    <div class="f"><label for="wNote">Poznámka (nepovinné)</label><textarea id="wNote" maxlength="300"></textarea></div>
     <button class="btn dim" id="wSend" onclick="sendWash()">Odeslat mytí</button>
     <div class="hint hc">Mytí zapíše dispečink do karty vozidla. Dokud se tak nestane, můžete ho smazat.</div>
   </div>
@@ -740,7 +740,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '5.38';
+const APP_VER = '5.41';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -766,18 +766,18 @@ const WD = ['neděle','pondělí','úterý','středa','čtvrtek','pátek','sobot
 function dayShort(iso){
   const p = String(iso || '').split('-').map(Number); if(!p[2]) return String(iso || '');
   const d = new Date(p[0], p[1]-1, p[2], 12), y = p[0] !== new Date().getFullYear() ? ' ' + p[0] : '';
-  return `${['ne','po','út','st','čt','pá','so'][d.getDay()]} ${p[2]}. ${p[1]}.${y}`;
+  return `${['ne','po','út','st','čt','pá','so'][d.getDay()]} ${p[2]}.${p[1]}.${y}`;   // V5.41 datum bez mezer (23.11.)
 }
-function shortDate(t){ const m = String(t || '').match(/(\d{1,2})\.\s*(\d{1,2})\.\s*(\d{4})/); if(!m) return String(t || ''); return `${+m[1]}. ${+m[2]}.` + (+m[3] !== new Date().getFullYear() ? ' ' + m[3] : ''); }
+function shortDate(t){ const m = String(t || '').match(/(\d{1,2})\.\s*(\d{1,2})\.\s*(\d{4})/); if(!m) return String(t || ''); return `${+m[1]}.${+m[2]}.` + (+m[3] !== new Date().getFullYear() ? ' ' + m[3] : ''); }
 /* V5.38: jedno mytí v seznamu – stejně jako tankování, tlak a kontrola */
 function washItem(x, chip, extra){
   const tm = (String(x.sent || '').match(/(\d{1,2}:\d{2})/) || [])[1] || '';
-  const kk = (x.kinds || []).map(k => /automat/i.test(k) ? 'Automatická linka' : (/ruční|WAP/i.test(k) ? 'Ruční / WAP' : (/^Interiér/i.test(k) ? 'Interiér' : k)));
-  const inv = /^Faktura/i.test(x.pay || ''), payShort = inv ? 'Faktura' : String(x.pay || '').replace(/^Soukromá platební karta$/, 'Soukromá karta');
-  const right = !x.out && x.amount && !inv ? (x.paid ? '<b style="color:var(--green)">Proplaceno</b>' : '<b style="color:var(--amber);font-weight:600">Čeká na proplacení</b>') : '';
+  const kk = (x.kinds || []).map(k => /automat/i.test(k) ? 'Mycí linka' : (/ruční|WAP/i.test(k) ? 'Ruční / WAP' : (/^Interiér/i.test(k) ? 'Kabina' : k)));
+  const inv = /^Faktura/i.test(x.pay || ''), payShort = inv ? 'Fakturace' : String(x.pay || '').replace(/^Soukromá platební karta$/, 'Soukromá karta');
+  const right = !x.out && x.amount && !inv ? (x.paid ? `<b style="color:var(--green)">Proplaceno${typeof x.paid === 'string' ? ' ' + esc(shortDate(x.paid)) : ''}</b>` : '<b style="color:var(--amber);font-weight:600">Čeká na proplacení</b>') : '';
   return `<div class="item rec"><div class="h"><span class="d">${esc(x.vehicle)} · ${esc(dayShort(x.date))}${tm ? ' · ' + tm : ''}</span>${chip}</div>
     <div class="fg two"><div><span class="l">Druh mytí</span>${kk.map(k => `<span class="v" style="font-size:14px">${esc(k)}</span>`).join('') || '<span class="v">–</span>'}</div>
-      <div><span class="l">Platba</span><span class="v">${inv ? 'Faktura' : (x.amount ? fmtKc(x.amount) : '–')}</span></div></div>
+      <div><span class="l">Platba</span><span class="v">${inv ? 'Fakturace' : (x.amount ? fmtKc(x.amount) : '–')}</span></div></div>
     ${inv ? '' : `<div class="fp"><span>${esc(payShort)}</span>${right}</div>`}
     ${x.place ? `<div class="n">Myčka: ${esc(x.place)}</div>` : ''}${x.note ? `<div class="n">${esc(x.note)}</div>` : ''}${extra || ''}</div>`;
 }
@@ -2234,7 +2234,7 @@ function resetWash(){
   const d = $('wDate'); d.max = today; d.min = isoShift(today, -(V.data.washBack || 3)); d.value = today;
   ['wAmt', 'wNote'].forEach(id => { $(id).value = ''; });   // V4.86: bez pole Myčka (jedna smluvní myčka, u ostatních je na účtence)
   V.wKinds = {}; renderWashKinds();
-  const pays = V.data.washPays || ['Faktura (smlouva)', 'Soukromá platební karta', 'Hotovost'];
+  const pays = V.data.washPays || ['Fakturace', 'Soukromá platební karta', 'Hotovost'];   // V5.40 Fakturace
   $('wPay').innerHTML = '<option value="">— vyberte platbu —</option>' + pays.map(p => `<option>${esc(p)}</option>`).join('');
   V.wRPhotos = []; V.wCPhotos = []; renderPhotos('wRPhotos', 'wRPhotos', 1); renderPhotos('wCPhotos', 'wCPhotos', 1);
   kmHint('w'); washPayHint();
@@ -2249,9 +2249,10 @@ function washKindsSel(){ const ks = (V.data && V.data.washKinds) || []; return k
 function washPayHint(){
   const pay = $('wPay').value, own = washOwn();
   $('wRcBox').classList.toggle('hidden', !own);
-  $('wAmtBox').classList.toggle('hidden', !pay);
-  $('wAmtLabel').textContent = own ? 'Zaplaceno' : 'Částka (nepovinné)';
-  $('wAmtHint').textContent = own ? 'Částka z účtenky – podle ní vám dispečink mytí proplatí.' : 'Pokud ji znáte – jinak ji doplní dispečink z faktury.';
+  $('wAmtBox').classList.toggle('hidden', !own);   // V5.40: částka jen při platbě ze svého (u fakturace ji doplní dispečink z faktury)
+  if(!own) $('wAmt').value = '';
+  $('wAmtLabel').textContent = 'Zaplaceno';
+  $('wAmtHint').textContent = 'Částka z účtenky – podle ní vám dispečink mytí proplatí.';
 }
 function washErrs(){
   const errs = [], add = (el, text, focus) => { if(el) errs.push({ el, text, focus }); };
@@ -2264,7 +2265,7 @@ function washErrs(){
   if(!pay) add($('wPay'), 'Vyberte platbu.', true);
   const a = Number(String($('wAmt').value).replace(/\s/g, '').replace(',', '.')) || 0;
   if(own && !(a > 0)) add($('wAmt'), 'Zadejte zaplacenou částku z účtenky.', true);
-  else if($('wAmt').value.trim() && !(a > 0 && a <= 50000)) add($('wAmt'), 'Částka není platné číslo.', true);
+  else if(own && !(a <= 20000)) add($('wAmt'), 'Částka není platné číslo.', true);
   if(own && !V.wRPhotos.length) add($('wRPhotos'), 'Vyfoťte účtenku.', false);
   if(!V.wCPhotos.length) add($('wCPhotos'), 'Vyfoťte vozidlo po umytí.', false);
   return errs;
@@ -2280,7 +2281,7 @@ async function sendWash(){
   const errs = washErrs();
   if(errs.length){ TRIED.wash = true; showErrs('washCard', errs); goFirstErr(errs); return; }
   const vehicle = $('wVeh').value, date = $('wDate').value, pay = $('wPay').value;
-  const amount = String($('wAmt').value).replace(/\s/g, '').replace(',', '.');
+  const amount = washOwn() ? String($('wAmt').value).replace(/\s/g, '').replace(',', '.') : '';   // V5.40
   // ochrana proti omylu: druhé mytí stejného vozidla týž den, vysoká částka
   const same = ((V.data && V.data.mine) || []).some(x => x.kind === 'wash' && x.vehicle === vehicle && x.date === date)
     || outbox().some(x => x.name === S.name && obKind(x) === 'wash' && x.arg.vehicle === vehicle && x.arg.date === date);
