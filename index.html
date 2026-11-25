@@ -209,6 +209,9 @@ html[data-theme="dark"] .msel{border-color:#7a5a16;color:var(--amber)}
 .fg .v.lv{color:#1849a9}html[data-theme="dark"] .fg .v.lv{color:#8fb5ff}.fg .v.lv.no{color:var(--red);text-decoration:line-through}
 .item.rec,.item.rec:first-of-type{border:1px solid var(--line);border-radius:14px;padding:12px 12px 11px;margin-top:10px}   /* V5.35 každý záznam v rámečku */
 .item.rec .fg{margin-bottom:6px}
+.item.rec,.item.rec:first-of-type{border:1.5px solid #a9b9d0}   /* V5.50 výraznější rámečky */
+html[data-theme="dark"] .item.rec,html[data-theme="dark"] .item.rec:first-of-type{border-color:#45577a;background:#1a2540}
+html[data-theme="dark"] .item.rec .fg>div{background:#222f49}
 .fg .tw{color:var(--amber)}.fg .tb{color:var(--red)}   /* V5.31 tlak mimo předpis */   /* V5.28 bez AdBlue jen Nafta + Tachometr */
 .fg .s{display:block;font-size:11.5px;color:var(--muted);white-space:nowrap}
 .fg .v,.fg .s{text-align:right}   /* V5.30 hodnoty vpravo, popisek vlevo */
@@ -742,7 +745,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '5.49';
+const APP_VER = '5.50';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
