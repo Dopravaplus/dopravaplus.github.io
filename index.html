@@ -460,8 +460,11 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 .themebox .ftype{max-width:330px;margin:0 auto;grid-template-columns:1fr 1fr 1fr}
 .themebox .ftype button{font-size:14px;padding:8px 4px}
 @media print{html[data-theme="dark"]{--text:#101828;--card:#fff;--muted:#555;--line:#ccc}}
-.opts,.secbox,html[data-theme="dark"] .secbox{border-width:1.5px;border-style:solid;border-color:#a9b9d0}   /* V5.51 i v Kontrole vozidla */
-html[data-theme="dark"] .opts,html[data-theme="dark"] .secbox{border-color:#45577a}
+/* V5.51–5.52: výraznější rámečky ve všech dlaždicích (kontrola, tankování, tlak, mytí, nehoda, úvod) */
+.opts,.secbox,.chk,.axle,.acd,.insb,.acins,.tile,html[data-theme="dark"] .secbox,html[data-theme="dark"] .chk,html[data-theme="dark"] .tile,html[data-theme="dark"] .acd,html[data-theme="dark"] .insb,html[data-theme="dark"] .acins{border-width:1.5px;border-style:solid;border-color:#a9b9d0}
+.vterms,html[data-theme="dark"] .vterms{border-width:1.5px 1.5px 1.5px 4px;border-top-color:#a9b9d0;border-right-color:#a9b9d0;border-bottom-color:#a9b9d0}
+html[data-theme="dark"] .opts,html[data-theme="dark"] .secbox,html[data-theme="dark"] .chk,html[data-theme="dark"] .axle,html[data-theme="dark"] .acd,html[data-theme="dark"] .insb,html[data-theme="dark"] .acins,html[data-theme="dark"] .tile{border-color:#45577a}
+html[data-theme="dark"] .vterms{border-top-color:#45577a;border-right-color:#45577a;border-bottom-color:#45577a}
 </style>
 </head>
 <body>
@@ -747,7 +750,7 @@ html[data-theme="dark"] .opts,html[data-theme="dark"] .secbox{border-color:#4557
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '5.51';
+const APP_VER = '5.52';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
