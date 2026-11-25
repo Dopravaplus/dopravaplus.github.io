@@ -460,6 +460,8 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 .themebox .ftype{max-width:330px;margin:0 auto;grid-template-columns:1fr 1fr 1fr}
 .themebox .ftype button{font-size:14px;padding:8px 4px}
 @media print{html[data-theme="dark"]{--text:#101828;--card:#fff;--muted:#555;--line:#ccc}}
+.opts,.secbox,html[data-theme="dark"] .secbox{border-width:1.5px;border-style:solid;border-color:#a9b9d0}   /* V5.51 i v Kontrole vozidla */
+html[data-theme="dark"] .opts,html[data-theme="dark"] .secbox{border-color:#45577a}
 </style>
 </head>
 <body>
@@ -745,7 +747,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '5.50';
+const APP_VER = '5.51';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1451,7 +1453,7 @@ async function printMonth(){
 /* V3.70: tisk jako tabulka se sloupci */
 function buildPrint(){
   const d = M.data, c = d.confirm;
-  const pm = m => !m || !m.st ? '' : (m.st === 'ok' ? `<span style="color:#067647">${esc(m.txt || '✓')}</span>` : `<span style="color:${m.st === 'edit' ? '#1849a9' : (m.st === 'pre' ? '#777' : '#b54708')}">${esc(m.txt || '')}</span>`);
+  const pm = m => !m || !m.st ? '' : (m.st === 'ok' ? `<span style="color:#067647">${esc(m.txt || 'souhlasí')}</span>` : `<span style="color:${m.st === 'edit' ? '#1849a9' : (m.st === 'pre' ? '#777' : '#b54708')}">${esc(m.txt || '')}</span>`);
   const br = t => esc(t).replace(/ (\(|– )/g, '<br>$1');   // V4.42: logické zalomení – „upraveno<br>(ONI systém)“
   const brN = t => br(t).replace(/([,;]) +/g, '$1<br>');   // V4.43: poznámka zaměstnance – nový řádek i za čárkou / středníkem
   const dv = x => x.missing && x.rejected ? `<span style="color:#b42318">zamítnuto:<br>${esc(x.rejected)}</span>` : (x.edited ? `<span style="color:#1849a9">${br(x.edited.replace(/^upraveno dispečinkem/, 'upraveno'))}</span>` : '');   // V4.28: Vyjádření dispečinku
@@ -1818,7 +1820,7 @@ function marksOf(g){ return g.marks && g.marks.length ? g.marks : [g.mark || 'z�
 function needNote(m){ return m === 'závada' || m === 'poškozeno'; }
 function defLabel(g, item, m){ return g.g + ': ' + item + (m === 'závada' ? '' : ' – ' + m); }
 function grpState(g, n){
-  if(!n) return '✓ vše v pořádku';
+  if(!n) return 'vše v pořádku';   // V5.51 bez fajfky
   const gi = V.data.groups.indexOf(g), cnt = {};
   g.items.forEach((it, ii) => { const m = V.defects[gi + ':' + ii]; if(m) cnt[m] = (cnt[m] || 0) + 1; });
   const pol = c => c === 1 ? 'položka' : (c < 5 ? 'položky' : 'položek'), pol2 = c => c === 1 ? 'položky' : 'položek';
