@@ -701,15 +701,15 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
     <div id="fWork">
     <div class="f"><label for="fDate">Den</label><input id="fDate" type="date" onchange="readyAtt()"></div>
     <div class="grid2">
-      <div class="f"><label for="fFrom">OD</label><input id="fFrom" type="time"></div>
-      <div class="f"><label for="fTo">DO</label><input id="fTo" type="time"></div>
+      <div class="f"><label for="fFrom">Začátek směny</label><input id="fFrom" type="time"></div>
+      <div class="f"><label for="fTo">Konec směny</label><input id="fTo" type="time"></div>
     </div>
     <div class="f"><label for="fPause">Pauza</label>
       <select id="fPause">
-        <option value="0">bez pauzy</option><option value="0.5">30 min.</option><option value="1">1 hod.</option><option value="1.5">1,5 hod.</option><option value="2">2 hod.</option>
+        <option value="0">bez pauzy</option><option value="0.5">30 min</option><option value="1">1 h</option><option value="1.5">1,5 h</option><option value="2">2 h</option>
       </select>
     </div>
-    <div class="hrs" id="fHours"></div>
+    <div class="hrs" id="fHours" style="text-align:center;color:var(--text)"></div>
     </div>
     <div class="f"><label for="fNote">Poznámka (nepovinné)</label><textarea id="fNote" maxlength="300"></textarea></div>
     <div class="fbtns one"><button type="button" class="btn sec hidden" id="cancelEditBtn" onclick="clearForm()">Zrušit úpravu</button><button class="btn dim" id="sendBtn" onclick="send()">Odeslat dispečinku</button></div>
@@ -742,7 +742,7 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '5.48';
+const APP_VER = '5.49';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -895,7 +895,7 @@ function calcHours(){
   const a = f.split(':').map(Number), b = t.split(':').map(Number);
   let d = (b[0]*60 + b[1]) - (a[0]*60 + a[1]); if(d <= 0) d += 1440;
   const h = Math.max(0, d / 60 - p);
-  $('fHours').innerHTML = `Odpracováno: <b>${fmtHM(h)}</b>`;
+  $('fHours').innerHTML = `Odpracováno: ${fmtHM(h)}`;   // V5.49 bez tučného, na střed
   return h;
 }
 ['fFrom','fTo','fPause'].forEach(id => document.addEventListener('DOMContentLoaded', () => { $(id).addEventListener('input', () => { calcHours(); readyAtt(); }); $(id).addEventListener('change', readyAtt); }));
@@ -1751,9 +1751,9 @@ function attErrs(){
   if(!$('fDate').value) add($('fDate'), 'Vyberte den.', true);
   else if($('fDate').value > todayIso()) add($('fDate'), 'Docházku nelze zapsat dopředu – vyberte dnešní nebo dřívější den.', true);
   else if($('fDate').min && $('fDate').value < $('fDate').min) add($('fDate'), 'Tak starý den už zapsat nelze – obraťte se na dispečink.', true);
-  if(!$('fFrom').value) add($('fFrom'), 'Zadejte čas OD.', true);
-  if(!$('fTo').value) add($('fTo'), 'Zadejte čas DO.', true);
-  if($('fFrom').value && $('fTo').value && !(calcHours() > 0)) add($('fPause'), 'Z časů vychází 0 hodin – zkontrolujte OD, DO a pauzu.', false);
+  if(!$('fFrom').value) add($('fFrom'), 'Zadejte začátek směny.', true);
+  if(!$('fTo').value) add($('fTo'), 'Zadejte konec směny.', true);
+  if($('fFrom').value && $('fTo').value && !(calcHours() > 0)) add($('fPause'), 'Z časů vychází 0 hodin – zkontrolujte začátek, konec a pauzu.', false);
   if(attFuture()) add($('fTo'), '', false);   // V4.84: dnešní směna jen po skončení – důvod nahoře (futMsg)
   return errs;
 }
