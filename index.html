@@ -765,7 +765,7 @@ html[data-theme="dark"] .vterms{border-top-color:#45577a;border-right-color:#455
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '5.64';
+const APP_VER = '5.65';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -826,9 +826,9 @@ function renderPhb(){   // V5.55/5.62: tlačítka jako v dlaždici Nehoda – Ve
   if(!P.data){ el.innerHTML = ''; return; }
   const q = mNorm(($('pSearch').value || '').trim()), hit = (...t) => !q || t.some(x => mNorm(x).indexOf(q) >= 0);
   const btn = (cls, ph, big, small) => `<a class="acb ${cls}" href="tel:${esc(ph)}">${esc(big)}${small ? `<small>${esc(small)}</small>` : ''}</a>`;
-  const firm = (P.data.firm || []).filter(c => hit(c.role, c.name));
-  const veh = (P.data.vehicles || []).filter(v => hit(v.code, v.spz));
-  const ppl = (P.data.people || []).filter(c => hit(c.name, c.role));
+  const firm = (P.data.firm || []).filter(c => hit(c.role, c.name, c.branch));   // V5.65: hledá i podle pobočky
+  const veh = (P.data.vehicles || []).filter(v => hit(v.code, v.spz, v.branch));
+  const ppl = (P.data.people || []).filter(c => hit(c.name, c.role, c.branch !== undefined ? c.branch : P.data.branch));
   let h = '';
   if(firm.length) h += `<div class="secbox phbx"><div class="acsec">Vedení a provoz</div><div class="acgrid">` + firm.map(c => btn('firm', c.phone, c.role || c.name, c.role ? c.name : '')).join('') + '</div></div>';   // V5.63: každá sekce v rámečku
   const own = P.data.branch || '', bs = [];   // V5.62: jedna sekce na pobočku – nahoře vozidla, pod nimi zaměstnanci; vlastní pobočka první
