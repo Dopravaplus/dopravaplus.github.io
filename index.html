@@ -470,6 +470,8 @@ html[data-theme="dark"] .tile .ar,html[data-theme="dark"] .listtog::after{color:
 .vterms,html[data-theme="dark"] .vterms{border-width:1.5px 1.5px 1.5px 4px;border-top-color:#a9b9d0;border-right-color:#a9b9d0;border-bottom-color:#a9b9d0}
 html[data-theme="dark"] .opts,html[data-theme="dark"] .secbox,html[data-theme="dark"] .chk,html[data-theme="dark"] .axle,html[data-theme="dark"] .acd,html[data-theme="dark"] .insb,html[data-theme="dark"] .acins,html[data-theme="dark"] .tile{border-color:#45577a}
 html[data-theme="dark"] .vterms{border-top-color:#45577a;border-right-color:#45577a;border-bottom-color:#45577a}
+.phbx{padding:12px}.phbx+.phbx{margin-top:12px}.phbx .acgrid:last-child{margin-bottom:0}.phbx .acsec{margin-top:0}   /* V5.63 rámečky sekcí v Kontaktech */
+.phbx .acgrid+.acgrid{border-top:1.5px solid #d0d9e6;padding-top:16px}html[data-theme="dark"] .phbx .acgrid+.acgrid{border-top-color:#33415a}   /* V5.64 linka mezi vozidly a zaměstnanci */
 </style>
 </head>
 <body>
@@ -763,7 +765,7 @@ html[data-theme="dark"] .vterms{border-top-color:#45577a;border-right-color:#455
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '5.62';
+const APP_VER = '5.64';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -828,16 +830,17 @@ function renderPhb(){   // V5.55/5.62: tlačítka jako v dlaždici Nehoda – Ve
   const veh = (P.data.vehicles || []).filter(v => hit(v.code, v.spz));
   const ppl = (P.data.people || []).filter(c => hit(c.name, c.role));
   let h = '';
-  if(firm.length) h += `<div class="acsec">Vedení a provoz</div><div class="acgrid">` + firm.map(c => btn('firm', c.phone, c.role || c.name, c.role ? c.name : '')).join('') + '</div>';
+  if(firm.length) h += `<div class="secbox phbx"><div class="acsec">Vedení a provoz</div><div class="acgrid">` + firm.map(c => btn('firm', c.phone, c.role || c.name, c.role ? c.name : '')).join('') + '</div></div>';   // V5.63: každá sekce v rámečku
   const own = P.data.branch || '', bs = [];   // V5.62: jedna sekce na pobočku – nahoře vozidla, pod nimi zaměstnanci; vlastní pobočka první
   const grp = b => { b = b || own; let g = bs.find(x => x.b === b); if(!g){ g = { b, v:[], p:[] }; if(b === own) bs.unshift(g); else bs.push(g); } return g; };
   veh.forEach(v => grp(v.branch).v.push(v));
   ppl.forEach(c => grp(c.branch).p.push(c));
   bs.forEach(g => {
-    h += `<div class="acsec">${g.b ? 'Pobočka ' + esc(g.b) : 'Ostatní'}</div>`;
+    h += `<div class="secbox phbx"><div class="acsec">${g.b ? 'Pobočka ' + esc(g.b) : 'Ostatní'}</div>`;
     if(g.v.length) h += '<div class="acgrid">' + g.v.map(v => v.phone ? btn('veh', v.phone, v.code, v.spz)
       : `<div class="acb none">${esc(v.code)}<small>bez telefonu</small></div>`).join('') + '</div>';   // V5.57: vozidlo bez telefonu šedě, nejde volat
     if(g.p.length) h += '<div class="acgrid">' + g.p.map(c => btn('col', c.phone, c.name, c.role)).join('') + '</div>';
+    h += '</div>';
   });
   if(!h) h = `<div class="empty">${q ? 'Nikdo neodpovídá hledání.' : 'Telefonní seznam zatím není vyplněný – doplní ho dispečink.'}</div>`;
   el.innerHTML = h;
