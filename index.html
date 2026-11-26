@@ -709,6 +709,21 @@ html[data-theme="dark"] .vterms{border-top-color:#45577a;border-right-color:#455
     <div id="vehList" class="hidden"><div class="empty">Zatím nic.</div></div>
   </div>
 
+  <!-- V5.73: Přezutí pneumatik (v obrazovce Tlak pneumatik) -->
+  <div id="seasCard" class="card hidden">
+    <div class="acsec" style="margin-top:0">Přezutí pneumatik</div>
+    <div id="sMsg" class="msg"></div>
+    <div id="sClosed"><div class="hint" style="margin:0 0 12px">Po přezutí v servisu zapište, jaké pneumatiky má vozidlo nasazené.</div>
+      <button class="btn sec" style="width:100%" onclick="seasOpen(true)">Zapsat přezutí</button></div>
+    <div id="sForm" class="hidden">
+      <div class="f"><label for="sVeh">Vozidlo</label><select id="sVeh" onchange="seasNow()"></select><div class="hint" id="sNow" style="margin-top:6px"></div></div>
+      <div class="f"><label for="sSeason">Přezuto na</label><select id="sSeason"><option value=""></option><option>Zimní</option><option>Letní</option></select></div>
+      <div class="f"><label for="sDate">Datum přezutí</label><input id="sDate" type="date"></div>
+      <div class="fbtns"><button type="button" class="btn sec" onclick="seasOpen(false)">Zrušit</button><button class="btn" id="sSend" onclick="sendSeason()">Odeslat přezutí</button></div>
+      <div class="hint hc">Dispečink datum přezutí zapíše do karty vozidla.</div>
+    </div>
+  </div>
+
   <!-- Zápis dne -->
   <div id="formCard" class="card hidden">
     <h2 id="formTitle" class="sech">Zapsat docházku</h2>
@@ -765,7 +780,7 @@ html[data-theme="dark"] .vterms{border-top-color:#45577a;border-right-color:#455
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '5.71';
+const APP_VER = '5.73';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -1109,8 +1124,8 @@ function homeRemind(){
   el.innerHTML = parts.join(''); el.classList.toggle('hidden', !parts.length);
 }
 /* V3.0: obrazovky – úvod (dlaždice), docházka, kontrola vozidla, tankování */
-const VIEWS = { home:['homeCard'], att:['formCard','listCard','monthCard'], check:['checkCard','vehListCard'], fuel:['fuelCard','vehListCard'], tyre:['tyreCard','vehListCard'], wash:['washCard','vehListCard'], acc:['accCard'], phb:['phbCard'] };
-const VIEWS_ALL = ['homeCard','formCard','listCard','monthCard','checkCard','fuelCard','tyreCard','washCard','accCard','phbCard','vehListCard'];
+const VIEWS = { home:['homeCard'], att:['formCard','listCard','monthCard'], check:['checkCard','vehListCard'], fuel:['fuelCard','vehListCard'], tyre:['tyreCard','vehListCard','seasCard'], wash:['washCard','vehListCard'], acc:['accCard'], phb:['phbCard'] };
+const VIEWS_ALL = ['homeCard','formCard','listCard','monthCard','checkCard','fuelCard','tyreCard','washCard','accCard','phbCard','vehListCard','seasCard'];
 const TITLES = { home:'Dopravaplus', att:'Docházka', check:'Kontrola vozidla', fuel:'Tankování', tyre:'Tlak pneumatik', wash:'Mytí vozidla', acc:'Nehoda', phb:'Kontakty' };
 function showView(v){
   if(TOAST_KEEP){ clearTimeout(TOAST_T); $('topBar').classList.remove('note'); $('topBar').onclick = null; TOAST_KEEP = null; }   // V5.26: potvrzení v hlavičce končí změnou obrazovky
@@ -2065,7 +2080,7 @@ function fmtKc(n){ const v = Math.round((Number(n) || 0) * 100) / 100, i = Math.
 function outbox(){ try{ return JSON.parse(store.get('m_outbox') || '[]'); }catch(e){ return []; } }
 function outboxSave(list){ try{ localStorage.setItem('m_outbox', JSON.stringify(list)); return true; }catch(e){ return false; } }
 /* V4.61: fronta i pro docházku, kontrolu vozidla a tlak pneumatik (kind: fuel / att / check / tyre) */
-const OB_KIND = { mVehFuel:'fuel', mSubmit:'att', mVehCheck:'check', mVehTyre:'tyre', mVehWash:'wash', mVehAccident:'check' };   // nehoda = záznam v Kontrolách
+const OB_KIND = { mVehFuel:'fuel', mSubmit:'att', mVehCheck:'check', mVehTyre:'tyre', mVehWash:'wash', mVehSeason:'season', mVehAccident:'check' };   // nehoda = záznam v Kontrolách
 const OB_NAME = { fuel:'tankování', att:'docházka', check:'kontrola vozidla', tyre:'měření tlaku', wash:'mytí' };
 function obKind(x){ return x.kind || OB_KIND[x.fn] || 'fuel'; }
 function outboxAdd(arg, fn){
@@ -2127,7 +2142,7 @@ function resetTyre(){
   const d = $('yDate'); d.max = today; d.min = isoShift(today, -V.data.daysBack); d.value = today;
   ['yNote'].concat(TY.map(t => t[0])).forEach(id => { $(id).value = ''; });
   $('yInf').checked = false; $('yInfLbl').classList.remove('on'); $('yTwin').checked = false;
-  tyreTwin(); kmHint('y'); tyrePres(); tyreDev();
+  tyreTwin(); kmHint('y'); tyrePres(); tyreDev(); seasOpen(false);   // V5.73
   { const n = Number(V.data.tyreDays) || 21, w = n % 7 === 0 ? n / 7 : 0;   // V4.89: interval podle nastavení ve Vozovém parku
     $('yEvery').textContent = 'Tlak se měří ' + (w === 1 ? 'každý týden' : (w >= 2 && w <= 4 ? `každé ${w} týdny` : `každých ${n} dní`)); }
   TRIED.tyre = false; clearErrs('tyreCard'); readyTyre();
@@ -2143,6 +2158,8 @@ function tyrePres(){
     : (!V.data.ver ? '<b>Na serveru běží starší verze.</b> Nasaďte MobilKód jako Novou verzi ve stávající implementaci – pak se předepsaný tlak načte.'   // V4.04
       : (V.data.pressInfo ? 'Předepsaný tlak se nepodařilo načíst: ' + esc(V.data.pressInfo) + ' <span style="opacity:.7">(server ' + esc(V.data.ver) + ')</span>'
       : 'Předepsaný tlak pro toto vozidlo není v Přehledu vozidel uveden – zapište naměřené hodnoty.'));
+  const se = ((V.data && V.data.season) || {})[v];   // V5.72: nasazené pneumatiky podle Vozového parku
+  if(se && se.s) el.innerHTML += `<br>Nasazeny ${esc(se.s.toLowerCase())} pneumatiky od ${se.d.split('-').slice(1).reverse().map(Number).join('.')}.`;
 }
 /* V4.03: předepsaný tlak může být rozsah (3,8–4,0 bar) */
 function presTxt(a, b){ return !a ? '–' : (b && b > a ? fmtBar(a) + '–' + fmtBar(b) : fmtBar(a)) + '&nbsp;bar'; }
@@ -2381,6 +2398,44 @@ async function delWash(id){
   try{ V.data = await call('mVehDelete', { token:S.token, id, kind:'wash' }); renderVehList(); }
   catch(e){ msg('wMsg', 'err', e); }
   finally{ busy(false); }
+}
+/* ================= V5.73 PŘEZUTÍ PNEUMATIK ================= */
+function seasDm(iso){ const p = String(iso || '').split('-').map(Number); return p.length === 3 ? `${p[2]}.${p[1]}.` : ''; }
+function seasOpen(open){
+  if(!$('sForm')) return;
+  $('sForm').classList.toggle('hidden', !open); $('sClosed').classList.toggle('hidden', !!open); msg('sMsg', '', '');
+  if(!open) return;
+  vehOptions('sVeh'); $('sSeason').value = '';
+  const n = new Date(), lt = `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;
+  const today = V.data && V.data.today > lt ? V.data.today : lt, d = $('sDate');
+  d.max = today; d.min = isoShift(today, -14); d.value = today;
+  seasNow(); setTimeout(() => $('seasCard').scrollIntoView({ behavior:'smooth', block:'start' }), 50);
+}
+function seasNow(){
+  const se = ((V.data && V.data.season) || {})[$('sVeh').value];
+  $('sNow').textContent = se ? `Teď nasazeny ${se.s.toLowerCase()} pneumatiky od ${seasDm(se.d)}` : '';
+}
+async function sendSeason(){
+  msg('sMsg', '', '');
+  const vehicle = $('sVeh').value, season = $('sSeason').value, date = $('sDate').value, d = $('sDate');
+  const err = !vehicle ? 'Vyberte vozidlo.' : (!season ? 'Vyberte, na jaké pneumatiky se přezulo.' : (!date ? 'Vyberte datum přezutí.'
+    : (date > d.max ? 'Přezutí nelze zapsat dopředu.' : (date < d.min ? 'Přezutí lze zapsat nejvýš 14 dní zpět – starší nahlaste dispečinku.' : ''))));
+  if(err){ msg('sMsg', 'err', err); return; }
+  const se = ((V.data && V.data.season) || {})[vehicle];
+  if(se && se.s === season && !(await ask(`Vozidlo ${vehicle} už má ${season.toLowerCase()} pneumatiky od ${seasDm(se.d)}. Opravdu zapsat přezutí znovu?`, 'Zapsat znovu', true))) return;
+  const arg = { uid:uid(), vehicle, season, date };
+  $('sSend').disabled = true; busy(true, 'Odesílám přezutí…');
+  try{
+    V.data = await call('mVehSeason', Object.assign({ token:S.token }, arg));
+    homeOk('Přezutí odesláno', `${vehicle} · ${season.toLowerCase()} pneumatiky`, 'Čeká na zápis do karty.');
+    seasOpen(false); renderVehList(); goHome();
+  }catch(e){
+    if(e === NET_ERR && outboxAdd(arg, 'mVehSeason')){
+      msg3('homeMsg', 'wait', 'Bez signálu – uloženo v telefonu', `Přezutí ${vehicle}`, 'Odešle se samo, až bude signál.');
+      seasOpen(false); goHome();
+    }
+    else if(/vypršelo/i.test(e)){ store.del('m_token'); showLogin(); msg('loginMsg', 'err', e); } else msg('sMsg', 'err', netTxt(e));
+  }finally{ $('sSend').disabled = false; busy(false); }
 }
 function renderVehList(){
   if(V.data) store.set('m_vdata', JSON.stringify(V.data));   // V3.62: data vozidel i pro start bez signálu
