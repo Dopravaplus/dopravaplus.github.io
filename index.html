@@ -765,7 +765,7 @@ html[data-theme="dark"] .vterms{border-top-color:#45577a;border-right-color:#455
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '5.65';
+const APP_VER = '5.66';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -2229,7 +2229,7 @@ function resetAcc(){
 }
 function accFirm(){   // firemní kontakty z nastavení ve Vozovém parku – vlastní pobočka první
   const cs = (V.data && V.data.contacts) || [];
-  $('aFirm').innerHTML = cs.length ? `<div class="acsec">Vedení a provoz</div><div class="acgrid">${cs.map(c => `<a class="acb firm" href="tel:${esc(c.phone)}">${esc(c.role || c.name)}${c.role && c.name ? `<small>${esc(c.name)}</small>` : ''}</a>`).join('')}</div>` : '<div class="acsec">Vedení a provoz</div><div class="acins" style="margin:0 0 16px">Firemní čísla zatím nejsou nastavená – doplní je správce ve Vozovém parku (Uživatelé → Nastavení upozornění → Kontakty pro nehodu). Zatím volejte dispečink ze seznamu v telefonu.</div>';
+  $('aFirm').innerHTML = cs.length ? `<div class="acsec">Vedení a provoz</div><div class="acgrid">${cs.map(c => `<a class="acb firm" href="tel:${esc(c.phone)}">${esc(c.role || c.name)}${c.role && c.name ? `<small>${esc(c.name)}</small>` : ''}</a>`).join('')}</div>` : '<div class="acsec">Vedení a provoz</div><div class="acins" style="margin:0 0 16px">Firemní čísla zatím nejsou nastavená – doplní je správce ve Vozovém parku (Uživatelé → Kontakty vedení a provozu). Zatím volejte dispečink ze seznamu v telefonu.</div>';
 }
 /* V5.02: telefon jako +420 957 105 105 (9 číslic = české číslo) */
 function telFmt(x){
