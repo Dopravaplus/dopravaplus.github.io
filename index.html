@@ -258,7 +258,7 @@ html[data-theme="dark"] .fg>div{background:#1b2638}
 .tile .tt{font-size:17px;font-weight:800}
 .tile .ts{font-size:13px;color:var(--muted);margin-top:2px}
 .tile .ar{margin-left:auto;color:#98a2b3;font-size:22px}
-.ic.b{background:#1769e0}.ic.g{background:#079455}.ic.a{background:#f79009}.ic.p{background:#7a5af8}.ic.c{background:#0ba5ec}   /* V4.85 mytí */.ic.r{background:#d92d20}   /* V4.93 nehoda */.ic.t{background:#0e9384}   /* V5.53 kontakty */
+.ic.b{background:#1769e0}.ic.g{background:#079455}.ic.a{background:#f79009}.ic.p{background:#7a5af8}.ic.c{background:#0ba5ec}   /* V4.85 mytí */.ic.r{background:#d92d20}   /* V4.93 nehoda */.ic.t{background:#0b7a6e}   /* V5.53 kontakty */
 /* V4.93 nehoda */
 .acst{list-style:none;counter-reset:st;margin:0 0 12px;padding:0}
 .acst li{counter-increment:st;position:relative;padding:8px 0 8px 40px;border-bottom:1px solid var(--line)}
@@ -284,7 +284,7 @@ html[data-theme="dark"] .acd{background:#1b2638;border-color:#263247}
 .acgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
 .acb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:64px;text-align:center;padding:8px 6px;line-height:1.2;border-radius:14px;text-decoration:none;font-weight:800;font-size:16px;color:#fff;background:#d92d20;box-shadow:0 1px 3px rgba(16,24,40,.15)}
 .acb small{font-size:13px;font-weight:700;opacity:.9}
-.acb.firm{background:var(--blue)}.acb.veh{background:#0e9384}.acb.col{background:#5b4fd6}   /* V5.55 kontakty: vozidla, kolegové */
+.acb.firm{background:var(--blue)}.acb.veh{background:#0b7a6e}.acb.none{background:#e4e7ec;color:#667085}html[data-theme="dark"] .acb.none{background:#263247;color:#8b97ad}.acb.col{background:#5b4fd6}   /* V5.55 kontakty: vozidla, kolegové */
 .acb:active{transform:scale(.97)}
 .acsec{font-size:13px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:4px 0 8px}
 .acins{background:#f9fafb;border:1px solid var(--line);border-radius:12px;padding:10px 13px;font-size:14.5px;line-height:1.55;margin-top:8px}
@@ -763,7 +763,7 @@ html[data-theme="dark"] .vterms{border-top-color:#45577a;border-right-color:#455
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '5.55';
+const APP_VER = '5.62';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -819,7 +819,7 @@ async function loadPhb(){
   finally{ busy(false); }
   renderPhb();
 }
-function renderPhb(){   // V5.55: tlačítka jako v dlaždici Nehoda – Firma, Vozidla, Kolegové; čísla se nezobrazují
+function renderPhb(){   // V5.55/5.62: tlačítka jako v dlaždici Nehoda – Vedení a provoz, pak Pobočka (vozidla + zaměstnanci); čísla se nezobrazují
   const el = $('pList'); if(!el) return;
   if(!P.data){ el.innerHTML = ''; return; }
   const q = mNorm(($('pSearch').value || '').trim()), hit = (...t) => !q || t.some(x => mNorm(x).indexOf(q) >= 0);
@@ -828,9 +828,17 @@ function renderPhb(){   // V5.55: tlačítka jako v dlaždici Nehoda – Firma, 
   const veh = (P.data.vehicles || []).filter(v => hit(v.code, v.spz));
   const ppl = (P.data.people || []).filter(c => hit(c.name, c.role));
   let h = '';
-  if(firm.length) h += `<div class="acsec">Firma</div><div class="acgrid">` + firm.map(c => btn('firm', c.phone, c.role || c.name, c.role ? c.name : '')).join('') + '</div>';
-  if(veh.length) h += `<div class="acsec">Vozidla</div><div class="acgrid">` + veh.map(v => btn('veh', v.phone, v.code, v.spz)).join('') + '</div>';
-  if(ppl.length) h += `<div class="acsec">Kolegové${P.data.branch ? ' · ' + esc(P.data.branch) : ''}</div><div class="acgrid">` + ppl.map(c => btn('col', c.phone, c.name, c.role)).join('') + '</div>';
+  if(firm.length) h += `<div class="acsec">Vedení a provoz</div><div class="acgrid">` + firm.map(c => btn('firm', c.phone, c.role || c.name, c.role ? c.name : '')).join('') + '</div>';
+  const own = P.data.branch || '', bs = [];   // V5.62: jedna sekce na pobočku – nahoře vozidla, pod nimi zaměstnanci; vlastní pobočka první
+  const grp = b => { b = b || own; let g = bs.find(x => x.b === b); if(!g){ g = { b, v:[], p:[] }; if(b === own) bs.unshift(g); else bs.push(g); } return g; };
+  veh.forEach(v => grp(v.branch).v.push(v));
+  ppl.forEach(c => grp(c.branch).p.push(c));
+  bs.forEach(g => {
+    h += `<div class="acsec">${g.b ? 'Pobočka ' + esc(g.b) : 'Ostatní'}</div>`;
+    if(g.v.length) h += '<div class="acgrid">' + g.v.map(v => v.phone ? btn('veh', v.phone, v.code, v.spz)
+      : `<div class="acb none">${esc(v.code)}<small>bez telefonu</small></div>`).join('') + '</div>';   // V5.57: vozidlo bez telefonu šedě, nejde volat
+    if(g.p.length) h += '<div class="acgrid">' + g.p.map(c => btn('col', c.phone, c.name, c.role)).join('') + '</div>';
+  });
   if(!h) h = `<div class="empty">${q ? 'Nikdo neodpovídá hledání.' : 'Telefonní seznam zatím není vyplněný – doplní ho dispečink.'}</div>`;
   el.innerHTML = h;
 }
@@ -2218,7 +2226,7 @@ function resetAcc(){
 }
 function accFirm(){   // firemní kontakty z nastavení ve Vozovém parku – vlastní pobočka první
   const cs = (V.data && V.data.contacts) || [];
-  $('aFirm').innerHTML = cs.length ? `<div class="acsec">Firma</div><div class="acgrid">${cs.map(c => `<a class="acb firm" href="tel:${esc(c.phone)}">${esc(c.role || c.name)}${c.role && c.name ? `<small>${esc(c.name)}</small>` : ''}</a>`).join('')}</div>` : '<div class="acsec">Firma</div><div class="acins" style="margin:0 0 16px">Firemní čísla zatím nejsou nastavená – doplní je správce ve Vozovém parku (Uživatelé → Nastavení upozornění → Kontakty pro nehodu). Zatím volejte dispečink ze seznamu v telefonu.</div>';
+  $('aFirm').innerHTML = cs.length ? `<div class="acsec">Vedení a provoz</div><div class="acgrid">${cs.map(c => `<a class="acb firm" href="tel:${esc(c.phone)}">${esc(c.role || c.name)}${c.role && c.name ? `<small>${esc(c.name)}</small>` : ''}</a>`).join('')}</div>` : '<div class="acsec">Vedení a provoz</div><div class="acins" style="margin:0 0 16px">Firemní čísla zatím nejsou nastavená – doplní je správce ve Vozovém parku (Uživatelé → Nastavení upozornění → Kontakty pro nehodu). Zatím volejte dispečink ze seznamu v telefonu.</div>';
 }
 /* V5.02: telefon jako +420 957 105 105 (9 číslic = české číslo) */
 function telFmt(x){
