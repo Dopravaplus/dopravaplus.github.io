@@ -473,6 +473,7 @@ html[data-theme="dark"] .vterms{border-top-color:#45577a;border-right-color:#455
 .phbx{padding:12px}.phbx+.phbx{margin-top:12px}.phbx .acgrid:last-child{margin-bottom:0}.phbx .acsec{margin-top:0}   /* V5.63 rámečky sekcí v Kontaktech */
 .phbx .acgrid+.acgrid{border-top:1.5px solid #d0d9e6;padding-top:16px}html[data-theme="dark"] .phbx .acgrid+.acgrid{border-top-color:#33415a}   /* V5.64 linka mezi vozidly a zaměstnanci */
 .sbox{border:1.5px solid #a9b9d0;border-radius:12px;padding:12px 13px;margin:0 0 16px}.sbh{font-size:13px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}.snow{font-size:15px;margin-bottom:10px}html[data-theme="dark"] .sbox{border-color:#45577a}   /* V5.74 přezutí v Pneumatikách */
+.srow{display:flex;justify-content:space-between;gap:12px;padding:3px 0}.srow span{color:var(--muted)}.srow b{font-weight:600;text-align:right}.srow .sna{color:var(--muted);font-weight:500}   /* V5.76 stav přezutí */
 </style>
 </head>
 <body>
@@ -781,7 +782,7 @@ html[data-theme="dark"] .vterms{border-top-color:#45577a;border-right-color:#455
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '5.75';
+const APP_VER = '5.76';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
@@ -2416,7 +2417,9 @@ function seasNow(){
   box.classList.toggle('hidden', !v);
   if(!v){ seasOpen(false); return; }
   const se = ((V.data && V.data.season) || {})[v];
-  $('sNow').textContent = se ? `Nasazeny ${se.s.toLowerCase()} pneumatiky od ${seasDm(se.d)}` : 'Přezutí zatím není zapsané.';
+  const dy = se ? se.d.split('-').reverse().map(Number).join('.') : '';   // V5.76: datum s rokem, bez mezer
+  $('sNow').innerHTML = se ? `<div class="srow"><span>Nasazeno</span><b>${esc(se.s)} pneumatiky</b></div><div class="srow"><span>Přezuto</span><b>${dy}</b></div>`
+    : '<div class="srow"><span>Nasazeno</span><b class="sna">nezapsáno</b></div>';
 }
 async function sendSeason(){
   msg('sMsg', '', '');
