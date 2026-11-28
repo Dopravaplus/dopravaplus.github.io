@@ -583,7 +583,7 @@ html[data-theme="dark"] .vterms{border-top-color:#45577a;border-right-color:#455
       <div id="sMsg" class="msg"></div>
       <button type="button" class="btn sec" id="sOpenBtn" style="width:100%" onclick="seasOpen(true)">Zapsat přezutí</button>
       <div id="sForm" class="hidden">
-        <div class="f"><label for="sSeason">Stav přezutí</label><select id="sSeason"><option value=""></option><option value="Zimní">Zimní pneumatiky</option><option value="Letní">Letní pneumatiky</option></select></div>
+        <div class="f"><label for="sSeason">Stav přezutí</label><select id="sSeason"><option value=""></option><option value="Zimní">Zimní pneumatiky</option><option value="Letní">Letní pneumatiky</option><option value="Celoroční">Celoroční pneumatiky</option></select></div>
         <div class="f"><label for="sDate">Datum přezutí</label><input id="sDate" type="date"></div>
         <div class="fbtns"><button type="button" class="btn sec" onclick="seasOpen(false)">Zrušit</button><button type="button" class="btn" id="sSend" onclick="sendSeason()">Odeslat přezutí</button></div>
         <div class="hint hc" style="margin-bottom:0">Dispečink datum přezutí zapíše do karty vozidla.</div>
@@ -781,7 +781,7 @@ html[data-theme="dark"] .vterms{border-top-color:#45577a;border-right-color:#455
 <script>
 /* V3.14: automatická aktualizace – ikona na ploše (hlavně iPhone) drží starou stránku v mezipaměti.
    Po otevření se stránka zeptá GitHubu na aktuální verzi; když je novější, sama se načte znovu. */
-const APP_VER = '5.74';
+const APP_VER = '5.75';
 document.querySelectorAll('.appVer').forEach(e => e.textContent = APP_VER);   // V3.50: číslo verze vidět na přihlášení
 async function checkUpdate(){
   try{
